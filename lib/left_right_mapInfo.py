@@ -16,13 +16,12 @@ LR
 from datetime import datetime
 import math
 
-
 def getMapInfo(input):
     mapInfo = input[2:]
     mapDict = {}
 
     for i, row in enumerate(mapInfo):
-        row = row.replace(' ', '').replace('(', '').replace(')', '').replace('\n', '').replace('\r', '')
+        row = row.replace(' ', '').replace('(', '').replace(')', '').replace('\n','').replace('\r','')
         if not row:
             continue
         key_values = row.split('=')
@@ -32,7 +31,6 @@ def getMapInfo(input):
     mapDict['entryPoint'] = 'AAA'
     mapDict['exitPoint'] = 'ZZZ'
     return mapDict
-
 
 def convertMapInfoToGhostEntriesAndExits(mapDict):
     mapDict['entryPoints'] = []
@@ -49,7 +47,7 @@ def convertMapInfoToGhostEntriesAndExits(mapDict):
 
 def navigateToZZZ(leftRight, mapDict):
     print('---- navigate to ZZZ ----', leftRight, mapDict, '\n')
-    leftRight = list(leftRight * 1000000)
+    leftRight = list(leftRight*1000000)
     key = mapDict['entryPoint']
     for i, leftRight in enumerate(leftRight):
         if key == mapDict['exitPoint']:
@@ -62,42 +60,40 @@ def navigateToZZZ(leftRight, mapDict):
         raise ValueError('value not found in iterations: ' + str(i))
     return i
 
-
-def navigateToZ_Ghost(leftRightFull, mapDict, checkUniqueNess=False, maxIterations=100000000000):
+def navigateToZ_Ghost(leftRightFull, mapDict, checkUniqueNess = False):
     print('---- navigate to Z$ ----', leftRightFull, mapDict, '\n')
     keys = mapDict['entryPoints']
-    exitpoints = set(mapDict['exitPoints'])
-    print('exitpoints:', exitpoints)
-    lenKeys = len(keys)
     uniqueSteps = set()
-    leftRightLen = len(leftRightFull)
-    print('left right len', leftRightLen)
     jumpCount = 0
-
+    maxIterations = 10000000
     previousDateTime = datetime.now()
-    for j in range(maxIterations):
-        for i, leftRight in enumerate(leftRightFull):
-            if j % 10000 == 0:
-                if i == 0:
-                    print(f'Dumping info: {i=}, {j=}, {keys=}, {j*leftRightLen+i=}', 'Jump count: ', j, round(j / maxIterations * 100, 2), '% at', datetime.now(),
-                          datetime.now() - previousDateTime)
+    for g in range(maxIterations):
+        if jumpCount < 1000:
+            print(f'Jumping from last {leftRightFull[-2:]} to first again {leftRightFull[:2]}')
+        for h,leftRight in enumerate(leftRightFull):
+            for i, leftRight in enumerate(leftRight):
+                if jumpCount % 1000000 == 0:
+                    print('Jump count: ', jumpCount, round(g/maxIterations*100,2), '% at', datetime.now(), datetime.now() - previousDateTime)
                     previousDateTime = datetime.now()
-            if keys[0] in exitpoints and \
-                    keys[1] in exitpoints and \
-                    keys[2] in exitpoints and \
-                    keys[3] in exitpoints and \
-                    keys[4] in exitpoints and \
-                    keys[5] in exitpoints:
-                    return j,i
-            keys = [
-                mapDict[keys[0]][leftRight],
-                mapDict[keys[1]][leftRight],
-                mapDict[keys[2]][leftRight],
-                mapDict[keys[3]][leftRight],
-                mapDict[keys[4]][leftRight],
-                mapDict[keys[5]][leftRight]
-            ]
+                for key in keys:
+                    if key[-1] != 'Z':
+                        if jumpCount < 100:
+                            print('Found key that does not end on Z', key)
+                        break
+                else:
+                    return jumpCount
+                jumpCount += 1
+                keysOld = keys[:]
+                keys = []
+                for key in keysOld:
+                    keys.append(mapDict[key][leftRight])
+                if checkUniqueNess:
+                    tupleKeys = tuple(keys + [h])
+                    if tupleKeys in uniqueSteps:
+                        raise ValueError("We've been here before: " + str(tupleKeys), str(uniqueSteps)[:1000])
+                    uniqueSteps.add(tupleKeys)
+                if jumpCount < 100:
+                    print(jumpCount, 'jump', leftRight, 'from ', keysOld, 'to', keys)
     else:
-        print(f'Dumping info: {j=}, {i=}, {jumpCount=}, {keys=}')
         raise ValueError('value not found in iterations: ' + str(g))
-    return i + g * len(leftRightFull)
+    return i + g*len(leftRightFull)
