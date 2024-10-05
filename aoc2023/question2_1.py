@@ -1,4 +1,4 @@
-with open('input2.txt') as handle:
+with open('aoc2023/input2_coloured_cubes_games.txt') as handle:
     text = handle.readlines()
 
 maxCount = {

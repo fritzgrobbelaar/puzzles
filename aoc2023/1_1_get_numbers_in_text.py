@@ -1,26 +1,23 @@
-with open('input.txt') as handle:
-    text = handle.readlines()
+from lib import cleaninput
+
+listOfText = cleaninput.getfileInputLinesAsList('aoc2023/input1_numbers_in_text.txt')
 
 total = 0
-for i,row in enumerate(text):
+for i, row in enumerate(listOfText):
     print('row:', row)
     first = ''
     last = ''
 
     for character in row:
         if character.isdigit():
-            first=character
+            first = character
             break
 
     reversed = list(row)
     reversed.reverse()
-    print('row:', row,'reversed:', reversed)
     for character in reversed:
         if character.isdigit():
-            last=character
+            last = character
             break
-    print('first:',first,'last:', last)
     total = total + int(first + last)
     print('row:', i, first + last, 'total:', total)
-
-

@@ -1,4 +1,4 @@
-with open('input.txt') as handle:
+with open('input1_numbers_in_text.txt') as handle:
     text = handle.readlines()
 
 numberStrings = {
