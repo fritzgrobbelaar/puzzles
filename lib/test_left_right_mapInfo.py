@@ -90,5 +90,13 @@ class TestMap(unittest.TestCase):
             pathsCount = navigateToZ_Ghost(self.ghostInput[0], ghostMap, checkUniqueNess=True)
         print(e.exception)
 
+    def test_countGhostNavigate_EndlessLoop_DumpInfo(self):
+        actualMap = getMapInfo(self.ghostInput)
+        ghostMap = convertMapInfoToGhostEntriesAndExits(actualMap)
+        with self.assertRaises(ValueError) as e:
+            pathsCount = navigateToZ_Ghost(self.ghostInput[0], ghostMap, checkUniqueNess=True, maxIterations=2)
+        print(e.exception)
+
+
 if __name__ == '__main__':
     unittest.main()

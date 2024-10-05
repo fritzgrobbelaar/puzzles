@@ -22,4 +22,6 @@ ghostMap = convertMapInfoToGhostEntriesAndExits(actualMap)
 print("Converted Map at", datetime.now())
 pathsCount = navigateToZ_Ghost(listOfText[0], ghostMap, checkUniqueNess=False)
 #gave up on 42000000
+#Tested 279 000 000 - 11% answer is 'too low'
+#Tested 2709000000 - too low
 print('Result:', pathsCount)
