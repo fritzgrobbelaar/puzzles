@@ -1,4 +1,4 @@
-from lib.mapInfo import *
+from lib.left_right_mapInfo import *
 from lib import cleaninput
 
 input1 = '''RL
