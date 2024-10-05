@@ -74,8 +74,11 @@ def navigateToZ_Ghost(leftRightFull, mapDict, checkUniqueNess=False, maxIteratio
     print('left right len', leftRightLen)
     jumpCount = 0
 
+    keys = ['PQB', 'LGL', 'FVP', 'FRJ', 'KSV', 'LXM']
+    startIteration = 5960000
+
     previousDateTime = datetime.now()
-    for j in range(maxIterations):
+    for j in range(startIteration, maxIterations):
         for i, leftRight in enumerate(leftRightFull):
             if j % 10000 == 0:
                 if i == 0:
