@@ -97,3 +97,70 @@ def navigateToZ_Ghost(leftRightFull, mapDict, checkUniqueNess = False):
     else:
         raise ValueError('value not found in iterations: ' + str(g))
     return i + g*len(leftRightFull)
+
+def getfirstHitsAndFrequencies(leftRightFull, mapDict, checkUniqueNess = False):
+    print('---- navigate to Z$ ----', leftRightFull, mapDict, '\n')
+    keys = mapDict['entryPoints']
+    uniqueSteps = set()
+    jumpCount = 0
+    maxIterations = 10000000
+    previousDateTime = datetime.now()
+    firstHits = []
+    for key in keys:
+        firstHits.append([])
+    for g in range(maxIterations):
+        # if jumpCount < 1000:
+        #     print(f'Jumping from last {leftRightFull[-2:]} to first again {leftRightFull[:2]}')
+        for h,leftRight in enumerate(leftRightFull):
+            for i, leftRight in enumerate(leftRight):
+                if jumpCount % 1000000 == 0:
+                    print('Jump count: ', jumpCount, round(g/maxIterations*100,2), '% at', datetime.now(), datetime.now() - previousDateTime)
+                    previousDateTime = datetime.now()
+                for i, key in enumerate(keys):
+                    if key[-1] == 'Z':
+                        firstHits[i].append(jumpCount)
+
+                jumpCount += 1
+                keysOld = keys[:]
+                keys = []
+                for key in keysOld:
+                    keys.append(mapDict[key][leftRight])
+                if jumpCount < 100:
+                    print(jumpCount, 'jump', leftRight, 'from ', keysOld, 'to', keys)
+                for i,key in enumerate(keys):
+                    if len(firstHits[i]) < 4:
+                        break
+                else:
+                    return firstHits
+    else:
+        raise ValueError('value not found in iterations: ' + str(g))
+    return i + g*len(leftRightFull)
+
+def syncTwoCycles(start1, start2, frequency1, frequency2):
+    print(f'Syncing {start1=} {start2=} {frequency1=} {frequency2=}')
+    number = frequency1
+    while number % frequency2 != 0:
+        number += frequency1
+    frequency = number
+
+    for i in range(100):
+        if ((start1 - start2) % frequency2 == 0) and (start1 >= start2):
+            break
+        start1 += frequency1
+    print(f'Completed sync {start1=} {frequency=}')
+    return start1, frequency
+
+
+def calculateAnswerFromFirstHits(firstHits):
+    frequencies = []
+    starts = []
+    for firstHit in firstHits:
+        frequencies.append(firstHit[-1] - firstHit[-2])
+        starts.append(firstHit[0])
+    start1 = starts[0]
+    frequency1 = frequencies[0]
+    print(starts, frequencies)
+    for i, startItem in enumerate(starts[1:]):
+        start1, frequency1 = syncTwoCycles(start1, startItem, frequency1, frequencies[i+1])
+
+    return start1, frequency1

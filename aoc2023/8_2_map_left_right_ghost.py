@@ -16,10 +16,10 @@ input1 = '''LR
 fileInput = cleaninput.getfileInputLinesAsList('aoc2023\\input8_map_left_right.txt')
 print("Read file at", datetime.now())
 listOfText = fileInput
+#listOfText = input1
 actualMap = getMapInfo(listOfText)
-print("Got actual Map at", datetime.now())
 ghostMap = convertMapInfoToGhostEntriesAndExits(actualMap)
-print("Converted Map at", datetime.now())
-pathsCount = navigateToZ_Ghost(listOfText[0], ghostMap, checkUniqueNess=False)
-#gave up on 42000000
-print('Result:', pathsCount)
+firstHits = getfirstHitsAndFrequencies(listOfText[0], ghostMap)
+print('firstHits:', firstHits)
+syncedNumber, frequency = calculateAnswerFromFirstHits(firstHits)
+print('syncedNumber:', syncedNumber)
