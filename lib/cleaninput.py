@@ -1,5 +1,6 @@
+import os
 def getfileInputLinesAsList(fileName):
-    with open(fileName) as handle:
+    with open(os.getcwd() + '/' + fileName) as handle:
         text = handle.readlines()
 
     textNew = []
