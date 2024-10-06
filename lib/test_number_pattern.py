@@ -1,5 +1,9 @@
-from number_pattern import extrapolatePattern, buildNumberPyramid
+from number_pattern import extrapolatePattern, buildNumberPyramid, extrapolatePatternReversed
 
+assert extrapolatePatternReversed( [10, 13, 16, 21, 30, 45]) == 5
+print('success68')
+
+exit()
 input = [0, 3, 6, 9, 12, 15]
 assert buildNumberPyramid(input) == [[0, 3, 6, 9, 12, 15],
                                      [3, 3, 3, 3, 3],
