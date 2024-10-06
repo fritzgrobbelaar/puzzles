@@ -1,6 +1,7 @@
 from lib.left_right_mapInfo import *
 from lib import cleaninput
 from datetime import datetime
+started = datetime.now()
 
 input1 = '''LR
 
@@ -23,3 +24,4 @@ firstHits = getfirstHitsAndFrequencies(listOfText[0], ghostMap)
 print('firstHits:', firstHits)
 syncedNumber, frequency = calculateAnswerFromFirstHits(firstHits)
 print('syncedNumber:', syncedNumber)
+print('endend', datetime.now(), started, datetime.now() - started)

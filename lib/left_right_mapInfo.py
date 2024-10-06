@@ -125,8 +125,6 @@ def getfirstHitsAndFrequencies(leftRightFull, mapDict, checkUniqueNess = False):
                 keys = []
                 for key in keysOld:
                     keys.append(mapDict[key][leftRight])
-                if jumpCount < 100:
-                    print(jumpCount, 'jump', leftRight, 'from ', keysOld, 'to', keys)
                 for i,key in enumerate(keys):
                     if len(firstHits[i]) < 4:
                         break
