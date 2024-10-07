@@ -82,7 +82,7 @@ def navigatePipesAndCountLength(grid, startLocation):
         nextLocation = getNextLocationPipes(grid, nextLocation)
         print(nextLocation)
         grid[oldLocation[0]][oldLocation[1]] = '*'
-        if count> 1000:
+        if count> 100000:
             raise Exception('Soft Limit reached', count)
     return count/2
 
