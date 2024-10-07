@@ -53,7 +53,8 @@ def getNextLocationPipes(grid, currentLocation):
         'J': [def_above, def_to_left],
         '|': [def_above, def_below],
         '7': [def_to_left, def_below],
-        '.': []
+        '.': [],
+        '*': []
     }
 
     for (i, j) in [above, to_right, to_left, below]:
@@ -79,8 +80,9 @@ def navigatePipesAndCountLength(grid, startLocation):
         count = count + 1
         oldLocation = nextLocation
         nextLocation = getNextLocationPipes(grid, nextLocation)
-        print("next step:", nextLocation)
-        grid[oldLocation[0]][oldLocation[1]] = '.'
-        if count> 100000:
-            raise Exception('Limit reached')
+        print(nextLocation)
+        grid[oldLocation[0]][oldLocation[1]] = '*'
+        if count> 1000:
+            raise Exception('Soft Limit reached', count)
     return count/2
+
