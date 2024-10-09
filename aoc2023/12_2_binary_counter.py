@@ -3,8 +3,8 @@ listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input12.txt')
 
 
 input_sample = '''???.### 1,1,3
-.??..??...?##. 1,1,3
-?#?#?#?#?#?#?#? 1,3,1,6
+.??..??...?##. 1,1,3'''.split('\n')
+test1='''?#?#?#?#?#?#?#? 1,3,1,6
 ????.#...#... 4,1,1
 ????.######..#####. 1,6,5
 ?###???????? 3,2,1'''.split('\n')
@@ -56,67 +56,70 @@ rows = input_sample
 # assert '000001111' == replaceWithBinary('000??1?11', '001')
 # assert '0100101111' == replaceWithBinary('0?00??1?11', '1101')
 
-def getRemainingIdsAndStrings(id, row):
-
+def getRemainingStrings(id, row):
+    id = int(id)
     searchString = '#'*id
     print('\nsearching for id', id,' in ', row)
     idsAndStrings = []
     length = len(row)
     for i in range(length):
-        print("entered for-loop", i, length)
+       # print("entered for-loop", i, length)
         if '.' != row[i]:
             if len(searchString) + i == length:
-                print("Last string matched", i, length, searchString, len(searchString))
+      #          print("Last string matched", i, length, searchString, len(searchString))
                 if len(row) > id:
                     lookBefore = row[i-1]
                     if lookBefore != '#':
-                        idsAndStrings.append((i, ''))
+                        idsAndStrings.append('')
                     else:
-                        print("Look before disqualifies this ", i)
+                        pass
+     #                   print("Look before disqualifies this ", i)
                 else:
-                    idsAndStrings.append((i, ''))
-            else:
-                print('index: ', i+len(searchString) + 1,  row[i + len(searchString)])
+                    idsAndStrings.append('')
+            elif len(searchString)+i < length:
+    #            print('index: ', i+len(searchString) + 1,  row[i + len(searchString)])
                 if row[i + len(searchString)] in ['?', '.']:
-                    print("appending", i)
-                    idsAndStrings.append((i, row[i + len(searchString)+1:]))
+   #                 print("appending", i)
+                    idsAndStrings.append(row[i + len(searchString)+1:])
     print("returning", idsAndStrings)
     return idsAndStrings
 
-assert [(0, '')] == getRemainingIdsAndStrings(1, '#')
-assert [] == getRemainingIdsAndStrings(1, '##')
-assert [(0, '')] == getRemainingIdsAndStrings(1, '#?')
-assert [(0, ''), (1, '')] == getRemainingIdsAndStrings(1, '??')
-assert [(1, '')] == getRemainingIdsAndStrings(1, '?#')
-assert [(0, '?'), (2, '')] == getRemainingIdsAndStrings(1, '?.?')
-assert [(0, '.?')(1, '?'), (3, '')] == getRemainingIdsAndStrings(1, '#?.?')
-
+#assert [''] == getRemainingStrings(1, '#')
+#assert [] == getRemainingStrings(1, '##')
+#assert [''] == getRemainingStrings(1, '#?')
+#assert ['', ''] == getRemainingStrings(1, '??')
+#assert [''] == getRemainingStrings(1, '?#')
+#assert ['?', ''] == getRemainingStrings(1, '?.?')
+#assert ['.?','?', ''] == getRemainingStrings(1, '#?.?')
+#print("passed all unit tests")
 
 def calculateRemainingCombinations(remainingRow, remainingIds):
     print('processing row', remainingRow, remainingIds)
     consumingID = remainingIds[0]
     newRemainingIds = remainingIds[1:]
-    remainingIdsAndStrings = getRemainingIdsAndStrings(consumingID, remainingRow)
-    for remaining in remainingIdsAndStrings:
-        calculateRemainingCombinations()
+    remainingStrings = getRemainingStrings(consumingID, remainingRow)
+    count = 0
+    for remaining in remainingStrings:
+        if len(newRemainingIds) == 0:
+            print("Found a matching one! returning", len(remainingStrings))
+            return len(remainingStrings)
+        else:
+            count += calculateRemainingCombinations(remaining, newRemainingIds)
+            print("received", count)
+    print("returning counts added ", count )
+    return count
 
-
-
-    # for binaryString in map(''.join, itertools.product('01', repeat=countUnknowns(row))):
-    #     binaryString = replaceWithBinary(row, binaryString)
-    #     if doesIdsMatch(binaryString, ids):
-    #         if doesStringMatch(binaryString, row):
-    #             print('match: ', binaryString, row, ids)
-    #             total+=1
-    return total
+#assert 1 == calculateRemainingCombinations('#', [1])
+#assert 2 == calculateRemainingCombinations('??', [1])
+#print('passed')
 
 finalTotal = 0
-
 for i,row in enumerate(rows):
     row, ids = row.split(' ')
-    row = row*2
-    ids = ids = ','.join([ids]*2)
+    row = row
+    ids = ids.split(',')
     result = calculateRemainingCombinations(row, ids)
+    print("received result", result)
     #print('comparing, ', result, ' and', answers[i], row, i)
     #assert answers[i] == result
     finalTotal += result
