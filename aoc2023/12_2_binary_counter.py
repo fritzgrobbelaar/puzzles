@@ -19,7 +19,7 @@ rows = input_sample
 def getRemainingStrings(id, row):
     id = int(id)
     searchString = '#'*id
- #   print('searching for id', id,' in ', row)
+    print('searching for id', id,' in ', row)
     idsAndStrings = []
     length = len(row)
     for i in range(length):
@@ -46,7 +46,7 @@ def getRemainingStrings(id, row):
     #                          'and behind is good',row[i-1], 'remaining row', row[i + len(searchString):],
      #                         'appending value ', row[i + len(searchString)+1:])
                         idsAndStrings.append(row[i + len(searchString)+1:])
- #   print("returning", idsAndStrings)
+    print("returning", idsAndStrings)
     return idsAndStrings
 
 assert [''] == getRemainingStrings(1, '#')
@@ -63,6 +63,20 @@ assert ['???#.', '#.', ''] == getRemainingStrings(2, '?##????#.')
 assert ['????#.', '?#.','#.', ''] == getRemainingStrings(2, '?##?????#.')
 assert ['????##.', '?##.','##.', ''] == getRemainingStrings(2, '?##?????##.')
 assert ['?????###.', '?###.','###.', ''] == getRemainingStrings(3, '?###??????###.')
+
+assert ['??????###????????',
+        '?????###????????',
+        '????###????????',
+        '???###????????',
+        '??###????????',
+        '?###????????',
+        '###????????',
+        '????',
+        '???',
+        '??',
+        '?',
+        '',
+        ''] == getRemainingStrings(2, '?????????###????????')
 
 assert '?????????###????????' == getRemainingStrings(3, '?###??????????###????????')[0]
 assert '?????###????????' == getRemainingStrings(3, '?###??????????###????????')[1]
@@ -91,22 +105,29 @@ assert ['????', '???', '??', '?', '', ''] == getRemainingStrings(2, '??###??????
 #print("passed all unit tests")
 
 def calculateRemainingCombinations(row, remainingIds):
+    print('\nprocessing row', row, 'with remainingIds', remainingIds)
+
     if len(remainingIds) > len(row): return 0
- #   print('\nprocessing row', row, 'with remainingIds', remainingIds)
+    #print('\nprocessing row', row, 'with remainingIds', remainingIds)
     consumingID = remainingIds[0]
     newRemainingIds = remainingIds[1:]
     remainingStrings = getRemainingStrings(consumingID, row)
     count = 0
     for remaining in remainingStrings:
-    #    print("Getting remaining", remaining)
+        print("Getting remaining", remaining)
         if len(newRemainingIds) == 0:
-   #         print("Found no ids remaining! returning", len(remainingStrings), 'string remaining',
-    #              remainingStrings, 'started with', row)
-            return len(remainingStrings)
+            print("Found no ids remaining! returning", len(remainingStrings), 'string remaining',
+                  remainingStrings, 'started with', row)
+            count3 = 0
+            for string in remainingStrings:
+                if '#' not in string:
+                    count3 += 1
+            return count3
         else:
             count += calculateRemainingCombinations(remaining, newRemainingIds)
   #          print("received", count)
     if count != 0:
+        pass
         print("returning counts added ", count, 'from',row, 'and', remainingIds )
     return count
 
@@ -118,7 +139,7 @@ rowFinal = []
 finalTotal = 0
 for i,row in enumerate(rows):
     row, ids = row.split(' ')
-    row = row + '?' + row #+'?' + row+'?' + row+'?' + row
+    row = row + '?' #+ row #+'?' + row+'?' + row+'?' + row
     ids = ids.split(',')*2
     result = calculateRemainingCombinations(row, ids)
     print("received result", result)
