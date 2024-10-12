@@ -1,4 +1,5 @@
 import cleaninput
+from datetime import datetime
 listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input12.txt')
 
 
@@ -11,7 +12,7 @@ input_sample = '''???.### 1,1,3
 
 answers = [1, 4, 1, 1, 4, 10]
 
-rows = input_sample
+rows = listOfText_Puzzle
 
 def doesStringMatch(binaryString, originalString):
     binary = list(binaryString)
@@ -68,7 +69,7 @@ def calculateCombinations(row):
     total = 0
     import itertools
     
-    for binaryString in map(''.join, itertools.product('01', repeat=countUnknowns(row))):
+    for binaryString in map(''.join, itertools.product('01', repeat=len(row))):
         if doesStringMatch(binaryString, row):
             #print('match: ', binaryString, row, ids)
             if doesIdsMatch(binaryString, ids):
@@ -76,13 +77,13 @@ def calculateCombinations(row):
     return total
 
 finalTotal = 0
-
+start = datetime.now()
 for i,row in enumerate(rows):
     result = calculateCombinations(row)
-    print('comparing, ', result, ' and', answers[i], row, i)
-    assert answers[i] == result
+    #print('comparing, ', result, ' and', answers[i], row, i)
+    #assert answers[i] == result
     finalTotal += result
     print('row', i, 'of', len(rows))
 
-print('finalTotal', finalTotal)
+print('finalTotal', finalTotal,'in', datetime.now()-start)
 
