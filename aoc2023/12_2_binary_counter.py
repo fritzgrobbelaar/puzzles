@@ -137,8 +137,10 @@ def doesIdsMatch(binaryString, ids):
 def calculateRemainingCombinations(row, remainingIds, depth):
     #print('\nprocessing row', row, 'with remainingIds', remainingIds)
     a = ('\nprocessing row', row, 'with remainingIds', remainingIds, 'depth:', depth)
-
-    if len(remainingIds) > len(row):
+    minimumStringRequired = len(remainingIds)
+    minimumStringRequired += sum([int(value) for value in remainingIds])
+    minimumStringRequired -= 2
+    if minimumStringRequired >= len(row):
         a =('returning early')
         return []
     consumingID = remainingIds[0]
@@ -230,11 +232,12 @@ for i,row in enumerate(rows):
     #print('result', len(result))
     finalTotal += len(result)
     rowFinal.append(result)
-    print('row', i, 'of', len(rows), len(result))
+    print('row', i+1, 'of', len(rows), len(result))
     if i > 11:
         break
 #total: 6827 in 3sec8 - power 1
 # power 2: 14 seconds
+#sample, power 5, 16 seconds
 print('finalTotal', finalTotal, 'in', datetime.now()-start)
 #print(rowFinal)
 
