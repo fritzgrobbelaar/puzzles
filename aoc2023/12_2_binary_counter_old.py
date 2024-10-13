@@ -10,14 +10,14 @@ input_sample = '''???.### 1,1,3
 ????.######..#####. 1,6,5
 ?###???????? 3,2,1'''.split('\n')
 
-#input_sample='''?###???.???###???? 3,2,1,3'''.split('\n')
+input_sample='''?###???.???###???? 3,2,1,3'''.split('\n')
 #input_sample='''###???? 3'''.split('\n')
 
 
 answers = [1, 4, 1, 1, 4, 10,1]
 
 rows = input_sample
-rows= listOfText_Puzzle
+#rows= listOfText_Puzzle
 
 def getRemainingStrings(id, row):
     id = int(id)
@@ -240,8 +240,8 @@ for i,row in enumerate(rows):
     #print('-----Processing new row', row, 'at', datetime.now())
     
     row, ids = row.split(' ')
-    row = row + '?' + row +'?' + row+'?' + row+'?' + row
-    ids = ids.split(',')*5
+    row = row #+ '?' + row #+'?' + row+'?' + row+'?' + row
+    ids = ids.split(',')
     
     print('-----Processing new row', row, ','.join(ids), 'at', datetime.now())
     result = calculateRemainingCombinations(row, ids, depth=0)
