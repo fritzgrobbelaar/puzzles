@@ -56,7 +56,7 @@ def calculate(row, ids):
                     count= calculate(row[consumingID+1:], remainingIDs)
                     totalCount += count
                     print(f'received from lets go deeper with',row[consumingID+1:], remainingIDs,'adding:',count)
-                row = row[consumingID+1:]
+                row = row[consumingID:]
         else:
             print('nothing to see here', row, ids)
             row = row[1:]
