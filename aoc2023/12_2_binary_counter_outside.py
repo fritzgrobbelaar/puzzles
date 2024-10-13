@@ -13,11 +13,36 @@ input_sample = '''???.### 1,1,3
 ?###???????? 3,2,1'''.split('\n')
 
 #input_sample='''?###???????? 3,2,1'''.split('\n')
-#input_sample='''??#??#?? 1,1'''.split('\n')
+input_sample='''??#??#?? 1,1'''.split('\n')
 
 
 rows = input_sample
 #rows= listOfText_Puzzle
+
+def _solutions(row, pattern):
+    permutations = defaultdict(int)
+    
+    permutations[(0, 0)] = 1 # key is (group_id, group_amount)
+    print(permutations)
+    for c in row:
+        next = []
+        for key, perm_count in permutations.items():
+            group_id, group_amount = key
+            if c != '#':
+                if group_amount == 0:
+                    next.append((group_id, group_amount, perm_count))
+                elif group_amount == pattern[group_id]:
+                    next.append((group_id + 1, 0, perm_count))
+            if c != '.':
+                if group_id < len(pattern) and group_amount < pattern[group_id]:
+                    next.append((group_id, group_amount + 1, perm_count))
+        permutations.clear()
+        for group_id, group_amount, perm_count in next:
+            permutations[(group_id, group_amount)] += perm_count
+
+    def is_valid(group_id, group_amount):
+         return group_id == len(pattern) or group_id == len(pattern) - 1 and group_amount == pattern[group_id]
+    return sum(v for k, v in permutations.items() if is_valid(*k))
 
 def calculate(row, ids):
   #  print('\nstarting with ',row,ids)
@@ -72,7 +97,7 @@ for i,row in enumerate(rows):
     row = row + '?' + row +'?' + row+'?' + row+'?' + row
     ids = ids.split(',')*5
     ids = [int(id) for id in ids]
-    result = calculate(row, ids)
+    result = _solutions(row, ids)
 
     finalTotal += result
     rowFinal.append(result)

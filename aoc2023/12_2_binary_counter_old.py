@@ -137,6 +137,8 @@ def doesIdsMatch(binaryString, ids):
 #    print('returning false from doesIdsMatch', binaryString, lengths, ids)
     return False
 
+memory = {}
+
 def calculateRemainingCombinations(row, remainingIds, depth):
     #print('\nprocessing row', row, 'with remainingIds', remainingIds)
     a = ('\nprocessing row', row, 'with remainingIds', remainingIds, 'depth:', depth)
@@ -174,7 +176,13 @@ def calculateRemainingCombinations(row, remainingIds, depth):
                   'newRemainingIds:', newRemainingIds,
                   'consumingId:', consumingID,
                   'i',i)
-            received = calculateRemainingCombinations(remaining, newRemainingIds, depth+1)
+            arguments = tuple([remaining, tuple(newRemainingIds), depth+1])
+            #print('arguments',arguments)
+            if arguments in memory.keys():
+                received = memory[arguments]
+            else:
+                received = calculateRemainingCombinations(*arguments)
+                memory[arguments] = received
             if received == []:
                 continue
             fullReceived = []
@@ -196,6 +204,7 @@ def calculateRemainingCombinations(row, remainingIds, depth):
     if depth== 0:
         print("Bringing results down from, ",len(reconstructResult))
         reconstructResult = list(set(reconstructResult))
+        print('list set part is done')
         finalResult = []
         for reconstruct in reconstructResult:
             if doesIdsMatch(reconstruct, remainingIds):
@@ -223,16 +232,16 @@ def calculateStartingWithIds(row, ids):
             for j in row:
                 pass
         
-
 rowFinal = []
 finalTotal = 0
 start = datetime.now()
 for i,row in enumerate(rows):
+    memory = {}
     #print('-----Processing new row', row, 'at', datetime.now())
     
     row, ids = row.split(' ')
-    row = row + '?' + row +'?' + row#+'?' + row+'?' + row
-    ids = ids.split(',')*3
+    row = row + '?' + row +'?' + row+'?' + row+'?' + row
+    ids = ids.split(',')*5
     
     print('-----Processing new row', row, ','.join(ids), 'at', datetime.now())
     result = calculateRemainingCombinations(row, ids, depth=0)
