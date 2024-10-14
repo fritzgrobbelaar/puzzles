@@ -2,7 +2,7 @@ import cleaninput
 from datetime import datetime
 from collections import defaultdict
 from itertools import repeat
-listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input13.txt')
+listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input14.txt')
 
 
 input_sample = '''O....#....
@@ -16,7 +16,9 @@ O.#..O.#.#
 #....###..
 #OO..#....'''.split('\n')
 
-input = input_sample
+input = listOfText_Puzzle
+#input = input_sample
+
 
 rows = []
 for row in input:
