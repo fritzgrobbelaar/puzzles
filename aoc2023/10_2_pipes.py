@@ -47,8 +47,7 @@ raw_grid = listOfText_Puzzle
 #raw_grid = listOfText_Sample1
 
 
-from text_grid import findLocationsOfLetters, navigatePipesAndCountLength, countDots
-
+from text_grid import findLocationsOfLetters, navigatePipesAndCountLength
 grid = []
 for row in raw_grid:
     grid.append(list(row))
@@ -62,8 +61,53 @@ print('grid')
 for row in grid:
     print(row)
 
+
+def countDots(grid, originalGrid):
+    print('grid\n', grid)
+    for row in grid:
+        print(''.join(row))
+    print('originalGrid:\n',originalGrid)
+
+    for row in originalGrid:
+        print(''.join(row))
+    tiles = 0
+    openCharacter = None
+    flip = False
+    for i,row in enumerate(grid):
+        inside = False
+        for j,value in enumerate(row):
+            originalValue = originalGrid[i][j]
+            if inside and value != '*':
+                tiles += 1
+            elif value == '*' and originalValue not in ['-']:
+                if originalValue == '|':
+                    flip = True
+                elif openCharacter == 'F':
+                    openCharacter = None
+                    if originalValue == 'J':
+                        flip = False
+                    else:
+                        flip = True
+                elif openCharacter == 'L':
+                    openCharacter = None
+                    if originalValue == '7':
+                        flip = False
+                    else:
+                        flip = True
+                else:
+                    openCharacter = originalValue
+                    flip = True
+                if flip:
+                    if inside:
+                        inside = False
+                    else:
+                        inside = True
+
+    return tiles
+
+
 print('original grid')
 for row in originalGrid:
     print(''.join(row))
-print('count:', countDots(originalGrid))
+print('count:', countDots(grid, originalGrid))
 
