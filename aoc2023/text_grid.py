@@ -86,45 +86,45 @@ def navigatePipesAndCountLength(grid, startLocation):
             raise Exception('Soft Limit reached', count)
     return count / 2
 
-def countDots(grid, originalGrid):
 
-    print('grid\n', grid)
-    for row in grid:
-        print(''.join(row))
-    print('originalGrid:\n',originalGrid)
+def countDotsSurroundedByPipes(originalGrid):
+    print('originalGrid:\n', originalGrid)
 
     for row in originalGrid:
         print(''.join(row))
     tiles = 0
     openCharacter = None
     flip = False
-    for i,row in enumerate(grid):
+    for i, row in enumerate(originalGrid):
+        print('i', row)
         inside = False
-        for j,value in enumerate(row):
-            originalValue = originalGrid[i][j]
-            if inside and value != '*':
+        for j, value in enumerate(row):
+            print(f'{inside=}')
+            flip = False
+            if inside and value == '.':
                 tiles += 1
-            elif value == '*' and originalValue not in ['-']:
-                if originalValue == '|':
-                    flip = True
-                elif openCharacter == 'F':
-                    openCharacter = None
-                    if originalValue == 'J':
-                        flip = False
-                    else:
-                        flip = True
-                elif openCharacter == 'L':
-                    openCharacter = None
-                    if originalValue == '7':
-                        flip = False
-                    else:
-                        flip = True
+
+            if value == '|':
+                flip = True
+            elif value == 'F':
+                openCharacter = None
+                if value == 'J':
+                    flip = False
                 else:
-                    openCharacter = originalValue
                     flip = True
-                if flip:
-                    if inside:
-                        inside = False
-                    else:
-                        inside = True
+            elif openCharacter == 'L':
+                openCharacter = None
+                if value == '7':
+                    flip = False
+                else:
+                    flip = True
+            elif value in ['F', 'L']:
+                print('setting open character because of ', f'{value}')
+                openCharacter = value
+                flip = True
+            if flip:
+                if inside:
+                    inside = False
+                else:
+                    inside = True
     return tiles

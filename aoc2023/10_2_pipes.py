@@ -1,4 +1,4 @@
-# Actually 10_2
+
 import cleaninput
 from text_grid import findLocationsOfLetters
 
@@ -44,7 +44,7 @@ L.L7LFJ|||||FJL7||LJ
 L7JLJL-JLJLJL--JLJ.L'''.split('\n')
 
 raw_grid = listOfText_Puzzle
-raw_grid = listOfText_Sample1
+#raw_grid = listOfText_Sample1
 
 
 from text_grid import findLocationsOfLetters, navigatePipesAndCountLength, countDots
@@ -65,5 +65,5 @@ for row in grid:
 print('original grid')
 for row in originalGrid:
     print(''.join(row))
-print('count:', countDots(grid, originalGrid))
+print('count:', countDots(originalGrid))
 
