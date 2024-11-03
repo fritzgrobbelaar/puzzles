@@ -2,106 +2,108 @@
 import cleaninput
 from text_grid import findLocationsOfLetters
 
-listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input10.txt')
+listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input18.txt')
 
-listOfText_Sample1='''.....
-.S-7.
-.|.|.
-.L-J.
-.....'''.split('\n')
+listOfText_Sample1='''R 6 (#70c710)
+D 5 (#0dc571)
+L 2 (#5713f0)
+D 2 (#d2c081)
+R 2 (#59c680)
+D 2 (#411b91)
+L 5 (#8ceee2)
+U 2 (#caa173)
+L 1 (#1b58a2)
+U 2 (#caa171)
+R 2 (#7807d2)
+U 3 (#a77fa3)
+L 2 (#015232)
+U 2 (#7a21e3)'''.split('\n')
 
-listOfText_Sample2='''...........
-.S--------7.
-.|.F-----7|.
-.|.|.....||.
-.|.|.....||.
-.|.L-7.F-J|.
-.|...|.|..|.
-.L---J.L--J.
-............'''.split('\n')
-
-listOfText_Sample3='''.F----7F7F7F7F-7....
-.|F--7||||||||FJ....
-.||.FJ||||||||L7....
-FJL7L7LJLJ||LJ.L-7..
-L--J.L7...LJS7F-7L7.
-....F-J..F7FJ|L7L7L7
-....L7.F7||L7|.L7L7|
-.....|FJLJ|FJ|F7|.LJ
-....FJL-7.||.||||...
-....L---J.LJ.LJLJ...
-'''.split('\n')
-
-listOfText_Sample4='''FF7FSF7F7F7F7F7F---7
-L|LJ||||||||||||F--J
-FL-7LJLJ||||||LJL-77
-F--JF--7||LJLJ7F7FJ-
-L---JF-JLJ.||-FJLJJ7
-|F|F-JF---7F7-L7L|7|
-|FFJF7L7F-JF7|JL---7
-7-L-JL7||F7|L7F-7F7|
-L.L7LFJ|||||FJL7||LJ
-L7JLJL-JLJLJL--JLJ.L'''.split('\n')
-
-raw_grid = listOfText_Puzzle
+listOfText_Sample2='''L 6 (#70c710)
+D 5 (#0dc571)
+R 2 (#5713f0)
+D 2 (#d2c081)
+L 2 (#59c680)
+D 2 (#411b91)
+R 5 (#8ceee2)
+U 2 (#caa173)
+R 1 (#1b58a2)
+U 2 (#caa171)
+L 2 (#7807d2)
+U 3 (#a77fa3)
+R 2 (#015232)
+U 2 (#7a21e3)'''.split('\n')
 
 
 
-from text_grid import findLocationsOfLetters, navigatePipesAndCountLength
+listOfText = listOfText_Puzzle
+listOfText = listOfText_Sample1
+#listOfText = listOfText_Sample2
 
 grid = []
-for row in raw_grid:
-    grid.append(list(row))
-import copy
-originalGrid = copy.deepcopy(grid)
-
-count = navigatePipesAndCountLength(grid,  findLocationsOfLetters(grid, ['S']) [0])
-print('count:', count)
-
-
-def countDots(grid, originalGrid):
-    print('grid\n', grid)
+def printGrid(points):
+    print('\n-- print grid')
+    minX=0
+    maxX=0
+    minY=0
+    maxY=0
+    for point in points:
+        x=point[0]
+        y=point[1]
+        if x < minX:
+            minX = x
+        if x > maxX:
+            maxX = x
+        if y < minY:
+            minY = y
+        if y > maxY:
+            maxY=y
+    width = maxX-minX
+    height = maxY-minY
+    grid = []
+    print(f'{height=} {width=}')
+    for i in range(height+1):
+        row = []
+        for j in range(width+1):
+            row.append('.')
+        grid.append(row)
+    #for row in grid:
+     #   print('grid',''.join(row))
+        
+    for point in points:
+        y=point[1]-minY
+        x=point[0]-minX
+        #print(f'{point=} {x=} {y=}')
+        grid[y][x] = '#'
+        
+    print('-- print grid2')
     for row in grid:
         print(''.join(row))
-    print('originalGrid:\n',originalGrid)
+    return grid
 
-    for row in originalGrid:
-        print(''.join(row))
-    tiles = 0
-    openCharacter = None
-    flip = False
-    for i,row in enumerate(grid):
-        inside = False
-        for j,value in enumerate(row):
-            originalValue = originalGrid[i][j]
-            if inside and value != '*':
-                tiles += 1
-            elif value == '*' and originalValue not in ['-']:
-                if originalValue == '|':
-                    flip = True
-                elif openCharacter == 'F':
-                    openCharacter = None
-                    if originalValue == 'J':
-                        flip = False
-                    else:
-                        flip = True
-                elif openCharacter == 'L':
-                    openCharacter = None
-                    if originalValue == '7':
-                        flip = False
-                    else:
-                        flip = True
-                else:
-                    openCharacter = originalValue
-                    flip = True
-                if flip:
-                    if inside:
-                        inside = False
-                    else:
-                        inside = True
-                        
-    return tiles
+recordChangeDirection = {}
+points = []
+points.append((0,0))
+point=(0,0)
+for row in listOfText:
+    x=point[0]
+    y=point[1]
+    rowList = row.split(' ')
+    d = rowList[0]
+    dis = int(rowList[1])
 
+    for i in range(dis):
+        if d == 'R':
+            x+=1
+        if d == 'L':
+            x-=1
+        if d == 'D':
+            y+=1
+        if d == 'U':
+            y-=1
+        point=(x,y)
+        points.append(point)
 
-print('count:', countDots(grid, originalGrid))
+print(points)                
+grid = printGrid(points)
 
