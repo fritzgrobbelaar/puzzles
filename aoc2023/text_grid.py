@@ -19,16 +19,16 @@ def getNextLocationPipes(grid, currentLocation):
     j = currentLocation[1]
 
     def def_above(i, j):
-        return (i-1, j)
+        return (i - 1, j)
 
     def def_to_right(i, j):
-        return (i , j+1)
+        return (i, j + 1)
 
     def def_to_left(i, j):
-        return (i, j-1)
+        return (i, j - 1)
 
     def def_below(i, j):
-        return (i+1, j)
+        return (i + 1, j)
 
     above = def_above(*currentLocation)
     to_right = def_to_right(*currentLocation)
@@ -72,7 +72,7 @@ def getNextLocationPipes(grid, currentLocation):
 
 
 def navigatePipesAndCountLength(grid, startLocation):
-    print('\n\n-----Starting \n', grid,'\n', startLocation)
+    print('\n\n-----Starting \n', grid, '\n', startLocation)
 
     nextLocation = startLocation[:]
     count = 0
@@ -82,7 +82,49 @@ def navigatePipesAndCountLength(grid, startLocation):
         nextLocation = getNextLocationPipes(grid, nextLocation)
         print(nextLocation)
         grid[oldLocation[0]][oldLocation[1]] = '*'
-        if count> 100000:
+        if count > 100000:
             raise Exception('Soft Limit reached', count)
-    return count/2
+    return count / 2
 
+def countDots(grid, originalGrid):
+
+    print('grid\n', grid)
+    for row in grid:
+        print(''.join(row))
+    print('originalGrid:\n',originalGrid)
+
+    for row in originalGrid:
+        print(''.join(row))
+    tiles = 0
+    openCharacter = None
+    flip = False
+    for i,row in enumerate(grid):
+        inside = False
+        for j,value in enumerate(row):
+            originalValue = originalGrid[i][j]
+            if inside and value != '*':
+                tiles += 1
+            elif value == '*' and originalValue not in ['-']:
+                if originalValue == '|':
+                    flip = True
+                elif openCharacter == 'F':
+                    openCharacter = None
+                    if originalValue == 'J':
+                        flip = False
+                    else:
+                        flip = True
+                elif openCharacter == 'L':
+                    openCharacter = None
+                    if originalValue == '7':
+                        flip = False
+                    else:
+                        flip = True
+                else:
+                    openCharacter = originalValue
+                    flip = True
+                if flip:
+                    if inside:
+                        inside = False
+                    else:
+                        inside = True
+    return tiles

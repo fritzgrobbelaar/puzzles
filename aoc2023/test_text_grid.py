@@ -75,4 +75,6 @@ def countDots(grid, originalGrid):
 print('grid',grid)
 print('count:', countDots(grid, originalGrid))
 
-
+grid = '''S-7
+|.|
+L-J'''

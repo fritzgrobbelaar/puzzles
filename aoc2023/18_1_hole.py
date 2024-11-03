@@ -1,5 +1,5 @@
 import cleaninput
-from text_grid import findLocationsOfLetters, navigatePipesAndCountLength
+from text_grid import countDotsSurroundedByPipes
 
 listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input18.txt')
 
@@ -90,7 +90,6 @@ for row in listOfText:
     rowList = row.split(' ')
     d = rowList[0]
     dis = int(rowList[1])
-    #elbows[point] = d
 
     for i in range(dis):
         if i == 0:
@@ -142,4 +141,6 @@ points[-1] = points[-1][0], points[-1][1],'F'
 print(points)
 grid = printGrid(points)
 
+totalInside = countDotsSurroundedByPipes(grid)
 print('elbows', elbows)
+print('totalInside', totalInside + len(points))
