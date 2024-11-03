@@ -34,8 +34,8 @@ R 2 (#015232)
 U 2 (#7a21e3)'''.split('\n')
 
 listOfText = listOfText_Puzzle
-listOfText = listOfText_Sample1
-# listOfText = listOfText_Sample2
+#listOfText = listOfText_Sample1
+#listOfText = listOfText_Sample2
 
 grid = []
 
@@ -133,14 +133,17 @@ for row in listOfText:
             y -= 1
         point = (x, y)
         prevD = d
-        points[-1] = points[-1][0], points[-1][1],p
+        points[-1] = points[-1][0], points[-1][1], p
         points.append(point)
 
-points[-1] = points[-1][0], points[-1][1],'F'
+points[-1] = points[-1][0], points[-1][1], 'F' #Remember to check starting condition
 
 print(points)
 grid = printGrid(points)
 
 totalInside = countDotsSurroundedByPipes(grid)
+print(f'{totalInside=}')
 print('elbows', elbows)
-print('totalInside', totalInside + len(points))
+print(len(points))
+print('set', len(set(points))) # should be one less
+print('totalInside', totalInside + len(set(points)))

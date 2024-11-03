@@ -95,31 +95,30 @@ def countDotsSurroundedByPipes(originalGrid):
     tiles = 0
     openCharacter = None
     flip = False
+    inside = False
     for i, row in enumerate(originalGrid):
-        print('i', row)
-        inside = False
+       # print(''.join(row),tiles, inside)
         for j, value in enumerate(row):
-            print(f'{inside=}')
-            flip = False
             if inside and value == '.':
                 tiles += 1
 
             if value == '|':
                 flip = True
-            elif value == 'F':
-                openCharacter = None
-                if value == 'J':
-                    flip = False
-                else:
-                    flip = True
-            elif openCharacter == 'L':
-                openCharacter = None
-                if value == '7':
-                    flip = False
-                else:
-                    flip = True
+            if value in ['J', '7']:
+                if openCharacter == 'F':
+                    openCharacter = None
+                    if value == 'J':
+                        flip = False
+                    elif value == '7':
+                        flip = True
+
+                elif openCharacter == 'L':
+                    openCharacter = None
+                    if value == '7':
+                        flip = False
+                    elif value == 'J':
+                        flip = True
             elif value in ['F', 'L']:
-                print('setting open character because of ', f'{value}')
                 openCharacter = value
                 flip = True
             if flip:
@@ -127,4 +126,7 @@ def countDotsSurroundedByPipes(originalGrid):
                     inside = False
                 else:
                     inside = True
+               # print('flipping on ', value, f'{inside=}')
+                flip = False
+    print('tiles count', tiles)
     return tiles
