@@ -19,7 +19,7 @@ listOfText_Sample1='''2413432311323
 4322674655533'''.split('\n')
 
 raw_grid = listOfText_Puzzle
-raw_grid = listOfText_Sample1
+#raw_grid = listOfText_Sample1
 
 height = len(raw_grid)
 width = len(raw_grid[0])
@@ -29,20 +29,53 @@ def getWeight(x,y):
     #print(f'Returning {weight=} for {x=} {y=}')
     return weight
 
-records = {}
+def printNextKeys(keys,chars=3):
+    grid = []
+    
+    for i,row in enumerate(raw_grid):
+        newRow = []
+        for value in row:
+            newRow.append('.'*chars)
+        grid.append(newRow)
+
+    for key in keys:
+        x=key[0]
+        y=key[1]
+        p=key[2]
+        grid[y][x] = (p+' ')[:chars]
+        
+
+    print('\n')
+    for row in grid:
+        print(''.join(row))
+
+    for key in keys:
+        x=key[0]
+        y=key[1]
+        p=key[2]
+        grid[y][x] = str(records[key])[:chars]
+        
+    print('\n')
+    for row in grid:
+        print(''.join(row))
+        
+records = {(0,0,'>0'):0}
 keysToNavigate = []
 x=0
 y=0
 p='>0'
 key = (x,y,p)
 keysToNavigate.append(key)
+printNextKeys(keysToNavigate)
+
 records[key] = 0
 results = []
 stepCounter = 0
 while keysToNavigate:
     stepCounter +=1
     nextKeys = []
-    print(f'\nStarted {keysToNavigate=} {records=}')
+    #printNextKeys(keysToNavigate)
+    #print(f'\nStarted {keysToNavigate=} {records=}')
     for key in keysToNavigate:
         #print(f'Processing {key=}')
         x=key[0]
@@ -50,7 +83,7 @@ while keysToNavigate:
         p=key[2]
 
         if (x < 0) or (y < 0) or x > (width-1) or (y > width-1):
-            print(f'Off grid {key=}')
+            #print(f'Off grid {key=}')
             continue
 
         if (x == width -1) and (y == height -1):
@@ -59,7 +92,7 @@ while keysToNavigate:
             continue
 
         curWeight = records[key]
-        print(f'-- Navigating {key=} {records[key]}')
+        #print(f'-- Navigating {key=} {records[key]}')
         for direc in ['>', '<', '^', 'v']:
 
             if direc == '>':
@@ -69,9 +102,8 @@ while keysToNavigate:
                     else:
                         newp = '>1'
                     nextKey = (x+1, y, newp)
-                    print(f'Adding {direc} {nextKey=}')
                 else:
-                    print(f'Not going {direc} {key=}')
+                    #print(f'Not going {direc} {key=}')
                     continue
                     
             if direc == '<':
@@ -81,9 +113,9 @@ while keysToNavigate:
                     else:
                         newp = '<1'
                     nextKey = (x-1, y, newp)
-                    print(f'Adding {direc} {nextKey=}')
+                    
                 else:
-                    print(f'Not going {direc} {key=}')
+                    #print(f'Not going {direc} {key=}')
                     continue
                 
             if direc == 'v':
@@ -93,9 +125,8 @@ while keysToNavigate:
                     else:
                         newp = 'v1'
                     nextKey = (x, y+1, newp)
-                    print(f'Adding {direc} {nextKey=}')
                 else:
-                    print(f'Not going {direc} {key=}')
+                    #print(f'Not going {direc} {key=}')
                     continue
 
             if direc == '^':
@@ -105,21 +136,30 @@ while keysToNavigate:
                     else:
                         newp = '^1'
                     nextKey = (x, y-1, newp)
-                    print(f'Adding {direc} {nextKey=}')
                 else:
-                    print(f'Not going {direc} {key=}')
+                    #print(f'Not going {direc} {key=}')
                     continue
 
-            newWeight = curWeight + getWeight(x,y)
+            nx=nextKey[0]
+            ny=nextKey[1]
+            if (nx< 0) or (ny < 0) or nx > (width-1) or (ny > width-1):
+                #print(f'Off grid {key=}')
+                continue
+
+            newWeight = curWeight + getWeight(nextKey[0],nextKey[1])
             if nextKey in records:
                 oldWeight = records[nextKey]
                 if newWeight >= oldWeight:
-
-
+                    #print(f'Too heavy going {direc} {key=} {newWeight=} {oldWeight=}')
                     continue
             records[nextKey] = newWeight
+            #print(f'Adding {direc} {nextKey=} {newWeight=}')
             nextKeys.append(nextKey)
     keysToNavigate=nextKeys
-    if stepCounter == 3:
+    print('stepCounter',stepCounter)
+    if stepCounter == 1000:
         break
 
+printNextKeys(keysToNavigate,1)
+print(results)
+print(min(results))
