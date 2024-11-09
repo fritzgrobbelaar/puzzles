@@ -35,13 +35,13 @@ U 2 (#7a21e3)'''.split('\n')
 
 listOfText = listOfText_Puzzle
 listOfText = listOfText_Sample1
-#listOfText = listOfText_Sample2
+# listOfText = listOfText_Sample2
 
 grid = []
 
 
 def printAndBuildGrid(points):
-    #print('\n-- print grid')
+    # print('\n-- print grid')
     minX = 0
     maxX = 0
     minY = 0
@@ -77,9 +77,8 @@ def printAndBuildGrid(points):
         print(''.join(row))
     return grid
 
-def getGridFull(listOfText, approachingStartDirection, firstElbow):
-        
 
+def getGridFull(listOfText, approachingStartDirection, firstElbow):
     elbows = {}
     points = []
     point = (0, 0)
@@ -102,7 +101,7 @@ def getGridFull(listOfText, approachingStartDirection, firstElbow):
                 elif d == 'L':
                     if prevD == 'U':
                         p = '7'
-                        #print(f'Adding 7 at {x=} {y=} {row=} {d=} {prevD=}')
+                        # print(f'Adding 7 at {x=} {y=} {row=} {d=} {prevD=}')
                     elif prevD == 'D':
                         p = 'J'
                     else:
@@ -137,13 +136,11 @@ def getGridFull(listOfText, approachingStartDirection, firstElbow):
             points[-1] = points[-1][0], points[-1][1], p
             points.append(point)
 
-    points[-1] = points[-1][0], points[-1][1], firstElbow #Remember to check starting condition
+    points[-1] = points[-1][0], points[-1][1], firstElbow  # Remember to check starting condition
     return points, elbows
 
 
 def getGridEfficient(listOfText):
-        
-
     elbows = {}
     points = []
     point = (0, 0)
@@ -164,7 +161,7 @@ def getGridEfficient(listOfText):
         elif d == 'L':
             if prevD == 'U':
                 p = '7'
-                #print(f'Adding 7 at {x=} {y=} {row=} {d=} {prevD=}')
+                # print(f'Adding 7 at {x=} {y=} {row=} {d=} {prevD=}')
             elif prevD == 'D':
                 p = 'J'
             else:
@@ -201,36 +198,49 @@ def getGridEfficient(listOfText):
     points.pop(-1)
     return points
 
-def countDotsSurroundedByPipesByElbow(elbows):
+
+def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
     from math import inf
 
     # sort elbows from top to bottom and then left to right:
-    elbows.sort(key=lambda x:(x[1], x[0]))
+    elbows.sort(key=lambda x: (x[1], x[0]))
     print('\nSorted elbows:\n', elbows)
     points = 0
     topLeftCorner = elbows[0]
     bottomRightCorner = elbows[-1]
     partialArray = [None, None]
     inside = []
+    fullRow = []
     inside.sort()
     startHeight = elbows[0][1]
     for elbow in elbows:
         print(f'\nProcessing {elbow=}. {inside=} {partialArray=}')
-        x=elbow[0]
-        y=elbow[1]
+        x = elbow[0]
+        y = elbow[1]
         if y != startHeight:
-            print(f'\nMoved on to the next height {elbow=}')
-            newLine = True
-            heightDistance=y-startHeight
+            heightDistance = y - startHeight
+            if includeBoundary:
+                boundaryAdd = 1
             for insideArray in inside:
-                addAmount=(insideArray[1]-insideArray[0])*heightDistance
-                print(f'\n** Capturing {insideArray=}*{heightDistance} {addAmount=}\n')
+                addAmount = (insideArray[1] - insideArray[0] + boundaryAdd) * (heightDistance - 1)
+                print(f'\n** Capturing ( {insideArray=}+ {boundaryAdd})*{(heightDistance - 1)} {addAmount=}')
                 points += addAmount
-            startHeight = y
-        else:
-            newLine = False
 
-        p=elbow[2]
+            start = None
+            addAmount = 0
+            for elbowFR in fullRow:
+                elX = elbowFR[0]
+                if start == None:
+                    start = elX
+                else:
+                    addAmount += elX - start + 1
+                    # print('Boundary condition - adding ', addAmount)
+            points += addAmount
+            print(f'** Capturing boundary condition {fullRow} {addAmount=} {points=} \n')
+            startHeight = y
+            fullRow = []
+
+        p = elbow[2]
         insideCopy = inside[:]
         for insideArray in insideCopy:
             iStart = insideArray[0]
@@ -238,18 +248,18 @@ def countDotsSurroundedByPipesByElbow(elbows):
             if (x >= iStart) and (x <= iEnd):
                 print(f' {x=} is in {iStart=} of {insideArray=} {elbow=}')
                 if p == 'J':
-                    
+
                     if partialArray[0] != None:
                         partialArray[1] = insideArray[1]
                         inside.remove(insideArray)
                         inside.append(partialArray)
-                        partialArray = [None,None]
+                        partialArray = [None, None]
                         print(f'Updated {inside=}')
                         break
                     else:
                         print(f'what to do {inside=} {elbow=} {partialArray=}')
                         raise Exception('what to do')
-                
+
                 elif p == 'L':
                     print(f'Array is no longer {insideArray=}')
                     inside.remove(insideArray)
@@ -258,19 +268,26 @@ def countDotsSurroundedByPipesByElbow(elbows):
                         print(f'Array is now broken {partialArray=}')
                         break
                     else:
-                        print(f'what to do {inside=} {elbow=} {partialArray=}')
-                        raise Exception('what to do')
-                    
-                elif (p == 'F') and (x == iStart):
-                    inside.remove(insideArray)
-                    insideArray[1] = x
-                    inside.append(insideArray)
-                    partialArray[0] = x
-                    print(f'Updated {inside=} - expecting partialArray to be dropped soon')
+                        partialArray[0] = insideArray[0]
+
+                elif p == 'F':
+                    if x == iStart:
+                        inside.remove(insideArray)
+                        insideArray[1] = x
+                        inside.append(insideArray)
+                        partialArray[0] = x
+                        print(f'Updated {inside=} - expecting partialArray to be dropped soon')
+                    else:
+                        print(f'Updating end of array')
+                        partialArray[0] = x
+                        inside.remove(insideArray)
+                        insideArray[1] = x
+                        inside.append(insideArray)
+                        print(f'Updated {inside=} - expecting partialArray to be dropped soon')
                 else:
                     print(f' - 2 I have no idea whot to do with {elbow=} matching inside')
                     raise ('fix me 2')
-                    
+
         else:
             if p == 'F':
                 print(f'Setting start of partial Array')
@@ -285,33 +302,32 @@ def countDotsSurroundedByPipesByElbow(elbows):
                 print(f'{inside=}')
                 partialArray = [None, None]
             elif p == 'J':
-
+                print('entered with the J')
                 if (partialArray[0] != None) and (partialArray[1] == None):
                     partialArray[0] = None
-                    print(f'Closing loop')
-                
-                else:
-                    raise ('fix me 1')
-        
+                    print('still being processed')
+                elif (partialArray[0] == None) and (partialArray[1] == None):
+                    partialArray[1] = None
+        fullRow.append(elbow)
     print(f'{topLeftCorner=} {bottomRightCorner=} {points=}\n')
+    print('returning points:', points)
+    exit()
     return points
 
-points, elbows =  getGridFull(listOfText, approachingStartDirection='U', firstElbow='F')
+
+points, elbows = getGridFull(listOfText, approachingStartDirection='U', firstElbow='F')
 grid = printAndBuildGrid(points)
 
-elbowsNew =  getGridEfficient(listOfText)
+elbowsNew = getGridEfficient(listOfText)
 countDotsSurroundedByPipesByElbow(elbowsNew)
-
-
-
 
 print(f'{elbowsNew=}')
 
-#print('points=',points)
+# print('points=',points)
 
 totalInside = countDotsSurroundedByPipes(grid)
 print(f'{totalInside=}')
 print('elbows', elbows)
 print(len(points))
-print('set', len(set(points))) # should be one less
+print('set', len(set(points)))  # should be one less
 print('totalInside', totalInside + len(set(points)))
