@@ -88,10 +88,10 @@ def navigatePipesAndCountLength(grid, startLocation):
 
 
 def countDotsSurroundedByPipes(originalGrid):
-    print('originalGrid:\n', originalGrid)
+    #print('originalGrid:\n', originalGrid)
 
-    for row in originalGrid:
-        print(''.join(row))
+    #for row in originalGrid:
+     #   print(''.join(row))
     tiles = 0
     openCharacter = None
     flip = False
