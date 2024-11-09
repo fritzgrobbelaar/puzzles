@@ -1,9 +1,9 @@
-import cleaninput
+import cleaninput, copy
 from text_grid import countDotsSurroundedByPipes
 
 listOfText_Puzzle = cleaninput.getfileInputLinesAsList('input18.txt')
 
-listOfText_Sample1 = '''R 6 (#70c710)
+sample1 = '''R 6 (#70c710)
 D 5 (#0dc571)
 L 2 (#5713f0)
 D 2 (#d2c081)
@@ -16,7 +16,9 @@ U 2 (#caa171)
 R 2 (#7807d2)
 U 3 (#a77fa3)
 L 2 (#015232)
-U 2 (#7a21e3)'''.split('\n')
+U 2 (#7a21e3)'''
+
+listOfText_Sample1 = sample1.split('\n')
 
 listOfText_Sample2 = '''L 6 (#70c710)
 D 5 (#0dc571)
@@ -35,7 +37,17 @@ U 2 (#7a21e3)'''.split('\n')
 
 listOfText = listOfText_Puzzle
 listOfText = listOfText_Sample1
-# listOfText = listOfText_Sample2
+listOfText = listOfText_Sample2
+listOfText = sample1.replace('D', 'u').replace('U', 'D').replace('u', 'U').split('\n')
+listOfText = (sample1
+              .replace('D', 'l')
+              .replace('U', 'r')
+              .replace('R', 'u')
+              .replace('L', 'd')
+              .replace('d', 'D')
+              .replace('u', 'U')
+              .replace('r', 'R')
+              .replace('l', 'L').split('\n'))
 
 grid = []
 
@@ -223,23 +235,29 @@ def captureBoundaryConditionOld(fullRow, inside):
 
 
 def captureBoundaryCondition(prevInside, inside):
+    print(f'Processing boundary condition {prevInside=} {inside=}')
     start = None
     addAmount = 0
     xS = []
     arrays = prevInside + inside
     arrays.sort()
-    nonOverlappingArrays = [arrays[0]]
+    nonOverlappingArrays = [copy.deepcopy(arrays[0])]
     for array in arrays[1:]:
-        if array[0] > arrays[-1][1]:
+        if (array[0] > nonOverlappingArrays[-1][1]) or (array[0] < nonOverlappingArrays[-1][0]):
             nonOverlappingArrays.append(array)
         else:
             nonOverlappingArrays[-1][1] = array[1]
 
     for array in nonOverlappingArrays:
-        addAmount += array[1]-array[0] + 1
+        addAmount += array[1] - array[0] + 1
 
-    print(f'** Capturing boundary condition {prevInside=} {inside=} {addAmount=}')
+    print(f'** Capturing boundary condition {prevInside=} {inside=} {nonOverlappingArrays=} {addAmount=}')
     return addAmount
+
+
+inside = [[-6, -1]]
+prevInside = [[-4, 0]]
+assert 9 == captureBoundaryCondition(prevInside=[[-9, -7], [-5, 0]], inside=[])
 
 
 def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
@@ -260,6 +278,7 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
         print(f'\nProcessing {elbow=}. {inside=} {partialArray=}')
         x = elbow[0]
         y = elbow[1]
+        p = elbow[2]
         if y != startHeight:
             heightDistance = y - startHeight
             if includeBoundary:
@@ -272,17 +291,15 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
             points += addAmount
             print(f'** Capturing boundary  {addAmount=} totalPoints: {points}')
             startHeight = y
-            prevInside = inside[:]
+            prevInside = copy.deepcopy(inside)
 
-        p = elbow[2]
-        insideCopy = inside[:]
+        insideCopy = copy.deepcopy(inside)
         for insideArray in insideCopy:
             iStart = insideArray[0]
             iEnd = insideArray[1]
             if (x >= iStart) and (x <= iEnd):
                 print(f' {x=} is in {iStart=} of {insideArray=} {elbow=}')
                 if p == 'J':
-
                     if partialArray[0] != None:
                         partialArray[1] = insideArray[1]
                         inside.remove(insideArray)
@@ -310,14 +327,16 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                         insideArray[1] = x
                         inside.append(insideArray)
                         partialArray[0] = x
-                        print(f'Updated {inside=} - expecting partialArray to be dropped soon')
+                        print(f'Updated 1 {inside=} - expecting partialArray to be dropped soon')
                     else:
                         print(f'Updating end of array')
+                        if inside == [[-9,0]]:
+                            raise Exception ('todo')
                         partialArray[0] = x
                         inside.remove(insideArray)
                         insideArray[1] = x
                         inside.append(insideArray)
-                        print(f'Updated {inside=} - expecting partialArray to be dropped soon')
+                        print(f'Updated 2 {inside=} - expecting partialArray to be dropped soon')
                 else:
                     print(f' - 2 I have no idea whot to do with {elbow=} matching inside')
                     raise ('fix me 2')
@@ -345,9 +364,8 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
     print(f'{topLeftCorner=} {bottomRightCorner=} {points=}\n')
     addAmount = captureBoundaryCondition(prevInside, inside)
     points += addAmount
-    print(f'** Capturing boundary  {addAmount=} totalPoints: {points}')
+    print(f'** Capturing final boundary  {addAmount=} totalPoints: {points}')
     print('returning points:', points)
-    exit()
     return points
 
 
@@ -355,15 +373,7 @@ points, elbows = getGridFull(listOfText, approachingStartDirection='U', firstElb
 grid = printAndBuildGrid(points)
 
 elbowsNew = getGridEfficient(listOfText)
-countDotsSurroundedByPipesByElbow(elbowsNew)
+points = countDotsSurroundedByPipesByElbow(elbowsNew)
+print('points', points)
 
 print(f'{elbowsNew=}')
-
-# print('points=',points)
-
-totalInside = countDotsSurroundedByPipes(grid)
-print(f'{totalInside=}')
-print('elbows', elbows)
-print(len(points))
-print('set', len(set(points)))  # should be one less
-print('totalInside', totalInside + len(set(points)))
