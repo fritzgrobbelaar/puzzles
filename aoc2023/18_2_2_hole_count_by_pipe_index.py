@@ -199,6 +199,49 @@ def getGridEfficient(listOfText):
     return points
 
 
+def captureBoundaryConditionOld(fullRow, inside):
+    start = None
+    addAmount = 0
+    xS = []
+    for elbowFR in fullRow:
+        elX = elbowFR[0]
+        xS.append(elX)
+    for array in inside:
+        xS.append(array[0])
+        xS.append(array[1])
+    xS = list(set(xS))
+    xS.sort()
+    start = None
+    for x in xS:
+        if start is None:
+            start = x
+        else:
+            addAmount += x - start + 1
+            start = None
+    print(f'** Capturing boundary condition {fullRow=} {inside=} {addAmount=}')
+    return addAmount
+
+
+def captureBoundaryCondition(prevInside, inside):
+    start = None
+    addAmount = 0
+    xS = []
+    arrays = prevInside + inside
+    arrays.sort()
+    nonOverlappingArrays = [arrays[0]]
+    for array in arrays[1:]:
+        if array[0] > arrays[-1][1]:
+            nonOverlappingArrays.append(array)
+        else:
+            nonOverlappingArrays[-1][1] = array[1]
+
+    for array in nonOverlappingArrays:
+        addAmount += array[1]-array[0] + 1
+
+    print(f'** Capturing boundary condition {prevInside=} {inside=} {addAmount=}')
+    return addAmount
+
+
 def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
     from math import inf
 
@@ -210,7 +253,7 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
     bottomRightCorner = elbows[-1]
     partialArray = [None, None]
     inside = []
-    fullRow = []
+    prevInside = []
     inside.sort()
     startHeight = elbows[0][1]
     for elbow in elbows:
@@ -225,20 +268,11 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                 addAmount = (insideArray[1] - insideArray[0] + boundaryAdd) * (heightDistance - 1)
                 print(f'\n** Capturing ( {insideArray=}+ {boundaryAdd})*{(heightDistance - 1)} {addAmount=}')
                 points += addAmount
-
-            start = None
-            addAmount = 0
-            for elbowFR in fullRow:
-                elX = elbowFR[0]
-                if start == None:
-                    start = elX
-                else:
-                    addAmount += elX - start + 1
-                    # print('Boundary condition - adding ', addAmount)
+            addAmount = captureBoundaryCondition(prevInside, inside)
             points += addAmount
-            print(f'** Capturing boundary condition {fullRow} {addAmount=} {points=} \n')
+            print(f'** Capturing boundary  {addAmount=} totalPoints: {points}')
             startHeight = y
-            fullRow = []
+            prevInside = inside[:]
 
         p = elbow[2]
         insideCopy = inside[:]
@@ -308,8 +342,10 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                     print('still being processed')
                 elif (partialArray[0] == None) and (partialArray[1] == None):
                     partialArray[1] = None
-        fullRow.append(elbow)
     print(f'{topLeftCorner=} {bottomRightCorner=} {points=}\n')
+    addAmount = captureBoundaryCondition(prevInside, inside)
+    points += addAmount
+    print(f'** Capturing boundary  {addAmount=} totalPoints: {points}')
     print('returning points:', points)
     exit()
     return points
