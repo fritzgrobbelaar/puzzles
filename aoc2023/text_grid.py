@@ -92,6 +92,7 @@ def countDotsSurroundedByPipes(originalGrid):
 
     #for row in originalGrid:
      #   print(''.join(row))
+
     tiles = 0
     openCharacter = None
     flip = False
