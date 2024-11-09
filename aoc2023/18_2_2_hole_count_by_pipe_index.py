@@ -36,10 +36,10 @@ R 2 (#015232)
 U 2 (#7a21e3)'''.split('\n')
 
 listOfText = listOfText_Puzzle
-listOfText = listOfText_Sample1
-listOfText = listOfText_Sample2
-listOfText = sample1.replace('D', 'u').replace('U', 'D').replace('u', 'U').split('\n')
-listOfText = (sample1
+listOfText1 = listOfText_Sample1
+listOfText4 = listOfText_Sample2
+listOfText3 = sample1.replace('D', 'u').replace('U', 'D').replace('u', 'U').split('\n')
+listOfText2 = (sample1
               .replace('D', 'l')
               .replace('U', 'r')
               .replace('R', 'u')
@@ -48,6 +48,17 @@ listOfText = (sample1
               .replace('u', 'U')
               .replace('r', 'R')
               .replace('l', 'L').split('\n'))
+
+listOfText = (sample1
+               .replace('U', 'l')
+               .replace('D', 'r')
+               .replace('R', 'u')
+               .replace('L', 'd')
+               .replace('d', 'D')
+               .replace('u', 'U')
+               .replace('r', 'R')
+               .replace('l', 'L').split('\n'))
+
 
 grid = []
 
@@ -245,8 +256,10 @@ def captureBoundaryCondition(prevInside, inside):
     for array in arrays[1:]:
         if (array[0] > nonOverlappingArrays[-1][1]) or (array[0] < nonOverlappingArrays[-1][0]):
             nonOverlappingArrays.append(array)
-        else:
+        elif array[1] > nonOverlappingArrays[-1][1]:
             nonOverlappingArrays[-1][1] = array[1]
+        else:
+            pass
 
     for array in nonOverlappingArrays:
         addAmount += array[1] - array[0] + 1
@@ -257,6 +270,7 @@ def captureBoundaryCondition(prevInside, inside):
 
 inside = [[-6, -1]]
 prevInside = [[-4, 0]]
+assert 10 == captureBoundaryCondition(prevInside=[[-9, -0], [-5, -3]], inside=[])
 assert 9 == captureBoundaryCondition(prevInside=[[-9, -7], [-5, 0]], inside=[])
 
 
@@ -330,16 +344,18 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                         print(f'Updated 1 {inside=} - expecting partialArray to be dropped soon')
                     else:
                         print(f'Updating end of array')
-                        if inside == [[-9,0]]:
-                            raise Exception ('todo')
-                        partialArray[0] = x
+                        # if inside == [[-9,0]]:
+                        #     pass
+                        #     raise Exception ('todo')
+                        partialArray[1] = insideArray[1]
                         inside.remove(insideArray)
                         insideArray[1] = x
                         inside.append(insideArray)
                         print(f'Updated 2 {inside=} - expecting partialArray to be dropped soon')
-                else:
-                    print(f' - 2 I have no idea whot to do with {elbow=} matching inside')
-                    raise ('fix me 2')
+                elif p == '7':
+                    if partialArray[0] == None:
+                        partialArray = x
+                        inside.append(partialArray)
 
         else:
             if p == 'F':
