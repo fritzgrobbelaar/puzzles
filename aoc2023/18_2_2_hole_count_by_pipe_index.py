@@ -39,7 +39,7 @@ listOfText = listOfText_Puzzle
 listOfText1 = listOfText_Sample1
 listOfText4 = listOfText_Sample2
 listOfText3 = sample1.replace('D', 'u').replace('U', 'D').replace('u', 'U').split('\n')
-listOfText2 = (sample1
+listOfText = (sample1
               .replace('D', 'l')
               .replace('U', 'r')
               .replace('R', 'u')
@@ -247,9 +247,7 @@ def captureBoundaryConditionOld(fullRow, inside):
 
 def captureBoundaryCondition(prevInside, inside):
     print(f'Processing boundary condition {prevInside=} {inside=}')
-    start = None
     addAmount = 0
-    xS = []
     arrays = prevInside + inside
     arrays.sort()
     nonOverlappingArrays = [copy.deepcopy(arrays[0])]
@@ -303,7 +301,7 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                 points += addAmount
             addAmount = captureBoundaryCondition(prevInside, inside)
             points += addAmount
-            print(f'** Capturing boundary  {addAmount=} totalPoints: {points}')
+            print(f'** Capturing boundary {addAmount=} totalPoints: {points}')
             startHeight = y
             prevInside = copy.deepcopy(inside)
 
@@ -326,11 +324,11 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                         raise Exception('what to do')
 
                 elif p == 'L':
-                    print(f'Array is no longer {insideArray=}')
+                    print(f'Array is no longer b {insideArray=} {partialArray=}')
                     inside.remove(insideArray)
                     if x == iStart:
                         partialArray[1] = insideArray[1]
-                        print(f'Array is now broken {partialArray=}')
+                        print(f'Array is now broken a {partialArray=}')
                         break
                     else:
                         partialArray[0] = insideArray[0]
@@ -356,7 +354,7 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                     if partialArray[0] == None:
                         partialArray = x
                         inside.append(partialArray)
-
+                break
         else:
             if p == 'F':
                 print(f'Setting start of partial Array')
@@ -375,8 +373,22 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
                 if (partialArray[0] != None) and (partialArray[1] == None):
                     partialArray[0] = None
                     print('still being processed')
-                elif (partialArray[0] == None) and (partialArray[1] == None):
+                elif partialArray == [None, None]:
                     partialArray[1] = None
+                else:
+                    partialArray = [None, None]
+            elif p == 'L':
+                if partialArray[0] != None and partialArray[1] == None:
+                    pass
+                elif partialArray == [None, None]:
+                    partialArray = [x,None]
+                if partialArray[1] != None:
+                    print(f'Array is no longer 3 {insideArray=}')
+                    partialArray[1] = insideArray[1]
+                    print(f'Array is now broken 2 {partialArray=}')
+                    partialArray = [insideArray[0], None]
+
+
     print(f'{topLeftCorner=} {bottomRightCorner=} {points=}\n')
     addAmount = captureBoundaryCondition(prevInside, inside)
     points += addAmount
@@ -385,7 +397,7 @@ def countDotsSurroundedByPipesByElbow(elbows, includeBoundary=True):
     return points
 
 
-points, elbows = getGridFull(listOfText, approachingStartDirection='U', firstElbow='F')
+points, elbows = getGridFull(listOfText, approachingStartDirection='U', firstElbow='L')
 grid = printAndBuildGrid(points)
 
 elbowsNew = getGridEfficient(listOfText)
