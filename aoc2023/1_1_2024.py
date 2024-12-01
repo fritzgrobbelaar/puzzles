@@ -30,7 +30,19 @@ total = 0
 for i,l in enumerate(left):
     r=right[i]
     print(f'{l=} {r=}')
-    total = total + int(l)*right.count(l)
+    total = total + abs(int(l)-int(r))
 
-
+    # for character in row:
+    #     if character.isdigit():
+    #         first = character
+    #         break
+    #
+    # reversed = list(row)
+    # reversed.reverse()
+    # for character in reversed:
+    #     if character.isdigit():
+    #         last = character
+    #         break
+    # total = total + int(first + last)
+    # print('row:', i, first + last, 'total:', total)
 print(f'{total=}')
