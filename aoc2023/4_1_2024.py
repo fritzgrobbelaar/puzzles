@@ -19,7 +19,7 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX'''.split('\n')
 
-listOfText = sample2
+#listOfText = sample2
 
 def getDiagonal(listOfText):
     listOfLists = []
@@ -114,6 +114,7 @@ printList(listOfText)
 total += count(listOfText)
 print(f'{total=}') # should be 14 - is 14
 diag = getDiagonal(listOfText)
+diag = getReversed(diag)
 printList(diag)
 total += count(diag)
 
