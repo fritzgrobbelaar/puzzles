@@ -1,5 +1,5 @@
-from lib import cleaninput
-from lib.number_pattern import calculateTotalFromInput
+import cleaninput
+from number_pattern import calculateTotalFromInput
 
 listOfText_Puzzle = cleaninput.getRowsOfNumbersLists('aoc2023\\input9.txt')
 
