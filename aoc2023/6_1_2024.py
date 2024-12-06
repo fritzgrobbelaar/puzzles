@@ -13,6 +13,12 @@ sample = '''....#.....
 #.........
 ......#...'''.split('\n')
 
+sample = '''...........
+...#.......
+#<.........
+..#........'''.split('\n')
+
+
 listOfText = sample
 
 listOfLists = []
@@ -23,7 +29,7 @@ distinctPositions = set()
 distinctPositionsAndDirection = set()
 
 def printMap(listOfLists, distinctPositionsAndDirection, distinctPositions):
-    return
+
     for j, row in enumerate(listOfLists):
         newRow = []
         for i,value in enumerate(row):
