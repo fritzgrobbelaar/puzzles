@@ -19,11 +19,11 @@ sample = '''....#.....
 #.........
 ......#...'''.split('\n')
 
-listOfText = sample
+#listOfText = sample
 
 listOfLists = []
 for row in listOfText:
-    listOfLists.append(row)
+    listOfLists.append(list(row))
 
 distinctPositions = set()
 distinctPositionsAndDirection = set()
@@ -68,7 +68,7 @@ while start not in distinctPositionsAndDirection:
             if valueAbove == '#':
            #     print('turning right 5')
                 direction = '>'
-                i = i + 1
+              #  i = i + 1
             else:
                 j = j-1
 
@@ -81,7 +81,7 @@ while start not in distinctPositionsAndDirection:
             if valueLeft == '#':
          #       print('turning up 3')
                 direction = '^'
-                j = j - 1
+              #  j = j - 1
             else:
                 i = i-1
 
@@ -96,7 +96,7 @@ while start not in distinctPositionsAndDirection:
             if valueBelow == '#':
              #   print('turning right 1')
                 direction = '<'
-                i = i - 1
+                #i = i - 1
             else:
                 j = j+1
 
@@ -109,7 +109,7 @@ while start not in distinctPositionsAndDirection:
             if valueRight == '#':
       #          print('turning down 2')
                 direction = 'v'
-                j = j + 1
+                #j = j + 1
             else:
                 i = i+1
 
