@@ -2,6 +2,12 @@ import cleaninput
 from datetime import datetime
 listOfText = cleaninput.getfileInputLinesAsList('input6_2024.txt')
 
+
+sample = '''...........
+...#.......
+#<.........
+..#........'''.split('\n')
+
 sample = '''....#.....
 .........#
 ..........
@@ -13,12 +19,6 @@ sample = '''....#.....
 #.........
 ......#...'''.split('\n')
 
-sample = '''...........
-...#.......
-#<.........
-..#........'''.split('\n')
-
-
 listOfText = sample
 
 listOfLists = []
@@ -29,7 +29,6 @@ distinctPositions = set()
 distinctPositionsAndDirection = set()
 
 def printMap(listOfLists, distinctPositionsAndDirection, distinctPositions):
-
     for j, row in enumerate(listOfLists):
         newRow = []
         for i,value in enumerate(row):
@@ -118,6 +117,8 @@ while start not in distinctPositionsAndDirection:
     printMap(listOfLists, distinctPositionsAndDirection, distinctPositions)
 
 print(sorted(list(distinctPositions)))
+print(f'{distinctPositionsAndDirection=}')
 
 print(f'{len(distinctPositions)=}')
+
 print('reached the end at', datetime.now(), 'it took', datetime.now() - timeStart)
