@@ -2,123 +2,45 @@ import cleaninput
 from datetime import datetime
 listOfText = cleaninput.getfileInputLinesAsList('input7_2024.txt')
 
-
-sample = '''...........
-...#.......
-#<.........
-..#........'''.split('\n')
-
-sample = '''....#.....
-.........#
-..........
-..#.......
-.......#..
-..........
-.#..^.....
-........#.
-#.........
-......#...'''.split('\n')
+sample = '''190: 10 19
+3267: 81 40 27
+83: 17 5
+156: 15 6
+7290: 6 8 6 15
+161011: 16 10 13
+192: 17 8 14
+21037: 9 7 18 13
+292: 11 6 16 20'''.split('\n')
 
 #listOfText = sample
 
 listOfLists = []
+total = 0
 for row in listOfText:
+    row = row.replace(':', '')
+    oldRow = row.split(' ')
+    row = [int(value) for value in oldRow]
+
     listOfLists.append(list(row))
 
-distinctPositions = set()
-distinctPositionsAndDirection = set()
+    expectedValue = row[0]
+    print(f'{expectedValue=}')
+    combinedValues = [[row[1]]]
+    print(f'{combinedValues=}')
+    for value in row[2:]:
+        print(f'{combinedValues=} {value=}')
+        combinedValuesNew = []
+        for combinedValue in combinedValues[-1]:
+            combinedValuesNew.append(combinedValue*value)
+            combinedValuesNew.append(combinedValue+value)
+            combinedValuesNew.append(int(str(combinedValue)+str(value)))
+        combinedValues.append(combinedValuesNew)
+    if expectedValue in combinedValues[-1]:
+        print(f'{expectedValue=} found in {combinedValues[-1]=}')
+        total += expectedValue
+    else:
+        print(f'{expectedValue=} not found in {combinedValues[-1]=}')
 
-def printMap(listOfLists, distinctPositionsAndDirection, distinctPositions):
-    for j, row in enumerate(listOfLists):
-        newRow = []
-        for i,value in enumerate(row):
-            if (i,j) in distinctPositions:
-                newRow.append('0')
-            else:
-                newRow.append(value)
-        #print(''.join(newRow))
+print('total', total)
 
-def findStart(listOfLists):
-    for j, row in enumerate(listOfLists):
-        for i, value in enumerate(row):
-            if value not in ('.', '#'):
-                return i, j, value
 
-#assert (4, 6, '^') == findStart(listOfLists)
-start = findStart(listOfLists)
-
-print("Starting at", datetime.now())
-timeStart = datetime.now()
-
-while start not in distinctPositionsAndDirection:
-    distinctPositionsAndDirection.add(start)
-    i=start[0]
-    j=start[1]
-    direction=start[2]
-    distinctPositions.add((i, j))
-    #print(f'{sorted(list(distinctPositionsAndDirection))=}')
-    #print(f'{distinctPositions=}')
-
-    if direction == '^':
-        if j == 0:
-     #       print(f'Left Map above due to {j=}, {distinctPositionsAndDirection=}')
-            break
-        else:
-            valueAbove = listOfLists[j-1][i]
-            if valueAbove == '#':
-           #     print('turning right 5')
-                direction = '>'
-              #  i = i + 1
-            else:
-                j = j-1
-
-    elif direction == '<':
-        if i == 0:
-          #  print(f'Left Map on left due to {i=}, {distinctPositionsAndDirection=}')
-            break
-        else:
-            valueLeft = listOfLists[j][i-1]
-            if valueLeft == '#':
-         #       print('turning up 3')
-                direction = '^'
-              #  j = j - 1
-            else:
-                i = i-1
-
-    elif direction == 'v':
-        #print(f'{j=} {len(listOfLists)=}')
-        #print(f'{j=} {len(row)=}')
-        if j == len(listOfLists)-1:
-            #print(f'Left Map below due to {j=}, {distinctPositionsAndDirection=}')
-            break
-        else:
-            valueBelow = listOfLists[j+1][i]
-            if valueBelow == '#':
-             #   print('turning right 1')
-                direction = '<'
-                #i = i - 1
-            else:
-                j = j+1
-
-    elif direction == '>':
-        if i == len(row)-1:
-            #print(f'Left Map on right due to {i=}, {distinctPositionsAndDirection=}')
-            break
-        else:
-            valueRight = listOfLists[j][i+1]
-            if valueRight == '#':
-      #          print('turning down 2')
-                direction = 'v'
-                #j = j + 1
-            else:
-                i = i+1
-
-    start=(i,j,direction)
-    printMap(listOfLists, distinctPositionsAndDirection, distinctPositions)
-
-print(sorted(list(distinctPositions)))
-print(f'{distinctPositionsAndDirection=}')
-
-print(f'{len(distinctPositions)=}')
-
-print('reached the end at', datetime.now(), 'it took', datetime.now() - timeStart)
