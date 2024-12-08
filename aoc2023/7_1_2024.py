@@ -24,11 +24,11 @@ for row in listOfText:
     listOfLists.append(list(row))
 
     expectedValue = row[0]
-    print(f'{expectedValue=}')
+    #print(f'{expectedValue=}')
     combinedValues = [[row[1]]]
-    print(f'{combinedValues=}')
+    #print(f'{combinedValues=}')
     for value in row[2:]:
-        print(f'{combinedValues=} {value=}')
+     #   print(f'{combinedValues=} {value=}')
         combinedValuesNew = []
         for combinedValue in combinedValues[-1]:
             combinedValuesNew.append(combinedValue*value)
@@ -36,10 +36,8 @@ for row in listOfText:
             combinedValuesNew.append(int(str(combinedValue)+str(value)))
         combinedValues.append(combinedValuesNew)
     if expectedValue in combinedValues[-1]:
-        print(f'{expectedValue=} found in {combinedValues[-1]=}')
+        #print(f'{expectedValue=} found in {combinedValues[-1]=}')
         total += expectedValue
-    else:
-        print(f'{expectedValue=} not found in {combinedValues[-1]=}')
 
 print('total', total)
 
