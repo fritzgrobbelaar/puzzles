@@ -28,24 +28,15 @@ p=1,0 v=1,1
 p=1,1 v=1,1
 p=0,1 v=1,1'''.split('\n')
 
-sample = '''p=0,0 v=0,0
-p=1,0 v=0,0
-p=2,0 v=0,0
-p=3,0 v=0,0
-p=4,0 v=0,0
-p=5,0 v=0,0
-p=6,0 v=0,0
-p=7,0 v=0,0'''.split('\n')
-
-
+#sample='''p=0,4 v=3,-3'''.split('\n')
 
 
 roomXSample = 11
 roomYSample = 7
-listOfText = sample
+#listOfText = sample
 
-roomX = roomXSample
-roomY = roomYSample
+#roomX = roomXSample
+#roomY = roomYSample
 
 listOfLists = []
 total = 0
@@ -66,7 +57,7 @@ for row in listOfText:
 
 def printMap(roomX, roomY, robots, consecutiveCount=0, cycleCount=0):
     global output
-    #output += '\n'
+    output += '\n'
 
     locations = {}
     horizontals = {}
@@ -76,25 +67,23 @@ def printMap(roomX, roomY, robots, consecutiveCount=0, cycleCount=0):
         if robot['p'] not in locations.keys():
             locations[robot['p']] = 0
         locations[robot['p']] += 1
-        if y not in horizontals:
-            horizontals[y] = []
-        horizontals[y].append(x)
+        if x not in horizontals:
+            horizontals[x] = []
+        horizontals[x].append(y)
 
     found = False
-    print(f'{horizontals=}')
-    for i,horizontal in horizontals.values():
+    for horizontal in horizontals.values():
         horizontal.sort()
-        print(f'{horizontal=}')
         count = 0
         for i,value in enumerate(horizontal[:-1]):
             if value == horizontal[i+1]:
                 count +=1
         if count > consecutiveCount:
             found = True
-    if (not found) and (cycleCount not in [6731,6752]):
+    if not found:
         return
 
-    output = output + '\n' + str(cycleCount)
+
     for y in range(roomY):
         printRow = []
         for x in range(roomX):
@@ -107,7 +96,7 @@ def printMap(roomX, roomY, robots, consecutiveCount=0, cycleCount=0):
         output += ''.join(printRow)
         #output.append()
 
-#printMap(roomX, roomY, robots)
+printMap(roomX, roomY, robots)
 
 
 def calculateStep(robot, roomX, roomY):
@@ -141,7 +130,7 @@ def calculateStep(robot, roomX, roomY):
     return robot
 
 
-cycles = 2
+cycles = 100
 for i in range(cycles):
     #global output
     #output += '\n'

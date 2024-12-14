@@ -152,7 +152,7 @@ for i in range(cycles):
     for j, robot in enumerate(robots):
         robots[j] = calculateStep(robot, roomX, roomY)
 
-    printMap(roomX, roomY, robots, consecutiveCount=5, cycleCount=i+1)
+    printMap(roomX, roomY, robots, consecutiveCount=10, cycleCount=i+1)
 
 def calculateTotal(robots):
     midX = int(roomX/2)
