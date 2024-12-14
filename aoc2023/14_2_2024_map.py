@@ -93,7 +93,7 @@ def printMap(roomX, roomY, robots, consecutiveCount=0, cycleCount=0):
         if count > consecutiveCount:
             #print('seems to match')
             found = True
-    if (not found) and (cycleCount not in [6731,6752]):
+    if (not found) and (cycleCount not in [0,1,2]):
         return
 
     output = output + '\n' + str(cycleCount)
@@ -180,5 +180,5 @@ def calculateTotal(robots):
 total = calculateTotal(robots)
 print(f'{total=}')
 
-with open('picture.txt', 'w') as handle:
+with open('../../picture.txt', 'w') as handle:
     handle.write(output)

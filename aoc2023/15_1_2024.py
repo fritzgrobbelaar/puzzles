@@ -2,7 +2,7 @@ import cleaninput
 from datetime import datetime
 from functools import cmp_to_key
 
-listOfText = cleaninput.getfileInputLinesAsList('input14_2024.txt')
+listOfText = cleaninput.getfileInputLinesAsList('input15_2024.txt')
 
 sample = '''.....0.
 ..4321.
@@ -13,7 +13,7 @@ sample = '''.....0.
 ..9....'''.split('\n')
 
 
-#listOfText = sample
+listOfText = sample
 
 listOfLists = []
 total = 0
@@ -94,7 +94,7 @@ def calculateTrailHeads(x, y, map):
             for direction in directions:
                 newStep = (stepI + direction[0], stepJ + direction[1])
                 #print(f'{newStep=}')
-                if validateStep(height, newStep, map):
+                if calculateStep(height, newStep, map):
                     steps[-1].append(newStep)
         #steps[-1] = list(set(steps[-1]))
         #print(f'{steps=}')
