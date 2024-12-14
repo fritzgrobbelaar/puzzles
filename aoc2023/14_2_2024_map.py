@@ -42,10 +42,10 @@ p=7,0 v=0,0'''.split('\n')
 
 roomXSample = 11
 roomYSample = 7
-listOfText = sample
 
-roomX = roomXSample
-roomY = roomYSample
+#listOfText = sample
+#roomX = roomXSample
+#roomY = roomYSample
 
 listOfLists = []
 total = 0
@@ -81,15 +81,17 @@ def printMap(roomX, roomY, robots, consecutiveCount=0, cycleCount=0):
         horizontals[y].append(x)
 
     found = False
-    print(f'{horizontals=}')
-    for i,horizontal in horizontals.values():
+    #print(f'{horizontals=}')
+    for horizontal in horizontals.values():
         horizontal.sort()
-        print(f'{horizontal=}')
+        #print(f'{horizontal=}')
         count = 0
         for i,value in enumerate(horizontal[:-1]):
-            if value == horizontal[i+1]:
+            #print(f'Comparing {value+1=} {horizontal[i+1]=}')
+            if value+1 == horizontal[i+1]:
                 count +=1
         if count > consecutiveCount:
+            #print('seems to match')
             found = True
     if (not found) and (cycleCount not in [6731,6752]):
         return
@@ -141,7 +143,7 @@ def calculateStep(robot, roomX, roomY):
     return robot
 
 
-cycles = 2
+cycles = 10000
 for i in range(cycles):
     #global output
     #output += '\n'
