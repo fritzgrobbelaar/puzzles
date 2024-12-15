@@ -26,7 +26,7 @@ vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
 ^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^'''.split('\n')
 
-sample2 = '''########
+sample = '''########
 #..O.O.#
 ##@.O..#
 #...O..#
@@ -37,9 +37,17 @@ sample2 = '''########
 
 <^^>>>vv<v>>v<<'''.split('\n')
 
-#
+sample='''#######
+#...#.#
+#.....#
+#..OO@#
+#..O..#
+#.....#
+#######
 
-#listOfText = sample
+<vv<<^^<<^^'''.split('\n')
+
+listOfText = sample
 theMap = []
 moves = []
 
@@ -76,9 +84,20 @@ def printMap(map):
 
 
                 printRow.append(value)
-        #print('print',''.join(printRow))
+        print('print',''.join(printRow))
 
 printMap(theMap)
+
+def scaleMap(theMap):
+    for y,row in enumerate(theMap):
+        newRow = []
+        if y == '#':
+            newRow.append('##')
+        if y == '.':
+            newRow.append('..')
+        if y == '.':
+            newRow.append('..')
+
 
 def getStartPosition(theMap):
     for y, row in enumerate(theMap):
