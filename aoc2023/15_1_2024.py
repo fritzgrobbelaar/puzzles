@@ -4,21 +4,55 @@ from functools import cmp_to_key
 
 listOfText = cleaninput.getfileInputLinesAsList('input15_2024.txt')
 
-sample = '''.....0.
-..4321.
-..5..2.
-..6543.
-..7..4.
-..8765.
-..9....'''.split('\n')
+sample = '''##########
+#..O..O.O#
+#......O.#
+#.OO..O.O#
+#..O@..O.#
+#O#..O...#
+#O..O..O.#
+#.OO.O.OO#
+#....O...#
+##########
 
+<vv>^<v^>v>^vv^v>v<>v^v<v<^vv<<<^><<><>>v<vvv<>^v^>^<<<><<v<<<v^vv^v>^
+vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
+><>vv>v^v^<>><>>>><^^>vv>v<^^^>>v^v^<^^>v^^>v^<^v>v<>>v^v^<v>v^^<^^vv<
+<<v<^>>^^^^>>>v^<>vvv^><v<<<>^^^vv^<vvv>^>v<^^^^v<>^>vvvv><>>v^<<^^^^^
+^><^><>>><>^^<<^^v>>><^<v>^<vv>>v>>>^v><>^v><<<<v>>v<v<v>vvv>^<><<>^><
+^>><>^v<><^vvv<^^<><v<<<<<><^v<<<><<<^^<v<^^^><^>>^<v^><<<^>>^v<v^v<v^
+>^>>^v>vv>^<<^v<>><<><<v<<v><>v<^vv<<<>^^v^>^^>>><<^v>>v^v><^^>>^<>vv^
+<><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
+^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
+v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^'''.split('\n')
+
+sample = '''########
+#..O.O.#
+##@.O..#
+#...O..#
+#.#.O..#
+#...O..#
+#......#
+########
+
+<^^>'''.split('\n')
+#>>v
+#v<v>>v<<
 
 listOfText = sample
+theMap = []
+moves = []
 
+mapComplete = False
 listOfLists = []
 total = 0
 for row in listOfText:
-    listOfLists.append(list(row))
+    if row == '':
+        mapComplete = True
+    elif not mapComplete:
+        theMap.append(list(row))
+    else:
+        moves.extend(list(row))
 
 sequence = {}
 def sortFunc(key,key2):
@@ -33,52 +67,94 @@ def fixOrder(row):
     print('sorted row', row)
     return row
 
-def printMap(map, steps):
+def printMap(map):
     #print('map print',steps)
     for j, row in enumerate(map):
         printRow = []
         for i,value in enumerate(row):
-            found=False
-            for h,steprow in enumerate(steps):
-                for step in steprow:
-                    if j == step[0] and i == step[1]:
-                        #print(f'map print {i=} {j=} {step=}')
-                        printRow.append(str(h))
-                        found=True
-                        break
-            if not found:
-                printRow.append('.')
-     #   print('map print',''.join(printRow))
 
-def calculateStep(robot, roomX, roomY):
-    newX = robot['v'][0] + robot['p'][0]
-    newY = robot['v'][1] + robot['p'][1]
-    #print(f'\nCalculated{newX=} {newY=}')
 
-    maxX = roomX - 1
-    maxY = roomY - 1
-    if newX < 0:
-        newX = roomX + newX
-    #   print(f'too left, {newX=}')
-    elif newX > maxX:
-        #  print(f'too right, {newX=}')
-        newX = newX - roomX
 
-    if newY < 0:
-        #        print(f'too up, {newY=}')
-        newY = roomY + newY
+                printRow.append(value)
+        print('print',''.join(printRow))
 
-    elif newY > maxY:
-        # print(f'too below, {newY=}')
-        newY = newY - roomY
+printMap(theMap)
 
-    newPosition = (newX, newY)
-    #print(f'{newPosition=}')
+def getStartPosition(theMap):
+    for y, row in enumerate(theMap):
+        for x, value in enumerate(row):
+            if value == '@':
+                return (x,y)
 
-    robot['p'] = newPosition
-    #printMap(roomX, roomY, [robot])
+robotPosition = getStartPosition(theMap)
+print(f'{''.join(moves)=}, {robotPosition=}')
 
-    return robot
+def calculateMove(theMap, robotPosition, move):
+    robotX = robotPosition[0]
+    robotY = robotPosition[1]
+
+    if move == '^':
+        for y in range(robotY-1,-1,-1):
+            item = theMap[y][robotX]
+            print(f'Perhaps we can move {item=}, {robotPosition=} {move=} {y=}')
+            if item == '#':
+                print(f'Blockage was reached before any work was done')
+                return theMap, robotPosition
+            if item == '.':
+                print(f'We can move to {item=}, {robotPosition=} {move=} {y=}')
+                robotPosition = robotX, robotY-1
+                for newY in range(y, robotY, 1):
+                    item = theMap[newY+1][robotX]
+                    print(f'Moving {item=}, {robotPosition=} {move=} {y=}')
+                    theMap[newY][robotX] = item
+                    theMap[newY+1][robotX] = '.'
+                return theMap, robotPosition
+
+    if move == '<':
+        for x in range(robotX-1,-1,-1):
+            item = theMap[x][robotY]
+            print(f'Perhaps we can move {item=}, {robotPosition=} {move=} {x=}')
+            if item == '#':
+                print(f'Blockage was reached before anx work was done')
+                return theMap, robotPosition
+            if item == '.':
+                print(f'We can move to {item=}, {robotPosition=} {move=} {x=}')
+                robotPosition = robotY, robotX-1
+                for newX in range(x, robotX, 1):
+                    item = theMap[newX+1][robotY]
+                    print(f'Moving {item=}, {robotPosition=} {move=} {x=}')
+                    theMap[newX][robotY] = item
+                    theMap[newX+1][robotY] = '.'
+                return theMap, robotPosition
+
+    if move == '>':
+        for x in range(robotX+1,1000,1):
+            item = theMap[x][robotY]
+            print(f'Perhaps we can move {item=}, {robotPosition=} {move=} {x=}')
+            if item == '#':
+                print(f'Blockage was reached before anx work was done')
+                return theMap, robotPosition
+            if item == '.':
+                print(f'We can move to {item=}, {robotPosition=} {move=} {x=}')
+                robotPosition = robotY, robotX-1
+                for newX in range(x, robotX, 1):
+                    item = theMap[newX+1][robotY]
+                    print(f'Moving {item=}, {robotPosition=} {move=} {x=}')
+                    theMap[newX][robotY] = item
+                    theMap[newX+1][robotY] = '.'
+                return theMap, robotPosition
+
+
+    return theMap, robotPosition
+
+for i,move in enumerate(moves):
+    print(f'\nNew move starts {move=}')
+    theMap, robotPosition = calculateMove(theMap, robotPosition, move)
+    printMap(theMap)
+
+exit()
+
+
 
 
 def calculateTrailHeads(x, y, map):
