@@ -110,8 +110,8 @@
     </footer>
 
     <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDExQbbkvbJ7jA5H8hlFPsW8-7qWGjnijc&callback=initMap" async defer></script>
+ 
     <script>
         let map;
         function initMap() {
@@ -129,7 +129,7 @@
             
             try {
                 // Call your Lambda endpoint
-                const response = await fetch('YOUR_API_GATEWAY_ENDPOINT', {
+                const response = await fetch('https://0vd8dl1w1a.execute-api.eu-west-2.amazonaws.com/default/wheresmyname', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name })
@@ -143,9 +143,11 @@
                     <p><small>📍 ${data.distance} from Bearsden, ${data.funFact}</small></p>
                 `;
 
-                // Update map
+                  // Update map
                 if (data.coordinates) {
-                    const coords = data.coordinates.split(',');
+                    let coords = data.coordinates.replace(/[\[\]'"\s]/g, '');
+
+                    coords = coords.split(',');
                     new google.maps.Marker({
                         position: { lat: parseFloat(coords[0]), lng: parseFloat(coords[1]) },
                         map,
