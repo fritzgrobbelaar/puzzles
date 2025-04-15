@@ -1,0 +1,16 @@
+{
+  "name": "lizard-gem-miner",
+  "version": "1.0.0",
+  "description": "A 2D browser game where you play as a lizard collecting gems",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "dependencies": {
+    "phaser": "^3.70.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.11.0"
+  }
+} 

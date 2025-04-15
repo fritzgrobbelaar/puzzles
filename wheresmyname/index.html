@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whimsical World Name Explorer</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background: #f0f7f4;
+            color: #3a506b;
+            text-align: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #5d5179;
+            font-size: 2.5rem;
+        }
+        .game-area {
+            margin: 2rem 0;
+        }
+        input {
+            padding: 0.8rem;
+            width: 60%;
+            border: 2px solid #a5c4d4;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+        button {
+            padding: 0.8rem 1.5rem;
+            background: #7a9cc6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5d7ba5;
+        }
+        #result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #e8f0fe;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            margin-top: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .history {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .history-item {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-left: 4px solid #7a9cc6;
+        }
+        footer {
+            margin-top: 2rem;
+            color: #6c757d;
+        }
+        .loading {
+            color: #5d5179;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Whimsical World Name Explorer ✨</h1>
+        <p>Type a name, and we'll find a real-world location that matches—with a quirky twist!</p>
+        
+        <div class="game-area">
+            <input type="text" id="nameInput" placeholder="Enter a name (e.g., 'Libby', 'Fritz')">
+            <button onclick="fetchLocation()">Explore!</button>
+        </div>
+
+        <div id="result">
+            <p>🔍 <em>Your adventure awaits...</em></p>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="history">
+            <h3>Past Discoveries</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Hosted on AWS Lambda + S3 | Made with whimsy</p>
+    </footer>
+
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+
+    <script>
+        let map;
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 55.9, lng: -4.3 }, // Bearsden coordinates
+                zoom: 2,
+            });
+        }
+
+        async function fetchLocation() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) return;
+
+            document.getElementById('result').innerHTML = '<p class="loading">🌍 Consulting the atlas of whimsy...</p>';
+            
+            try {
+                // Call your Lambda endpoint
+                const response = await fetch('YOUR_API_GATEWAY_ENDPOINT', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                const data = await response.json();
+
+                // Display result
+                document.getElementById('result').innerHTML = `
+                    <h3>${data.location}</h3>
+                    <p>${data.description}</p>
+                    <p><small>📍 ${data.distance} from Bearsden, ${data.funFact}</small></p>
+                `;
+
+                // Update map
+                if (data.coordinates) {
+                    const coords = data.coordinates.split(',');
+                    new google.maps.Marker({
+                        position: { lat: parseFloat(coords[0]), lng: parseFloat(coords[1]) },
+                        map,
+                        title: data.location
+                    });
+                    map.setCenter({ lat: parseFloat(coords[0]), lng: parseFloat(coords[1]) });
+                    map.setZoom(8);
+                }
+
+                // Add to history
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `<strong>${name}</strong> → ${data.location}`;
+                document.getElementById('historyList').prepend(historyItem);
+
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

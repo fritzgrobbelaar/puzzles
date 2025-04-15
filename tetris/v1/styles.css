@@ -1,0 +1,63 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f0f0f0;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+canvas {
+  border: 2px solid #333;
+  background-color: #000;
+}
+
+.instructions {
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 200px;
+}
+
+.instructions h2 {
+  margin-bottom: 10px;
+}
+
+.instructions ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.instructions li {
+  margin: 5px 0;
+}
+
+label {
+  margin-right: 10px;
+}
+
+#speed {
+  width: 100%;
+}
+
+.score {
+  margin-top: 20px;
+}
+
+.score h3 {
+  margin-bottom: 10px;
+}
+
+.score p {
+  font-size: 24px;
+  font-weight: bold;
+}

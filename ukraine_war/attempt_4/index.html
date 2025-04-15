@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle of Antonov Airport Demo</title>
+    <style>
+        canvas {
+            border: 2px solid black;
+            background: #e0e0e0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #controls {
+            margin: 10px 0;
+        }
+        #gameInfo {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Battle of Antonov Airport</h2>
+    <canvas id="gameCanvas" width="640" height="480"></canvas>
+    <div id="controls">
+        <button id="startButton">Start Game (Ukrainian)</button>
+    </div>
+    <div id="gameInfo">Click a unit to select, click to move or attack. Destroy the runway or defeat all enemies!</div>
+    <script src="game.js"></script>
+</body>
+</html>

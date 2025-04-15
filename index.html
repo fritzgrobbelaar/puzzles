@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Tetris</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="instructions">
+      <h2>Instructions</h2>
+      <p>Use the arrow keys to play:</p>
+      <ul>
+        <li><strong>Left Arrow</strong>: Move piece left</li>
+        <li><strong>Right Arrow</strong>: Move piece right</li>
+        <li><strong>Down Arrow</strong>: Move piece down faster</li>
+        <li><strong>Up Arrow</strong>: Rotate piece</li>
+      </ul>
+      <label for="speed">Game Speed:</label>
+      <input type="range" id="speed" min="100" max="1000" value="500" step="100">
+      <span id="speedValue">500 ms</span>
+      <div class="score">
+        <h3>Score</h3>
+        <p id="score">0</p>
+      </div>
+    </div>
+    <div class="game-container">
+      <canvas id="tetris" width="300" height="600"></canvas>
+      <div class="glow"></div>
+    </div>
+  </div>
+  <script src="tetris.js"></script>
+</body>
+</html>

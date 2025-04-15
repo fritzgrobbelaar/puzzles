@@ -1,0 +1,132 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+  font-family: 'Arial', sans-serif;
+  color: #fff;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.game-container {
+  position: relative;
+  z-index: 1; /* Ensure the game canvas is on top */
+}
+
+canvas {
+  border: 2px solid red; /* Temporary border for debugging */
+  background-color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  display: block;
+}
+
+.glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.3), transparent 70%);
+  pointer-events: none;
+  animation: glow-pulse 2s infinite alternate;
+  z-index: -1; /* Ensure glow is behind the canvas */
+}
+
+@keyframes glow-pulse {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.instructions {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  width: 200px;
+  z-index: 2; /* Ensure instructions are above the canvas */
+}
+
+.instructions h2 {
+  margin-bottom: 10px;
+  color: #0ff;
+}
+
+.instructions ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.instructions li {
+  margin: 5px 0;
+  color: #ccc;
+}
+
+label {
+  margin-right: 10px;
+  color: #0ff;
+}
+
+#speed {
+  width: 100%;
+  accent-color: #0ff;
+}
+
+.score {
+  margin-top: 20px;
+}
+
+.score h3 {
+  margin-bottom: 10px;
+  color: #0ff;
+}
+
+.score p {
+  font-size: 24px;
+  font-weight: bold;
+  color: #0ff;
+  animation: score-pop 0.3s ease-out;
+}
+
+@keyframes score-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.preview {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  text-align: center;
+  z-index: 2; /* Ensure preview is above the canvas */
+}
+
+.preview h3 {
+  margin-bottom: 10px;
+  color: #0ff;
+}
+
+#preview {
+  border: 2px solid #444;
+  background-color: #000;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  display: block; /* Ensure preview canvas is treated as a block element */
+}

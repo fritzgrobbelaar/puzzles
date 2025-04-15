@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Gem RPG - Year 300</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
+            position: relative;
+            border: 2px solid #444;
+            background-color: #2e2e2e;
+        }
+        #info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        #stage-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        canvas {
+            display: block;
+        }
+        h1 {
+            color: #ffd700;
+            text-shadow: 2px 2px 4px #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dragon Gem RPG - Year 300</h1>
+    <div id="game-container">
+        <div id="stage-info"></div>
+        <div id="info-panel"></div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const infoPanel = document.getElementById('info-panel');
+        const stageInfo = document.getElementById('stage-info');
+
+        // Game state
+        let player = {
+            x: 400,
+            y: 300,
+            size: 20,
+            gems: 0,
+            stones: [],
+            scripts: 0,
+            stage: 1
+        };
+        let enemies = [];
+        const tileSize = 40;
+        const mapWidth = 800;
+        const mapHeight = 600;
+        const stoneNames = [
+            'Ruby Star', 'Emerald Crescent', 'Sapphire Flame', 'Amethyst Vortex',
+            'Topaz Lightning', 'Opal Mist', 'Diamond Frost', 'Garnet Shadow', 'Aquamarine Tide'
+        ];
+
+        // Character descriptions
+        const characterDescriptions = {
+            dragon: {
+                sprite: '🐉',
+                size: 30,
+                desc: 'A majestic dragon with shimmering emerald scales that glisten like polished jade under moonlight. Its wings are adorned with intricate golden veins, and its eyes burn with an ancient, fiery wisdom. Smoke curls from its nostrils, and its tail is encrusted with sparkling gems.'
+            },
+            blob: {
+                sprite: '🟢',
+                size: 25,
+                desc: 'A luminous blob that pulses with a vibrant, teal glow, its surface rippling like liquid crystal. Tiny star-like specks float within its translucent body, and it leaves a trail of sparkling mist. Its form shifts gracefully, both mesmerizing and eerie.'
+            },
+            gargoyle: {
+                sprite: '🗿',
+                size: 30,
+                desc: 'A gargoyle carved from obsidian, its wings etched with silver runes that glow faintly. Its eyes are twin amethysts, gleaming with malevolent cunning. Claws like polished onyx scrape the ground, and its stone skin is adorned with moss-like filigree.'
+            },
+            spikyBlob: {
+                sprite: '🌵',
+                size: 28,
+                desc: 'A spiky blob that shimmers with a crimson hue, its surface bristling with needle-like spines that pulse with faint light. Its core glows like molten lava, and it moves with an unsettling grace, trailing faint wisps of golden vapor.'
+            },
+            player: {
+                sprite: '🧙‍♂️',
+                desc: 'A heroic mage clad in a flowing robe of midnight blue, embroidered with silver constellations. A crystal amulet glows at their chest, and their staff pulses with arcane energy, casting soft light that dances across their determined features.'
+            }
+        };
+
+        // Spawn enemies
+        function spawnEnemies() {
+            enemies = [];
+            const enemyCount = 10;
+            const enemyTypes = player.stage === 1 ? ['dragon', 'blob'] : ['gargoyle', 'spikyBlob'];
+            for (let i = 0; i < enemyCount; i++) {
+                const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+                enemies.push({
+                    type: type,
+                    x: Math.random() * (mapWidth - tileSize),
+                    y: Math.random() * (mapHeight - tileSize),
+                    size: characterDescriptions[type].size
+                });
+            }
+        }
+
+        // Handle movement
+        document.addEventListener('keydown', (e) => {
+            const speed = 5;
+            if (e.key === 'ArrowUp' && player.y > 0) player.y -= speed;
+            if (e.key === 'ArrowDown' && player.y < mapHeight - player.size) player.y += speed;
+            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= speed;
+            if (e.key === 'ArrowRight' && player.x < mapWidth - player.size) player.x += speed;
+        });
+
+        // Check collisions
+        function checkCollisions() {
+            enemies.forEach((enemy, index) => {
+                const dx = player.x - enemy.x;
+                const dy = player.y - enemy.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < player.size + enemy.size) {
+                    if (player.stage === 1) {
+                        if (enemy.type === 'dragon') {
+                            player.gems += 2;
+                        } else if (enemy.type === 'blob') {
+                            player.gems += 4;
+                        }
+                        // Unlock stones
+                        while (player.gems >= 24 && player.stones.length < 9) {
+                            player.gems -= 24;
+                            player.stones.push(stoneNames[player.stones.length]);
+                        }
+                        // Advance to stage 2
+                        if (player.stones.length >= 9) {
+                            player.stage = 2;
+                            player.gems = 0;
+                            player.stones = [];
+                            spawnEnemies();
+                        }
+                    } else {
+                        if (enemy.type === 'gargoyle') {
+                            player.gems += 4;
+                        } else if (enemy.type === 'spikyBlob') {
+                            player.gems += 6;
+                        }
+                        // Convert gems to scripts (simplified for gameplay)
+                        while (player.gems >= 24 && player.scripts < 17) {
+                            player.gems -= 24;
+                            player.scripts += 1;
+                        }
+                    }
+                    enemies.splice(index, 1); // Remove defeated enemy
+                }
+            });
+            if (enemies.length < 3) spawnEnemies(); // Respawn enemies
+        }
+
+        // Update info panel
+        function updateInfoPanel() {
+            if (player.stage === 1) {
+                infoPanel.innerHTML = `
+                    Gems: ${player.gems}<br>
+                    Stones Unlocked: ${player.stones.length}/9<br>
+                    ${player.stones.map(s => s).join('<br>')}
+                `;
+                stageInfo.innerHTML = `Stage 1: Collect 24 gems to unlock each stone`;
+            } else {
+                infoPanel.innerHTML = `
+                    Gems: ${player.gems}<br>
+                    Scripts Collected: ${player.scripts}/17
+                `;
+                stageInfo.innerHTML = `Stage 2: Collect 17 scripts to win`;
+            }
+        }
+
+        // Draw game
+        function draw() {
+            ctx.clearRect(0, 0, mapWidth, mapHeight);
+            // Draw background
+            ctx.fillStyle = player.stage === 1 ? '#4a7043' : '#3c2f5e';
+            ctx.fillRect(0, 0, mapWidth, mapHeight);
+            // Draw player
+            ctx.font = `${player.size * 2}px Arial`;
+            ctx.fillText(characterDescriptions.player.sprite, player.x, player.y);
+            // Draw enemies
+            enemies.forEach(enemy => {
+                ctx.font = `${enemy.size * 2}px Arial`;
+                ctx.fillText(characterDescriptions[enemy.type].sprite, enemy.x, enemy.y);
+            });
+            // Draw win condition
+            if (player.stage === 2 && player.scripts >= 17) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, 0, mapWidth, mapHeight);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = '48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Victory! You have collected all 17 scripts!', mapWidth / 2, mapHeight / 2);
+                ctx.font = '24px Arial';
+                ctx.fillText('The realm is saved in the year 300!', mapWidth / 2, mapHeight / 2 + 50);
+                return;
+            }
+        }
+
+        // Game loop
+        function gameLoop() {
+            checkCollisions();
+            updateInfoPanel();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        spawnEnemies();
+        gameLoop();
+    </script>
+</body>
+</html>

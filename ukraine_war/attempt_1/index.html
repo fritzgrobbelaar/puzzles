@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle of Antonov Airport</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #controls {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="controls">
+        <button id="startButton">Start Game</button>
+        <button id="selectRussian">Play as Russian</button>
+        <button id="selectUkrainian">Play as Ukrainian</button>
+    </div>
+    <div id="gameInfo"></div>
+    <script src="game.js"></script>
+</body>
+</html>
