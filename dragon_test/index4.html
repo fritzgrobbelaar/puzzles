@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dragon Gem RPG - Year 300</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 10px;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #game-container {
+            position: relative;
+            border: 2px solid #444;
+            background-color: #2e2e2e;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        #info-panel {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px;
+            border-radius: 5px;
+            font-size: clamp(10px, 2.5vw, 12px);
+            line-height: 1.4;
+        }
+        #stage-info {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px;
+            border-radius: 5px;
+            font-size: clamp(10px, 2.5vw, 12px);
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        h1 {
+            color: #ffd700;
+            text-shadow: 2px 2px 4px #000;
+            font-size: clamp(20px, 5vw, 24px);
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dragon Gem RPG - Year 300</h1>
+    <div id="game-container">
+        <div id="stage-info"></div>
+        <div id="info-panel"></div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const infoPanel = document.getElementById('info-panel');
+        const stageInfo = document.getElementById('stage-info');
+
+        // Responsive canvas
+        const maxWidth = 800;
+        const maxHeight = 600;
+        const aspectRatio = maxWidth / maxHeight;
+        function resizeCanvas() {
+            const containerWidth = document.getElementById('game-container').clientWidth;
+            canvas.width = Math.min(containerWidth, maxWidth);
+            canvas.height = canvas.width / aspectRatio;
+            if (canvas.height > window.innerHeight - 100) {
+                canvas.height = window.innerHeight - 100;
+                canvas.width = canvas.height * aspectRatio;
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Game state
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: 20,
+            gems: 0,
+            stones: [],
+            scripts: 0,
+            ruins: 0,
+            stage: 1,
+            role: null,
+            ability: null,
+            speed: 5,
+            range: 20,
+            lastAbilityTime: 0
+        };
+        let enemies = [];
+        const tileSize = 40;
+        const stoneNames = [
+            'Ruby Star', 'Emerald Crescent', 'Sapphire Flame', 'Amethyst Vortex',
+            'Topaz Lightning', 'Opal Mist', 'Diamond Frost', 'Garnet Shadow', 'Aquamarine Tide'
+        ];
+        let gameState = 'playing'; // playing, roleSelect, abilitySelect, victory
+        let selectedRole = null;
+        let abilityButton = { x: canvas.width - 100, y: canvas.height - 50, width: 80, height: 40 };
+
+        // Character descriptions
+        const characterDescriptions = {
+            dragon: {
+                sprite: '🐉',
+                size: 30,
+                desc: 'A majestic dragon with shimmering emerald scales that glisten like polished jade under moonlight. Its wings are adorned with intricate golden veins, and its eyes burn with an ancient, fiery wisdom. Smoke curls from its nostrils, and its tail is encrusted with sparkling gems.'
+            },
+            blob: {
+                sprite: '🟢',
+                size: 25,
+                desc: 'A luminous blob that pulses with a vibrant, teal glow, its surface rippling like liquid crystal. Tiny star-like specks float within its translucent body, and it leaves a trail of sparkling mist. Its form shifts gracefully, both mesmerizing and eerie.'
+            },
+            gargoyle: {
+                sprite: '🗿',
+                size: 30,
+                desc: 'A gargoyle carved from obsidian, its wings etched with silver runes that glow faintly. Its eyes are twin amethysts, gleaming with malevolent cunning. Claws like polished onyx scrape the ground, and its stone skin is adorned with moss-like filigree.'
+            },
+            spikyBlob: {
+                sprite: '🌵',
+                size: 28,
+                desc: 'A spiky blob that shimmers with a crimson hue, its surface bristling with needle-like spines that pulse with faint light. Its core glows like molten lava, and it moves with an unsettling grace, trailing faint wisps of golden vapor.'
+            },
+            coral: {
+                sprite: '🪸',
+                size: 25,
+                desc: 'A vibrant coral creature, pulsating with bioluminescent hues of pink and turquoise. Its branching structure sways like an underwater reef, with tiny gem-like buds sparkling along its surface, exuding an aura of ancient vitality.'
+            },
+            hammerhead: {
+                sprite: '🦈',
+                size: 30,
+                desc: 'A sleek, shark-like creature with a hammer-shaped head encrusted with glittering sapphires. Its metallic scales shimmer under the mystical light, and its eyes glow with predatory intensity, radiating raw power.'
+            },
+            elderCoral: {
+                sprite: '🌊',
+                size: 50,
+                desc: 'The Elder Coral, a colossal entity of intertwined coral branches glowing with ethereal blue light. Its tendrils pulse with ancient energy, and its core radiates a blinding gemstone aura, commanding the seas of World 3.'
+            },
+            player: {
+                sprite: '🧙‍♂️',
+                desc: 'A heroic mage clad in a flowing robe of midnight blue, embroidered with silver constellations. A crystal amulet glows at their chest, and their staff pulses with arcane energy, casting soft light that dances across their determined features.'
+            }
+        };
+
+        // Abilities
+        const abilities = {
+            wizard: {
+                poison: {
+                    cooldown: 3 * 60 * 1000, // 3 minutes
+                    effect: () => {
+                        enemies.forEach(enemy => {
+                            enemy.poisoned = true;
+                            player.gems += enemy.type === 'coral' ? 6 : enemy.type === 'hammerhead' ? 8 : 28;
+                        });
+                    }
+                },
+                fire: {
+                    cooldown: 3 * 60 * 1000,
+                    effect: () => {
+                        const fireRadius = canvas.width * 0.2;
+                        enemies = enemies.filter(enemy => {
+                            const dx = player.x - enemy.x;
+                            const dy = player.y - enemy.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            if (distance < fireRadius) {
+                                player.gems += 1;
+                                return false;
+                            }
+                            return true;
+                        });
+                        player.fireEndTime = Date.now() + 10 * 1000;
+                    }
+                },
+                speed: {
+                    cooldown: 3 * 60 * 1000,
+                    effect: () => {
+                        player.speed = 7.5;
+                        player.speedEndTime = Date.now() + 2 * 60 * 1000;
+                    }
+                }
+            },
+            protector: {
+                doubleBlade: {
+                    cooldown: 3 * 59 * 1000 + 59 * 1000,
+                    effect: () => {
+                        player.speed = 7.5;
+                        player.doubleBladeEndTime = Date.now() + (1 * 60 + 59) * 1000;
+                    }
+                },
+                autoKill: {
+                    cooldown: 3 * 59 * 1000 + 59 * 1000,
+                    effect: () => {
+                        enemies = [];
+                        player.gems += 0; // No gems for auto-kill
+                    }
+                },
+                stab: {
+                    cooldown: 3 * 59 * 1000 + 59 * 1000,
+                    effect: () => {
+                        player.range = 40;
+                        player.stabEndTime = Date.now() + 30 * 1000; // Short duration for balance
+                    }
+                }
+            },
+            slinger: {
+                dash: {
+                    cooldown: 4 * 60 * 1000 + 1000,
+                    effect: () => {
+                        player.speed = 8;
+                        player.dashEndTime = Date.now() + (1 * 60 + 40) * 1000;
+                    }
+                },
+                yeet: {
+                    cooldown: 4 * 60 * 1000 + 1000,
+                    effect: () => {
+                        const direction = joystick.active ? Math.atan2(joystick.touchY - joystick.y, joystick.touchX - joystick.x) : 0;
+                        enemies = enemies.filter(enemy => {
+                            const dx = enemy.x - player.x;
+                            const dy = enemy.y - player.y;
+                            const angle = Math.atan2(dy, dx);
+                            if (Math.abs(angle - direction) < Math.PI / 4) {
+                                player.gems += enemy.type === 'coral' ? 6 : enemy.type === 'hammerhead' ? 8 : 28;
+                                return false;
+                            }
+                            return true;
+                        });
+                    }
+                },
+                hammerYeet: {
+                    cooldown: 4 * 60 * 1000 + 1000,
+                    effect: () => {
+                        const radius = canvas.width * 0.15;
+                        enemies = enemies.filter(enemy => {
+                            const dx = player.x - enemy.x;
+                            const dy = player.y - enemy.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            if (distance < radius) {
+                                player.gems += enemy.type === 'coral' ? 6 : enemy.type === 'hammerhead' ? 8 : 28;
+                                return false;
+                            }
+                            return true;
+                        });
+                    }
+                }
+            }
+        };
+
+        // Virtual Joystick
+        let joystick = {
+            active: false,
+            x: 0,
+            y: 0,
+            touchX: 0,
+            touchY: 0,
+            radius: 50,
+            innerRadius: 20
+        };
+
+        // Touch events
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const touchX = touch.clientX - canvas.offsetLeft;
+            const touchY = touch.clientY - canvas.offsetTop;
+
+            if (gameState === 'roleSelect' || gameState === 'abilitySelect') {
+                handleSelection(touchX, touchY);
+            } else if (gameState === 'playing' && touchX > abilityButton.x && touchX < abilityButton.x + abilityButton.width &&
+                       touchY > abilityButton.y && touchY < abilityButton.y + abilityButton.height) {
+                activateAbility();
+            } else {
+                joystick.x = touchX;
+                joystick.y = touchY;
+                joystick.touchX = joystick.x;
+                joystick.touchY = joystick.y;
+                joystick.active = true;
+            }
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (joystick.active && gameState === 'playing') {
+                const touch = e.touches[0];
+                joystick.touchX = touch.clientX - canvas.offsetLeft;
+                joystick.touchY = touch.clientY - canvas.offsetTop;
+                const dx = joystick.touchX - joystick.x;
+                const dy = joystick.touchY - joystick.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > joystick.radius) {
+                    const angle = Math.atan2(dy, dx);
+                    joystick.touchX = joystick.x + Math.cos(angle) * joystick.radius;
+                    joystick.touchY = joystick.y + Math.sin(angle) * joystick.radius;
+                }
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            joystick.active = false;
+        });
+
+        // Keyboard controls
+        let keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+            Space: false
+        };
+        document.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = true;
+                if (e.key === 'Space' && gameState === 'playing') {
+                    activateAbility();
+                }
+            }
+        });
+        document.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = false;
+            }
+        });
+
+        // Mouse click for role/ability selection
+        canvas.addEventListener('click', (e) => {
+            if (gameState === 'roleSelect' || gameState === 'abilitySelect') {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+                handleSelection(clickX, clickY);
+            }
+        });
+
+        // Move player
+        function movePlayer() {
+            let dx = 0, dy = 0;
+            if (joystick.active) {
+                dx = (joystick.touchX - joystick.x) / joystick.radius;
+                dy = (joystick.touchY - joystick.y) / joystick.radius;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 0) {
+                    dx *= player.speed / distance;
+                    dy *= player.speed / distance;
+                }
+            }
+            if (keys.ArrowUp) dy -= player.speed;
+            if (keys.ArrowDown) dy += player.speed;
+            if (keys.ArrowLeft) dx -= player.speed;
+            if (keys.ArrowRight) dx += player.speed;
+            const magnitude = Math.sqrt(dx * dx + dy * dy);
+            if (magnitude > player.speed) {
+                dx = (dx / magnitude) * player.speed;
+                dy = (dy / magnitude) * player.speed;
+            }
+            player.x = Math.max(0, Math.min(canvas.width - player.size, player.x + dx));
+            player.y = Math.max(0, Math.min(canvas.height - player.size, player.y + dy));
+
+            // Reset temporary effects
+            if (player.speedEndTime && Date.now() > player.speedEndTime) player.speed = 5;
+            if (player.doubleBladeEndTime && Date.now() > player.doubleBladeEndTime) player.speed = 5;
+            if (player.dashEndTime && Date.now() > player.dashEndTime) player.speed = 5;
+            if (player.stabEndTime && Date.now() > player.stabEndTime) player.range = 20;
+        }
+
+        // Spawn enemies
+        function spawnEnemies() {
+            enemies = [];
+            const enemyCount = 10;
+            const enemyTypes = player.stage === 1 ? ['dragon', 'blob'] :
+                              player.stage === 2 ? ['gargoyle', 'spikyBlob'] :
+                              ['coral', 'hammerhead', 'elderCoral'];
+            const elderCoralChance = 0.1 + (player.ruins * 0.05);
+            for (let i = 0; i < enemyCount; i++) {
+                let type = enemyTypes[Math.floor(Math.random() * (player.stage === 3 ? 2 : enemyTypes.length))];
+                if (player.stage === 3 && Math.random() < elderCoralChance) {
+                    type = 'elderCoral';
+                }
+                enemies.push({
+                    type: type,
+                    x: Math.random() * (canvas.width - tileSize),
+                    y: Math.random() * (canvas.height - tileSize),
+                    size: characterDescriptions[type].size,
+                    poisoned: false
+                });
+            }
+        }
+
+        // Check collisions
+        function checkCollisions() {
+            let slainTypes = [];
+            enemies.forEach((enemy, index) => {
+                const dx = player.x - enemy.x;
+                const dy = player.y - enemy.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < player.range + enemy.size) {
+                    let gems = 0;
+                    if (player.stage === 1) {
+                        gems = enemy.type === 'dragon' ? 2 : 4;
+                    } else if (player.stage === 2) {
+                        gems = enemy.type === 'gargoyle' ? 4 : 6;
+                    } else {
+                        gems = enemy.type === 'coral' ? 6 : enemy.type === 'hammerhead' ? 8 : 28;
+                    }
+                    player.gems += gems;
+                    enemies.splice(index, 1);
+                    if (player.ability === 'stab' && !slainTypes.includes(enemy.type)) {
+                        slainTypes.push(enemy.type);
+                        enemies = enemies.filter(e => e.type !== enemy.type);
+                    }
+                }
+            });
+            if (player.stage === 1) {
+                while (player.gems >= 24 && player.stones.length < 9) {
+                    player.gems -= 24;
+                    player.stones.push(stoneNames[player.stones.length]);
+                }
+                if (player.stones.length >= 9) {
+                    player.stage = 2;
+                    player.gems = 0;
+                    player.stones = [];
+                    spawnEnemies();
+                }
+            } else if (player.stage === 2) {
+                while (player.gems >= 24 && player.scripts < 17) {
+                    player.gems -= 24;
+                    player.scripts += 1;
+                }
+                if (player.scripts >= 17) {
+                    gameState = 'roleSelect';
+                }
+            } else {
+                while (player.gems >= 30 && player.ruins < 20) {
+                    player.gems -= 30;
+                    player.ruins += 1;
+                }
+            }
+            if (enemies.length < 3) spawnEnemies();
+        }
+
+        // Activate ability
+        function activateAbility() {
+            if (!player.ability || gameState !== 'playing') return;
+            const now = Date.now();
+            const abilityData = abilities[player.role][player.ability];
+            if (!player.lastAbilityTime || now > player.lastAbilityTime + abilityData.cooldown) {
+                abilityData.effect();
+                player.lastAbilityTime = now;
+            }
+        }
+
+        // Handle role/ability selection
+        function handleSelection(x, y) {
+            const buttonWidth = canvas.width / 4;
+            const buttonHeight = 50;
+            const startY = canvas.height / 2 - 75;
+            if (gameState === 'roleSelect') {
+                if (x > canvas.width / 2 - buttonWidth / 2 && x < canvas.width / 2 + buttonWidth / 2) {
+                    if (y > startY && y < startY + buttonHeight) {
+                        selectedRole = 'wizard';
+                        gameState = 'abilitySelect';
+                    } else if (y > startY + 75 && y < startY + 75 + buttonHeight) {
+                        selectedRole = 'protector';
+                        gameState = 'abilitySelect';
+                    } else if (y > startY + 150 && y < startY + 150 + buttonHeight) {
+                        selectedRole = 'slinger';
+                        gameState = 'abilitySelect';
+                    }
+                }
+            } else if (gameState === 'abilitySelect') {
+                if (x > canvas.width / 2 - buttonWidth / 2 && x < canvas.width / 2 + buttonWidth / 2) {
+                    if (y > startY && y < startY + buttonHeight) {
+                        player.role = selectedRole;
+                        player.ability = selectedRole === 'wizard' ? 'poison' :
+                                        selectedRole === 'protector' ? 'doubleBlade' : 'dash';
+                        gameState = 'playing';
+                        player.stage = 3;
+                        spawnEnemies();
+                    } else if (y > startY + 75 && y < startY + 75 + buttonHeight) {
+                        player.role = selectedRole;
+                        player.ability = selectedRole === 'wizard' ? 'fire' :
+                                        selectedRole === 'protector' ? 'autoKill' : 'yeet';
+                        gameState = 'playing';
+                        player.stage = 3;
+                        spawnEnemies();
+                    } else if (y > startY + 150 && y < startY + 150 + buttonHeight) {
+                        player.role = selectedRole;
+                        player.ability = selectedRole === 'wizard' ? 'speed' :
+                                        selectedRole === 'protector' ? 'stab' : 'hammerYeet';
+                        gameState = 'playing';
+                        player.stage = 3;
+                        spawnEnemies();
+                    }
+                }
+            }
+        }
+
+        // Update info panel
+        function updateInfoPanel() {
+            let cooldownText = '';
+            if (player.ability) {
+                const now = Date.now();
+                const cooldown = abilities[player.role][player.ability].cooldown;
+                const timeLeft = player.lastAbilityTime ? Math.max(0, (player.lastAbilityTime + cooldown - now) / 1000) : 0;
+                cooldownText = `Ability: ${player.ability} ${timeLeft > 0 ? `(Cooldown: ${Math.ceil(timeLeft)}s)` : '(Ready)'}`;
+            }
+            if (player.stage === 1) {
+                infoPanel.innerHTML = `
+                    Gems: ${player.gems}<br>
+                    Stones: ${player.stones.length}/9<br>
+                    ${player.stones.map(s => s).join('<br>')}
+                `;
+                stageInfo.innerHTML = `Stage 1: Collect gems`;
+            } else if (player.stage === 2) {
+                infoPanel.innerHTML = `
+                    Gems: ${player.gems}<br>
+                    Scripts: ${player.scripts}/17
+                `;
+                stageInfo.innerHTML = `Stage 2: Collect scripts`;
+            } else {
+                infoPanel.innerHTML = `
+                    Gems: ${player.gems}<br>
+                    Ruins: ${player.ruins}/20<br>
+                    Role: ${player.role || 'None'}<br>
+                    ${cooldownText}
+                `;
+                stageInfo.innerHTML = `World 3: Collect ruins`;
+            }
+        }
+
+        // Draw game
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = player.stage === 1 ? '#4a7043' : player.stage === 2 ? '#3c2f5e' : '#1e90ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (gameState === 'roleSelect') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = `${Math.min(canvas.width / 20, 36)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('The Ancient Spirit offers you a choice:', canvas.width / 2, canvas.height / 2 - 150);
+                const buttonWidth = canvas.width / 4;
+                const buttonHeight = 50;
+                const startY = canvas.height / 2 - 75;
+                ctx.fillStyle = '#444';
+                ctx.fillRect(canvas.width / 2 - buttonWidth / 2, startY, buttonWidth, buttonHeight);
+                ctx.fillRect(canvas.width / 2 - buttonWidth / 2, startY + 75, buttonWidth, buttonHeight);
+                ctx.fillRect(canvas.width / 2 - buttonWidth / 2, startY + 150, buttonWidth, buttonHeight);
+                ctx.fillStyle = '#fff';
+                ctx.font = `${Math.min(canvas.width / 30, 24)}px Arial`;
+                ctx.fillText('Wizard', canvas.width / 2, startY + 35);
+                ctx.fillText('Protector', canvas.width / 2, startY + 110);
+                ctx.fillText('Slinger', canvas.width / 2, startY + 185);
+                return;
+            } else if (gameState === 'abilitySelect') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = `${Math.min(canvas.width / 20, 36)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText(`Choose your ${selectedRole} ability:`, canvas.width / 2, canvas.height / 2 - 150);
+                const buttonWidth = canvas.width / 4;
+                const buttonHeight = 50;
+                const startY = canvas.height / 2 - 75;
+                ctx.fillStyle = '#444';
+                ctx.fillRect(canvas.width / 2 - buttonWidth / 2, startY, buttonWidth, buttonHeight);
+                ctx.fillRect(canvas.width / 2 - buttonWidth / 2, startY + 75, buttonWidth, buttonHeight);
+                ctx.fillRect(canvas.width / 2 - buttonWidth / 2, startY + 150, buttonWidth, buttonHeight);
+                ctx.fillStyle = '#fff';
+                ctx.font = `${Math.min(canvas.width / 30, 24)}px Arial`;
+                const abilityNames = selectedRole === 'wizard' ? ['Poison Spell', 'Fire Spell', 'Speed Spell'] :
+                                    selectedRole === 'protector' ? ['Double Blade', 'Auto-Kill', 'Stab'] :
+                                    ['Dash', 'Yeet', 'Hammer Yeet'];
+                ctx.fillText(abilityNames[0], canvas.width / 2, startY + 35);
+                ctx.fillText(abilityNames[1], canvas.width / 2, startY + 110);
+                ctx.fillText(abilityNames[2], canvas.width / 2, startY + 185);
+                return;
+            } else if (gameState === 'victory') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = `${Math.min(canvas.width / 20, 36)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('Victory! All 20 Ancient Ruins collected!', canvas.width / 2, canvas.height / 2);
+                ctx.font = `${Math.min(canvas.width / 30, 24)}px Arial`;
+                ctx.fillText('The realm is saved in the year 300!', canvas.width / 2, canvas.height / 2 + 50);
+                return;
+            }
+
+            // Draw joystick
+            if (joystick.active) {
+                ctx.beginPath();
+                ctx.arc(joystick.x, joystick.y, joystick.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(joystick.touchX, joystick.touchY, joystick.innerRadius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fill();
+            }
+
+            // Draw ability button
+            if (player.ability) {
+                ctx.fillStyle = player.lastAbilityTime && Date.now() < player.lastAbilityTime + abilities[player.role][player.ability].cooldown ? '#666' : '#ffd700';
+                ctx.fillRect(abilityButton.x, abilityButton.y, abilityButton.width, abilityButton.height);
+                ctx.fillStyle = '#000';
+                ctx.font = `${Math.min(canvas.width / 40, 16)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('Ability', abilityButton.x + abilityButton.width / 2, abilityButton.y + abilityButton.height / 2 + 5);
+            }
+
+            // Draw player
+            ctx.font = `${player.size * 2}px Arial`;
+            ctx.fillText(characterDescriptions.player.sprite, player.x, player.y);
+
+            // Draw enemies
+            enemies.forEach(enemy => {
+                ctx.font = `${enemy.size * 2}px Arial`;
+                ctx.fillText(characterDescriptions[enemy.type].sprite, enemy.x, enemy.y);
+            });
+
+            // Draw fire effect
+            if (player.fireEndTime && Date.now() < player.fireEndTime) {
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, canvas.width * 0.2, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 69, 0, 0.5)';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            }
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (gameState === 'playing') {
+                movePlayer();
+                checkCollisions();
+                if (player.stage === 3 && player.ruins >= 20) {
+                    gameState = 'victory';
+                }
+            }
+            updateInfoPanel();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        spawnEnemies();
+        gameLoop();
+    </script>
+</body>
+</html>
