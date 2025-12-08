@@ -92,8 +92,7 @@ for distance in distances:
         circuits = newCircuits
     if counter == 1000:
         print(f'breaking {circuits=}')
-        if len(circuits) == 1:
-            break
+        break
 lenCircuits = []
 for circuit in circuits:
     lenCircuits.append(len(circuit))
@@ -108,3 +107,4 @@ print(lenCircuits, lenCircuits[0], lenCircuits[0]*lenCircuits[1]*lenCircuits[2])
 print('-- the end -- {answer=}')
 #0 is wrong
 #1000 is too low
+
