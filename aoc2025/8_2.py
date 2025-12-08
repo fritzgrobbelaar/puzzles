@@ -25,7 +25,7 @@ sample='''162,817,812
 984,92,344
 425,690,689'''.split('\n')
 
-listOfText = sample
+#listOfText = sample
 listOfText = [row.split(',') for row in listOfText]
 
 distances = []
@@ -97,4 +97,5 @@ for distance in distances:
         print(f'breaking {circuits=}')
         break
 print(f'{int(listOfText[i][0])*int(listOfText[j][0])}') 
+
 
