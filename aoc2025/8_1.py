@@ -25,7 +25,7 @@ sample='''162,817,812
 984,92,344
 425,690,689'''.split('\n')
 
-listOfText = sample
+#listOfText = sample
 listOfText = [row.split(',') for row in listOfText]
 
 distances = []
@@ -69,6 +69,7 @@ for distance in distances:
     elif i_circuit == j_circuit:
        # print('pass')
         pass
+        counter +=1 
     elif i_circuit is not None and j_circuit is  None:
         counter+=1
         circuits[i_circuit].add(j)
@@ -76,7 +77,7 @@ for distance in distances:
     elif j_circuit is not None and  i_circuit is  None:
         counter+=1
         circuits[j_circuit].add(i)
-        print('added j')
+     #   print('added i')
     elif i_circuit != j_circuit:
         #print(f'{i_circuit=} and {j_circuit=}')
         counter+=1
@@ -87,7 +88,9 @@ for distance in distances:
             else:
                 newCircuits.append(circuit)
         newCircuits.append(circuits[i_circuit] | circuits[j_circuit])
-    if counter == 12:
+        circuits = newCircuits
+    if counter == 1000:
+        print(f'breaking {circuits=}')
         break
 lenCircuits = []
 for circuit in circuits:
@@ -95,6 +98,11 @@ for circuit in circuits:
 lenCircuits.sort()
 lenCircuits = list(reversed(lenCircuits))
 
+print(f'{lenCircuits=}')
+
+
 answer = lenCircuits[0]*lenCircuits[1]*lenCircuits[2]
 print(lenCircuits, lenCircuits[0], lenCircuits[0]*lenCircuits[1]*lenCircuits[2])
 print('-- the end -- {answer=}')
+#0 is wrong
+#1000 is too low
