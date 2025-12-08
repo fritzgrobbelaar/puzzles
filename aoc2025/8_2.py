@@ -69,7 +69,7 @@ for distance in distances:
     elif i_circuit == j_circuit:
        # print('pass')
         pass
-        counter +=1 
+        #counter +=1 
     elif i_circuit is not None and j_circuit is  None:
         counter+=1
         circuits[i_circuit].add(j)
@@ -88,27 +88,13 @@ for distance in distances:
             else:
                 newCircuits.append(circuit)
         print(f'{i_circuit=} {j_circuit=}')
-        print(f'{listOfText[i_circuit]=} {listOfText[j_circuit]=}')
+        print(f'{listOfText[i]=} {listOfText[j]=}')
         print('numbers',int(listOfText[distances[i_circuit][1]][0]),int(listOfText[distances[j_circuit][1]][0]))
         print('last length', int(listOfText[distances[i_circuit][1]][0]) *int(listOfText[distances[j_circuit][1]][0]))
         newCircuits.append(circuits[i_circuit] | circuits[j_circuit])
         circuits = newCircuits
     if counter == 1000:
         print(f'breaking {circuits=}')
-        if len(circuits) == 1:
-            break
-lenCircuits = []
-for circuit in circuits:
-    lenCircuits.append(len(circuit))
-lenCircuits.sort()
-lenCircuits = list(reversed(lenCircuits))
+        break
+print(f'{int(listOfText[i][0])*int(listOfText[j][0])}') 
 
-print(f'{lenCircuits=}')
-
-
-answer = lenCircuits[0]*lenCircuits[1]*lenCircuits[2]
-print(lenCircuits, lenCircuits[0], lenCircuits[0]*lenCircuits[1]*lenCircuits[2])
-print('-- the end -- {answer=}')
-#0 is wrong
-#1000 is too low
-#1996 is too low
