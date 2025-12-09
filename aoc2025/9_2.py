@@ -15,6 +15,7 @@ sample='''7,1
 7,3'''.split('\n')
 
 test = True
+test = False
 if test:
     listOfText = sample
     scale=1
@@ -59,6 +60,7 @@ assert True == doesLinesIntersect(verticalLine={'x' : 15, 'y_min' :3, 'y_max' :1
 assert False == doesLinesIntersect(verticalLine={'x' : 6, 'y_min' : 10, 'y_max' : 300}, horizontalLine={'y' : 4, 'x_min' :3, 'x_max' :10}, )
 assert True == doesLinesIntersect(verticalLine={'x' : 6, 'y_min' : 10, 'y_max' : 300}, horizontalLine={'y' : 15, 'x_min' :3, 'x_max' :10})
 assert True == doesLinesIntersect(verticalLine={'x': 11, 'y_min': 3, 'y_max': 7}, horizontalLine={'y': 4, 'x_min': 5, 'x_max': 12})
+
 
 def doesSegmentIntersectArea(area,  low_line_x, high_line_x, low_line_y, high_line_y):
         corner_x_1 = int(area[3][0])
@@ -106,10 +108,26 @@ def doesSegmentIntersectArea(area,  low_line_x, high_line_x, low_line_y, high_li
 
 assert True == doesSegmentIntersectArea(area=[50, 2, 6, ['11', '7'], ['2', '3']],  low_line_x=5, high_line_x=12, low_line_y=4, high_line_y=4)
 
+def IsPointInArea(area, x, y):
+    corner_x_1 = int(area[3][0])
+    corner_x_2 = int(area[4][0])
+    corner_y_1 = int(area[3][1])
+    corner_y_2 = int(area[4][1])
+    low_corner_x = min(corner_x_1, corner_x_2)
+    high_corner_x = max(corner_x_1, corner_x_2)
+    low_corner_y = min(corner_y_1, corner_y_2)
+    high_corner_y = max(corner_y_1, corner_y_2)       
+    if  x < high_corner_x and \
+        x  > low_corner_x and \
+        y < high_corner_y and \
+        y > low_corner_y:    
+        return True
+    return False
 
 def doesWormIntersectArea(area): #limitation is that 1-in & out does not work
     global listOfText
-    print('\n ### Now starting with area: ', area)
+    if test:
+        print('\n ### Now starting with area: ', area)
     prevPoint = listOfText[-1]
 
     for i, point in enumerate(listOfText):
@@ -124,6 +142,8 @@ def doesWormIntersectArea(area): #limitation is that 1-in & out does not work
         if doesSegmentIntersectArea(area, low_line_x, high_line_x, low_line_y, high_line_y):
             return True
         prevPoint = point
+        if IsPointInArea(area, x_1, y_1):
+            return True
     return False
 
 
@@ -170,3 +190,4 @@ def drawScaledArea(listOfText, scale=1):
 print('- the end')
 
 # 2451913560 is too high
+# 1544362560 worked
