@@ -7,6 +7,7 @@ global listOfText
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''[.##.] (1) {0,2,0,0}
+[.##.] (1) (2,1) {0,2,0,0}
 '''.split('\n')
 
 extracases = '''
@@ -72,12 +73,16 @@ def convertSwitches(switches, state):
 assert [(0, 1, 1, 1, 1), (1, 0, 1, 1, 1), (1, 1, 1, 0, 0), (0, 0, 1, 1, 0), (1, 0, 0, 0, 1)] == convertSwitches([(1,2,3,4), (0,2,3,4), (0,1,2), (2,3), (0,4)], [0,0,0,0,0])
     
 def compareState(endState,state):
+    #print('compareState', endState,state)
     if endState == state:
+        #print('return matched')
         return 'matched'
     for i, valueEnd in enumerate(endState):
         valueState = state[i]
         if valueState > valueEnd:
+           # print('return too high')
             return 'too high'
+    #print('return too low')
     return 'too low'
     
 assert 'matched' == compareState(endState=(2,3), state=(2,3))
@@ -86,38 +91,48 @@ assert 'too high' == compareState(endState=(2,3), state=(3,1))
 assert 'too low' == compareState(endState=(2,3), state=(1,2))
 assert 'too low' == compareState(endState=(2,3), state=(2,2))
 
-def calculateNewState(state, iteration, switches):
-    print(f'\n{state=} {iteration=} {switches=}')
+def calculateNewState(state, iteration, switches, switchesCounters):
+    print(f'\nCalculate new state from: {state=} {iteration=} {switches=}')
     for i, it in enumerate(iteration):
         if it == 0:
             continue
         switch = switches[i]
-        print(f' {it} multiply {switch=} to {state=}')
+        switchesCounters[switch] += it
         for j,value in enumerate(state):
             state[j] += it*switch[j]
-    print(f'Returning {state=} {iteration=} {switches=}')
-    return state
-    
-assert [24,56,45] ==  calculateNewState([23,56,45], [1], [(1,0,0)])
-assert [22,56,45] ==  calculateNewState([23,56,45], [-1], [(1,0,0)])
-assert [24, 56, 45] ==  calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)])
-assert [23, 55, 0] ==  calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)])
+    print(f'Returning {state=} {iteration=}, {switchesCounters=}')
+    return state, switchesCounters
 
-def calculateNextIteration(iteration, state, lastResult):
-    if lastResult == 'too low':
+assert str(([24,56,45], {(1,0,0): 1})) ==  str(calculateNewState([23,56,45], [1], [(1,0,0)], switchesCounters = {(1,0,0): 0}))
+assert str(([22,56,45], {(1,0,0): -1})) ==  str(calculateNewState([23,56,45], [-1], [(1,0,0)], switchesCounters = {(1,0,0): 0}))
+assert str(([24, 56, 45],  {(1,0,0): 1, (1,1,0): 0})) ==  str(calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)], switchesCounters = {(1,0,0): 0, (1,1,0): 0}))
+assert str(([23, 55, 0], {(1, 0, 0): 1, (1, 1, 0): -1, (1, 0, 1): 0})) ==  str(calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)], switchesCounters = {(1,0,0): 0, (1,1,0): 0, (1,0,1): 0}))
+
+def calculateNextIteration(iteration, state, lastResult, switchesCounters):
+    print(f'--calculateNextIteration: {iteration=}, {state=}, {lastResult=}')
+    if lastResult == 'too low': # no change to the iteration
+        iteration = iteration = [iterValue if iterValue != -1 else 0 for iterValue in iteration]
         return iteration
     elif lastResult == 'matched':
         raise Exception('could have been done already')
     else:  # careful binary logic
-        
-    
-assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low')
-assert [1,0,0] == calculateNextIteration([10,57,0], [11,5,5], 'too high')
+        for i, value in enumerate(iteration):
+            if value == 1:
+                iteration[i] = -1
+                iteration[i+1] = 1
+                break
+            else:
+                iteration[i] = 0
+    print(f'returning {iteration=}')
+    return iteration
+                
+assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low', {(1,0,0): 0})
+assert [-1,1,0] == calculateNextIteration([1,0,0], [11,5,5], 'too high')
 
-for row in listOfText:
-    print(f'\n {row=}')
+def getLowestIteration(row):
+    print('\n\n ---- New row --',row)
     endState = row[-1]
-    endState = parseSwitches([endState])[0]
+    endState = list(parseSwitches([endState])[0])
     print(f'{endState=}')
     switches = row[1:-1]
     switches = sortSwitches(switches)
@@ -125,15 +140,41 @@ for row in listOfText:
     length = len(endState) 
     state = [0]*length
     switches = convertSwitches(switches, state[:])
-    
+    switchesCounters = {}
+    for switch in switches:
+        switchesCounters[switch] = 0
+    print(f'{switches=}')
+    counter = 1
     iteration = [0]*len(switches)
     iteration[0] = 1
     lastResult = 'too low'
     while lastResult != 'matched':
         print(f'{iteration=} {state=} {lastResult=}')
-        iteration = calculateNextIteration(iteration, state, lastResult)
-        state = calculateNewState(state, iteration, switches)
+        iteration, switchesCounters = calculateNextIteration(iteration, state, lastResult, switchesCounters)
+        state, switchesCounters = calculateNewState(state, iteration, switches, switchesCounters)
         lastResult = compareState(endState,state)
+        if lastResult == 'matched':
+            break
+        if lastResult == 'too low':
+            counter+=1
+        if -1 in state:
+            raise Exception ('One counter in state went negative, which is not acceptable')
+    print(f' returning {counter=}')
+    return counter
+
+print('\n-------------------------\n')
+assert 10 == getLowestIteration(row=['[.##.]', '(3)', '(1,3)', '(2)', '(2,3)', '(0,2)', '(0,1)', '{3,5,4,7}'])
+assert 2 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '{0,2,0,0}'])
+assert 2 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '(3,2,1)', '{0,2,0,0}'])
+assert 1 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '(1,2,3)', '{0,1,1,1}'])
+assert 3 == getLowestIteration(row=['[.##.]', '(2)', '(1,2)', '(3,2,1)', '{0,2,3,0}'])
+assert 2 == getLowestIteration(row=['[.##.]', '(1)', '{0,2,0,0}'])
+
+
+totalCounter = 0
+for row in listOfText:
+    print(f'\n ------------\n{row=}')
+    counter = getLowestIteration(row)
+    totalCounter += counter
     
-    print(f'{switches=} {length=} {state=}')
-    
+print(f'{totalCounter=}')
