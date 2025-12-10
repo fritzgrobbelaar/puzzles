@@ -32,7 +32,6 @@ def sortSwitches(switches):
         withSizes.append([len(switch),switch])
     withSizes.sort()
     switches = [withSize[1] for withSize in withSizes]
-    switches = list(reversed(switches))
     
     return switches
     
@@ -91,7 +90,7 @@ assert 'too high' == compareState(endState=(2,3), state=(3,1))
 assert 'too low' == compareState(endState=(2,3), state=(1,2))
 assert 'too low' == compareState(endState=(2,3), state=(2,2))
 
-def calculateNewState(state, iteration, switches, switchesCounters):
+def toDelete_calculateNewState(state, iteration, switches, switchesCounters):
     #print(f'\nCalculate new state from: {state=} {iteration=} {switches=}')
     for i, it in enumerate(iteration):
         if it == 0:
@@ -103,12 +102,12 @@ def calculateNewState(state, iteration, switches, switchesCounters):
     #print(f'Returning {state=} {iteration=}, {switchesCounters=}')
     return state, switchesCounters
 
-assert str(([24,56,45], [1])) ==  str(calculateNewState([23,56,45], [1], [(1,0,0)], switchesCounters = [0]))
-assert str(([22,56,45], [2])) ==  str(calculateNewState([23,56,45], [-1], [(1,0,0)], switchesCounters = [3]))
-assert str(([24, 56, 45],  [11,0])) ==  str(calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)], switchesCounters = [10,0]))
-assert str(([23, 55, 0], [5,7,6])) ==  str(calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)], switchesCounters = [5,6,7]))
+#assert str(([24,56,45], [1])) ==  #str(calculateNewState([23,56,45], [1], (1,0,0)], switchesCounters = [0]))
+#assert str(([22,56,45], [2])) ==  str(calculateNewState([23,56,45], [-1], [(1,0,0)], switchesCounters = [3]))
+#assert str(([24, 56, 45],  [11,0])) ==  str(calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)], switchesCounters = [10,0]))
+#assert str(([23, 55, 0], [5,7,6])) ==  str(calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)], switchesCounters = [5,6,7]))
 
-def calculateNextIteration(iteration, state, lastResult, switchesCounters):
+def toDelete_calculateNextIteration(iteration, state, lastResult, switchesCounters):
     print(f'\n--calculateNextIteration: {iteration=}, {state=}, {lastResult=}, {switchesCounters=}')
     if lastResult == 'too low': # no change to the iteration
         iteration = iteration = [iterValue if iterValue != -1 else 0 for iterValue in iteration]
@@ -125,8 +124,8 @@ def calculateNextIteration(iteration, state, lastResult, switchesCounters):
     print(f'returning {iteration=}')
     return iteration
                 
-assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low', [0,0,0])
-assert [-1,1,0] == calculateNextIteration([1,0,0], [11,5,5], 'too high', [1,0,0])
+#assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low', [0,0,0])
+#assert [-1,1,0] == calculateNextIteration([1,0,0], [11,5,5], 'too high', [1,0,0])
 
 def getLowestIteration(row):
     print('\n\n ---- New row --',row)
@@ -142,21 +141,19 @@ def getLowestIteration(row):
     switchesCounters = [0]*len(switches)
     print(f'{switches=}')
     counter = 1
-    iteration = [0]*len(switches)
-    iteration[0] = 1
+    
     lastResult = 'too low'
     while lastResult != 'matched':
        # print(f'{iteration=} {state=} {lastResult=}')
-        iteration = calculateNextIteration(iteration, state, lastResult, switchesCounters)
-        state, switchesCounters = calculateNewState(state, iteration, switches, switchesCounters)
+        
+        
         lastResult = compareState(endState,state)
         if lastResult == 'matched':
             break
         if lastResult == 'too low':
-            counter+=1
-        if -1 in state:
-            raise Exception ('One counter in state went negative, which is not acceptable')
-    print(f' returning {counter=}')
+            switchesCounters[-1] += 1
+        else:
+            switchesCounters = tensIncrease(switchesCounters)
     return counter
 
 print('\n-------------------------\n')
