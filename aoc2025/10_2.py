@@ -6,10 +6,11 @@ import itertools
 global listOfText
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
-sample='''[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+sample='''[.##.] (1) {0,2,0,0}
 '''.split('\n')
 
 extracases = '''
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
@@ -64,13 +65,43 @@ def convertSwitches(switches, state):
         for switchValue in switch:
             state[switchValue] = 1
         newSwitches.append(tuple(state))
-        print(f'{state=}')
-    print(f'{newSwitches=}')
+        #print(f'{state=}')
+    #print(f'{newSwitches=}')
     return newSwitches
         
 assert [(0, 1, 1, 1, 1), (1, 0, 1, 1, 1), (1, 1, 1, 0, 0), (0, 0, 1, 1, 0), (1, 0, 0, 0, 1)] == convertSwitches([(1,2,3,4), (0,2,3,4), (0,1,2), (2,3), (0,4)], [0,0,0,0,0])
     
+def compareState(endState,state):
+    if endState == state:
+        return 'matched'
+    for i, valueEnd in enumerate(endState):
+        valueState = state[i]
+        if valueState > valueEnd:
+            return 'too high'
+    return 'too low'
     
+assert 'matched' == compareState(endState=(2,3), state=(2,3))
+assert 'too high' == compareState(endState=(2,3), state=(2,4))
+assert 'too high' == compareState(endState=(2,3), state=(3,1))
+assert 'too low' == compareState(endState=(2,3), state=(1,2))
+assert 'too low' == compareState(endState=(2,3), state=(2,2))
+
+def calculateNewState(state, iteration):
+    print(f'{state=} {iteration=}')
+    for i,value in enumerate(state):
+        state[i] += iteration[i]
+    return state
+    
+assert [24,56,45] ==  calculateNewState([23,56,45], [1,0,0])
+assert [23,57,45] ==  calculateNewState([23,56,45], [0,1,0])
+assert [23,55,1] ==  calculateNewState([23,56,0], [0,-1,1])
+
+def calculateNextIteration(iteration, state, lastResult):
+    if lastResult == 'too low':
+        return iteration
+    
+assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low')
+
 for row in listOfText:
     print(f'\n {row=}')
     endState = row[-1]
@@ -80,8 +111,18 @@ for row in listOfText:
     switches = sortSwitches(switches)
     switches = parseSwitches(switches)
     length = getLength(switches)
+    #length = len(endState) 
     state = [0]*length
     switches = convertSwitches(switches, state[:])
+    
+    iteration = state[:]
+    iteration[0] = 1
+    lastResult = 'too low'
+    while lastResult != 'matched':
+        print(f'{iteration=} {state=} {lastResult=}')
+        iteration = calculateNextIteration(iteration, state, lastResult)
+        state = calculateNewState(state, iteration)
+        lastResult = compareState(endState,state)
     
     print(f'{switches=} {length=} {state=}')
     
