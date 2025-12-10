@@ -2,24 +2,27 @@ import cleaninput
 from datetime import datetime
 from functools import cmp_to_key
 import math
+from datetime import datetime
 import itertools
 global listOfText
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}'''.split('\n')
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
+[...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
+'''.split('\n')
 
 extracases = '''
 [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
-[...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
+
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
 
-test=True
+test=False
 if test:
     listOfText = sample
 #print(f'{listOfText=}\n')
@@ -65,8 +68,6 @@ def convertSwitches(switches, state):
         for switchValue in switch:
             state[switchValue] = 1
         newSwitches.append(tuple(state))
-        #print(f'{state=}')
-    #print(f'{newSwitches=}')
     return newSwitches
         
 assert [(0, 1, 1, 1, 1), (1, 0, 1, 1, 1), (1, 1, 1, 0, 0), (0, 0, 1, 1, 0), (1, 0, 0, 0, 1)] == convertSwitches([(1,2,3,4), (0,2,3,4), (0,1,2), (2,3), (0,4)], [0,0,0,0,0])
@@ -91,21 +92,21 @@ assert 'too low' == compareState(endState=(2,3), state=(1,2))
 assert 'too low' == compareState(endState=(2,3), state=(2,2))
 
 def calculateNewState(state, switchesCounters, switches):
-   # print(f'\n{switchesCounters=}')
-    #print(f'\nCalculate new state from: {state=} {iteration=} {switches=}')
+    #print(f'Calculating new state from {state=} and {switches=} with {switchesCounters=}')
     for i, it in enumerate(switchesCounters):
         if it == 0:
             continue
         switch = switches[i]
         for j,value in enumerate(state):
             state[j] += it*switch[j]
-    #print(f'Returning {state=} {iteration=}, {switchesCounters=}')
+    #print(f'Returning {state=}')
     return state
 
-#assert str(([24,56,45], [1])) ==  #str(calculateNewState([23,56,45], [1], (1,0,0)], switchesCounters = [0]))
-#assert str(([22,56,45], [2])) ==  str(calculateNewState([23,56,45], [-1], [(1,0,0)], switchesCounters = [3]))
-#assert str(([24, 56, 45],  [11,0])) ==  str(calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)], switchesCounters = [10,0]))
-#assert str(([23, 55, 0], [5,7,6])) ==  str(calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)], switchesCounters = [5,6,7]))
+assert [1,0,0] ==  calculateNewState([0,0,0], switchesCounters = [1], switches=[(1,0,0)])
+assert [3,0,0] ==  calculateNewState([0,0,0], switchesCounters = [3], switches=[(1,0,0)])
+assert [10,0,0] ==  calculateNewState([0,0,0], switchesCounters = [10,0], switches= [(1,0,0), (1,1,0)])
+assert [18, 7, 5] ==  (calculateNewState([0,0,0],switchesCounters = [5,6,7], switches= [(1,0,1),(1,0,0), (1,1,0)]))
+
 
 def tensIncrease(switchesCounters):
     #print(f'Increasing {switchesCounters=} by tens')
@@ -131,7 +132,9 @@ assert [2,0,0] == tensIncrease([1,1,0])
 
 
 def getLowestIteration(row):
-    print('\n\n ---- New row --',row)
+    now = datetime.now()
+    nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')
+    print(f'\n\n ---- New row -- {nowString=}\n',row)
     endState = row[-1]
     endState = list(parseSwitches([endState])[0])
     print(f'{endState=}')
@@ -148,11 +151,12 @@ def getLowestIteration(row):
     
     lastResult = 'too low'
     while lastResult != 'matched':
-       # print(f'{switchesCounters=} {state=} {lastResult=}')
+        #print(f'{switchesCounters=}')
         lastResult = compareState(endState,state)
         if lastResult == 'matched':
             resultCounter = sum(switchesCounters)
-            print(f'Returning {resultCounter=}')
+            timeDelta = datetime.now()-now
+            print(f'Returning {resultCounter=} after {timeDelta=}')
             return resultCounter
         if lastResult == 'too low':
         #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
@@ -173,7 +177,6 @@ print('\n-------------------------\n\n\n\n -- the real deal ----\n')
 
 totalCounter = 0
 for row in listOfText:
-    print(f'\n ------------\n{row=}')
     counter = getLowestIteration(row)
     totalCounter += counter
     
