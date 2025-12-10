@@ -10,13 +10,16 @@ sample='''[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 [...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
-
+[#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''.split('\n')
 
-test=True
+extracases = '''
+'''
+
+test=False
 if test:
     listOfText = sample
-print(f'{listOfText=}\n')
+#print(f'{listOfText=}\n')
 listOfText = [item for item in listOfText if item.strip() != '']
 listOfText = [row.split(' ') for row in listOfText]
 
@@ -65,29 +68,37 @@ assert '..#.' == flipSwitches('....','..#.')
 assert '#..#' == flipSwitches('...#','#...')
 assert '#..#' == flipSwitches('.#.#','##..')
 
-fewestPressesTotal = 0
-
-for row in listOfText:
-    endState = convertEndState(row[0])
-    switches = row[1:-1]
-    print(f'{len(switches)=}')
-
-    combs = [list(x) for x in itertools.permutations(switches, len(switches))]
-    combs = [com for com in combs if len(com) == len(switches)]
-    print(f'{len(combs)=}')
+def calculateFewestPresses(endState, switches, permutationLimit):
     fewestPresses = 100000
-    for comb in combs:
+    for comb in itertools.permutations(switches, permutationLimit):
         state = '.'*len(endState)
         for i,value in enumerate(comb):
-            if i+1 == fewestPresses:
+            if i+1 >= fewestPresses:
                 #print('already reached')
                 break
             flips = convertValueToBinary(value,len(endState))
             state = flipSwitches(state, flips)
             #print(f'comparing {state=} {endState=}')
             if state == endState:
-                print(f'found one - breaking {comb=}')
                 fewestPresses = i+1
-    print(f'{fewestPresses=} for {row=}')
+                #print(f'found one - breaking {comb=} {fewestPresses=}')
+    return fewestPresses
+
+fewestPressesTotal = 0
+
+for row in listOfText:
+    endState = convertEndState(row[0])
+    switches = row[1:-1]
+    #print(f'\n{len(switches)=} {row=}')
+
+    for limit in [5, 6, 7]:
+        fewestPresses = calculateFewestPresses(endState, switches, min(limit,len(switches)))
+        if fewestPresses != 100000:
+            break
+        print('failed to calculate on', limit)
+    else:
+        print('failed to calculate')
+    #print(f'{fewestPresses=} for {row=}')
     fewestPressesTotal += fewestPresses
 print(f'{fewestPressesTotal=}')
+#484 is too high
