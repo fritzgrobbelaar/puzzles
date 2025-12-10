@@ -86,21 +86,33 @@ assert 'too high' == compareState(endState=(2,3), state=(3,1))
 assert 'too low' == compareState(endState=(2,3), state=(1,2))
 assert 'too low' == compareState(endState=(2,3), state=(2,2))
 
-def calculateNewState(state, iteration):
-    print(f'{state=} {iteration=}')
-    for i,value in enumerate(state):
-        state[i] += iteration[i]
+def calculateNewState(state, iteration, switches):
+    print(f'\n{state=} {iteration=} {switches=}')
+    for i, it in enumerate(iteration):
+        if it == 0:
+            continue
+        switch = switches[i]
+        print(f' {it} multiply {switch=} to {state=}')
+        for j,value in enumerate(state):
+            state[j] += it*switch[j]
+    print(f'Returning {state=} {iteration=} {switches=}')
     return state
     
-assert [24,56,45] ==  calculateNewState([23,56,45], [1,0,0])
-assert [23,57,45] ==  calculateNewState([23,56,45], [0,1,0])
-assert [23,55,1] ==  calculateNewState([23,56,0], [0,-1,1])
+assert [24,56,45] ==  calculateNewState([23,56,45], [1], [(1,0,0)])
+assert [22,56,45] ==  calculateNewState([23,56,45], [-1], [(1,0,0)])
+assert [24, 56, 45] ==  calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)])
+assert [23, 55, 0] ==  calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)])
 
 def calculateNextIteration(iteration, state, lastResult):
     if lastResult == 'too low':
         return iteration
+    elif lastResult == 'matched':
+        raise Exception('could have been done already')
+    else:  # careful binary logic
+        
     
 assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low')
+assert [1,0,0] == calculateNextIteration([10,57,0], [11,5,5], 'too high')
 
 for row in listOfText:
     print(f'\n {row=}')
@@ -110,18 +122,17 @@ for row in listOfText:
     switches = row[1:-1]
     switches = sortSwitches(switches)
     switches = parseSwitches(switches)
-    length = getLength(switches)
-    #length = len(endState) 
+    length = len(endState) 
     state = [0]*length
     switches = convertSwitches(switches, state[:])
     
-    iteration = state[:]
+    iteration = [0]*len(switches)
     iteration[0] = 1
     lastResult = 'too low'
     while lastResult != 'matched':
         print(f'{iteration=} {state=} {lastResult=}')
         iteration = calculateNextIteration(iteration, state, lastResult)
-        state = calculateNewState(state, iteration)
+        state = calculateNewState(state, iteration, switches)
         lastResult = compareState(endState,state)
     
     print(f'{switches=} {length=} {state=}')
