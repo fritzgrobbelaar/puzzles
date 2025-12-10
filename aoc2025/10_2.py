@@ -7,98 +7,81 @@ global listOfText
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+'''.split('\n')
+
+extracases = '''
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 [...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
-'''.split('\n')
-
-extracases = '''
 '''
 
-test=False
+test=True
 if test:
     listOfText = sample
 #print(f'{listOfText=}\n')
 listOfText = [item for item in listOfText if item.strip() != '']
 listOfText = [row.split(' ') for row in listOfText]
 
-def convertValueToBinary(value, length):
-    #print(f'converting to binary {value=} {length=}')
-    value = value[1:-1]
-    value= value.split(',')
-    longestString = ['.']*length
-    for digit in value:
-        try:
-            longestString[int(digit)] = '#'
-        except IndexError:
-            print('something went wrong',length, value)
-            raise
-    string = ''.join(longestString)
-    #print(f'returning {string=}')
-    return string
+def sortSwitches(switches):
+    withSizes= []
+    for switch in switches:
+        withSizes.append([len(switch),switch])
+    withSizes.sort()
+    switches = [withSize[1] for withSize in withSizes]
+    switches = list(reversed(switches))
+    
+    return switches
+    
+assert ['(1,2,3,4)', '(0,2,3,4)', '(0,1,2)', '(2,3)', '(0,4)'] == sortSwitches(['(0,2,3,4)' ,'(2,3)', '(0,4)' ,'(0,1,2)' ,'(1,2,3,4)'])
 
-assert  '...#' == convertValueToBinary('(3)',4)
-assert  '...#.' == convertValueToBinary('(3)',5)
-assert  '#.#' == convertValueToBinary('(2,0)',3)
-assert  '.#.#' == convertValueToBinary('(3,1)',4)
+def parseSwitches(listOfStrings):
+    listOfTuples = []
+    for switch in listOfStrings:
+        switch = switch[1:-1]
+        switch = switch.split(',')
+        switch = [int(switchItem) for switchItem in switch]
+        listOfTuples.append(tuple(switch))
+    #print(f'{listOfTuples=}')
+    return listOfTuples
+        
+assert [(1,2,3,4), (0,2,3,4), (0,1,2), (2,3), (0,4)] == parseSwitches(['(1,2,3,4)', '(0,2,3,4)', '(0,1,2)', '(2,3)', '(0,4)'])
 
-def convertEndState(endState):
-    endState = endState[1:-1]
-    return endState
-
-assert '.#..' == convertEndState('[.#..]')
-
-def flipSwitches(switches, flips):
-    if len(switches) != len(flips):
-        raise ValueError(' lengths should be the same')
-    newList = []
-    for i,value in enumerate(switches):
-        value2 = flips[i]
-        if value == value2:
-            newList.append('.')
-        else:
-            newList.append('#')
-    return ''.join(newList)
-
-
-assert '....' == flipSwitches('....','....')
-assert '..#.' == flipSwitches('..#.','....')
-assert '..#.' == flipSwitches('....','..#.')
-assert '#..#' == flipSwitches('...#','#...')
-assert '#..#' == flipSwitches('.#.#','##..')
-
-def calculateFewestPresses(endState, switches, permutationLimit):
-    fewestPresses = 100000
-    for comb in itertools.permutations(switches, permutationLimit):
-        state = '.'*len(endState)
-        for i,value in enumerate(comb):
-            if i+1 >= fewestPresses:
-                #print('already reached')
-                break
-            flips = convertValueToBinary(value,len(endState))
-            state = flipSwitches(state, flips)
-            #print(f'comparing {state=} {endState=}')
-            if state == endState:
-                fewestPresses = i+1
-                #print(f'found one - breaking {comb=} {fewestPresses=}')
-    return fewestPresses
-
-fewestPressesTotal = 0
-
+def getLength(switches):
+    highestValue = 0
+    for switch in switches:
+        for switchItem in switch:
+            if switchItem > highestValue:
+                highestValue = switchItem
+    return highestValue+1
+    
+def convertSwitches(switches, state):
+    newSwitches = []
+    originalState = state
+    for switch in switches:
+        state = originalState[:]
+        for switchValue in switch:
+            state[switchValue] = 1
+        newSwitches.append(tuple(state))
+        print(f'{state=}')
+    print(f'{newSwitches=}')
+    return newSwitches
+        
+assert [(0, 1, 1, 1, 1), (1, 0, 1, 1, 1), (1, 1, 1, 0, 0), (0, 0, 1, 1, 0), (1, 0, 0, 0, 1)] == convertSwitches([(1,2,3,4), (0,2,3,4), (0,1,2), (2,3), (0,4)], [0,0,0,0,0])
+    
+    
 for row in listOfText:
-    endState = convertEndState(row[0])
+    print(f'\n {row=}')
+    endState = row[-1]
+    endState = parseSwitches([endState])[0]
+    print(f'{endState=}')
     switches = row[1:-1]
-    #print(f'\n{len(switches)=} {row=}')
-
-    for limit in [5, 6, 7]:
-        fewestPresses = calculateFewestPresses(endState, switches, min(limit,len(switches)))
-        if fewestPresses != 100000:
-            break
-        print('failed to calculate on', limit)
-    else:
-        print('failed to calculate')
-    #print(f'{fewestPresses=} for {row=}')
-    fewestPressesTotal += fewestPresses
-print(f'{fewestPressesTotal=}')
-#484 is too high
+    switches = sortSwitches(switches)
+    switches = parseSwitches(switches)
+    length = getLength(switches)
+    state = [0]*length
+    switches = convertSwitches(switches, state[:])
+    
+    print(f'{switches=} {length=} {state=}')
+    
