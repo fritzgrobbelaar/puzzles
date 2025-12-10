@@ -92,27 +92,26 @@ assert 'too low' == compareState(endState=(2,3), state=(1,2))
 assert 'too low' == compareState(endState=(2,3), state=(2,2))
 
 def calculateNewState(state, iteration, switches, switchesCounters):
-    print(f'\nCalculate new state from: {state=} {iteration=} {switches=}')
+    #print(f'\nCalculate new state from: {state=} {iteration=} {switches=}')
     for i, it in enumerate(iteration):
         if it == 0:
             continue
         switch = switches[i]
-        switchesCounters[switch] += it
+        switchesCounters[i] += it
         for j,value in enumerate(state):
             state[j] += it*switch[j]
-    print(f'Returning {state=} {iteration=}, {switchesCounters=}')
+    #print(f'Returning {state=} {iteration=}, {switchesCounters=}')
     return state, switchesCounters
 
-assert str(([24,56,45], {(1,0,0): 1})) ==  str(calculateNewState([23,56,45], [1], [(1,0,0)], switchesCounters = {(1,0,0): 0}))
-assert str(([22,56,45], {(1,0,0): -1})) ==  str(calculateNewState([23,56,45], [-1], [(1,0,0)], switchesCounters = {(1,0,0): 0}))
-assert str(([24, 56, 45],  {(1,0,0): 1, (1,1,0): 0})) ==  str(calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)], switchesCounters = {(1,0,0): 0, (1,1,0): 0}))
-assert str(([23, 55, 0], {(1, 0, 0): 1, (1, 1, 0): -1, (1, 0, 1): 0})) ==  str(calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)], switchesCounters = {(1,0,0): 0, (1,1,0): 0, (1,0,1): 0}))
+assert str(([24,56,45], [1])) ==  str(calculateNewState([23,56,45], [1], [(1,0,0)], switchesCounters = [0]))
+assert str(([22,56,45], [2])) ==  str(calculateNewState([23,56,45], [-1], [(1,0,0)], switchesCounters = [3]))
+assert str(([24, 56, 45],  [11,0])) ==  str(calculateNewState([23,56,45], [1,0], [(1,0,0), (1,1,0)], switchesCounters = [10,0]))
+assert str(([23, 55, 0], [5,7,6])) ==  str(calculateNewState([23,56,0], [0,1,-1], [(1,0,1),(1,0,0), (1,1,0)], switchesCounters = [5,6,7]))
 
 def calculateNextIteration(iteration, state, lastResult, switchesCounters):
-    print(f'--calculateNextIteration: {iteration=}, {state=}, {lastResult=}')
+    print(f'\n--calculateNextIteration: {iteration=}, {state=}, {lastResult=}, {switchesCounters=}')
     if lastResult == 'too low': # no change to the iteration
         iteration = iteration = [iterValue if iterValue != -1 else 0 for iterValue in iteration]
-        return iteration
     elif lastResult == 'matched':
         raise Exception('could have been done already')
     else:  # careful binary logic
@@ -126,8 +125,8 @@ def calculateNextIteration(iteration, state, lastResult, switchesCounters):
     print(f'returning {iteration=}')
     return iteration
                 
-assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low', {(1,0,0): 0})
-assert [-1,1,0] == calculateNextIteration([1,0,0], [11,5,5], 'too high')
+assert [1,0,0] == calculateNextIteration([1,0,0], [23,56,45], 'too low', [0,0,0])
+assert [-1,1,0] == calculateNextIteration([1,0,0], [11,5,5], 'too high', [1,0,0])
 
 def getLowestIteration(row):
     print('\n\n ---- New row --',row)
@@ -140,17 +139,15 @@ def getLowestIteration(row):
     length = len(endState) 
     state = [0]*length
     switches = convertSwitches(switches, state[:])
-    switchesCounters = {}
-    for switch in switches:
-        switchesCounters[switch] = 0
+    switchesCounters = [0]*len(switches)
     print(f'{switches=}')
     counter = 1
     iteration = [0]*len(switches)
     iteration[0] = 1
     lastResult = 'too low'
     while lastResult != 'matched':
-        print(f'{iteration=} {state=} {lastResult=}')
-        iteration, switchesCounters = calculateNextIteration(iteration, state, lastResult, switchesCounters)
+       # print(f'{iteration=} {state=} {lastResult=}')
+        iteration = calculateNextIteration(iteration, state, lastResult, switchesCounters)
         state, switchesCounters = calculateNewState(state, iteration, switches, switchesCounters)
         lastResult = compareState(endState,state)
         if lastResult == 'matched':
@@ -163,12 +160,14 @@ def getLowestIteration(row):
     return counter
 
 print('\n-------------------------\n')
-assert 10 == getLowestIteration(row=['[.##.]', '(3)', '(1,3)', '(2)', '(2,3)', '(0,2)', '(0,1)', '{3,5,4,7}'])
 assert 2 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '{0,2,0,0}'])
+
 assert 2 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '(3,2,1)', '{0,2,0,0}'])
 assert 1 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '(1,2,3)', '{0,1,1,1}'])
 assert 3 == getLowestIteration(row=['[.##.]', '(2)', '(1,2)', '(3,2,1)', '{0,2,3,0}'])
 assert 2 == getLowestIteration(row=['[.##.]', '(1)', '{0,2,0,0}'])
+
+assert 10 == getLowestIteration(row=['[.##.]', '(3)', '(1,3)', '(2)', '(2,3)', '(0,2)', '(0,1)', '{3,5,4,7}'])
 
 
 totalCounter = 0
