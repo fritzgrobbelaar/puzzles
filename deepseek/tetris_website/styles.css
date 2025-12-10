@@ -1,0 +1,86 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background: #000;
+  font-family: 'Arial', sans-serif;
+  color: #fff;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+canvas {
+  border: 2px solid #fff;
+  background-color: #000;
+  display: block;
+}
+
+.instructions {
+  background: #333;
+  padding: 20px;
+  border-radius: 10px;
+  width: 200px;
+}
+
+.instructions h2 {
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.instructions ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.instructions li {
+  margin: 5px 0;
+  color: #ccc;
+}
+
+label {
+  margin-right: 10px;
+  color: #fff;
+}
+
+#speed {
+  width: 100%;
+}
+
+.score {
+  margin-top: 20px;
+}
+
+.score h3 {
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.score p {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.preview {
+  background: #333;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.preview h3 {
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+#preview {
+  border: 2px solid #fff;
+  background-color: #000;
+  display: block;
+}
