@@ -177,29 +177,37 @@ def weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWit
         #switches = [0,1,0] #best in these cases
         #switches = [0,1,1]  #invalid
     """
-    print(f'\nInput: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
+    #print(f'\nInput: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
     previousBestSquaredDistance = 0
-    squaredDistances = state[:]
+    bestIndex = None
     for i,switchCounter in enumerate(switchesCounters):
-        print(f'{switchCounter=}')
+        squaredDistances = state[:]
+        #print(f'{switchCounter=}')
         squaredDistance = 0
         for j, value in enumerate(state):
-            if value >= endstate[j]:
+            if value > endstate[j]:
                 squaredDistance = 0
+                print(f'\nstate is higher than endstate: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
                 break
-            print(f'Calculating distance for {endstate[j]=} and {state[j]=} with switch {switches[i][j]=}')
+          #  print(f'Calculating distance for {endstate[j]=} and {state[j]=} with switch {switches[i][j]=}')
             squaredDistance += (endstate[j] - state[j])**2 *(switches[i][j])
-        print(f'Checking switch index {i} with squaredDistance {squaredDistance=} against previousBestSquaredDistance {previousBestSquaredDistance=}')
+         #   print(f'Intermediate squaredDistance is {squaredDistance=}')
+        #print(f'Checking switch index {i} with squaredDistance {squaredDistance=} against previousBestSquaredDistance {previousBestSquaredDistance=}')
         squaredDistances.append(squaredDistance)
-        if squaredDistances.sum()> previousBestSquaredDistance:
-            bestIndex = i
-            previousBestSquaredDistance = squaredDistance
         
-    if not bestIndex:
+        if sum(squaredDistances)> previousBestSquaredDistance:
+            bestIndex = i
+            previousBestSquaredDistance = sum(squaredDistances)
+        else:
+            pass
+            #print(f'Switch index {i} with squaredDistance {squaredDistance=} is not better than previousBestSquaredDistance {previousBestSquaredDistance=}, skipping {bestIndex=}')
+        
+    if bestIndex is None:
         print(f'Failing: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
         raise Exception('no best index found')
     error = sum(squaredDistances)
     switchesCounters[bestIndex] += 1
+    
     return switchesCounters, error, state
 
 
@@ -232,19 +240,24 @@ def getLowestIteration(row):
     counter = 1
     iterCounter = 0
     error = 10000
-    while error > 1000:
-        
+    while error > 500:
+        if iterCounter % 100000 == 0:
+            print(f'warming up iterCounter {iterCounter=} {error=} {switchesCounters=} ){state=} {error=} ')
+        iterCounter +=1
         switchesCounters, error, state = weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endState,switches, switchesCounters, state)
-    print(f'{error=}')
+        state = calculateNewState(originalState[:], switchesCounters, switches)
+        
+    print(f'Starting off with: {endState=}  {switchesCounters=} {error=} {state=}')
     state = calculateNewState(originalState[:], switchesCounters, switches)
     now2 = datetime.now()
     lastResult = 'too low'
     while lastResult != 'matched':
         iterCounter += 1
-        if iterCounter % 1000000 == 0:
+        if iterCounter % 100000 == 0:
             itertime = datetime.now() - now2
-            print(f'processing iterCounter, {iterCounter=} {switchesCounters=} {itertime=}')
+            print(f'processing iterCounter, {endState=} {state=}{iterCounter=} {switchesCounters=} {itertime=}')
             now2 = datetime.now()
+
         lastResult = compareState(endState,state)
         if lastResult == 0:
             resultCounter = sum(switchesCounters)
@@ -260,9 +273,9 @@ def getLowestIteration(row):
         elif lastResult == 1:
             switchesCounters = tensIncrease(switchesCounters)
             state = calculateNewState(originalState[:], switchesCounters, switches)
-        switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
-        if switchesCountersNew != switchesCounters:
-            state = calculateNewState(originalState[:], switchesCounters, switches)
+        #switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
+        #if switchesCountersNew != switchesCounters:
+         #   state = calculateNewState(originalState[:], switchesCounters, switches)
     raise Exception('should not reach here')
 
 print('\n-------------------------\n')
