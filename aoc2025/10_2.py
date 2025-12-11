@@ -21,7 +21,7 @@ extracases = '''
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
 
-test=True
+test=False
 if test:
     listOfText = sample
 #print(f'{listOfText=}\n')
@@ -270,10 +270,11 @@ def getLowestIteration(row):
                 itertime = datetime.now() - now2
                 print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=} {itertime=}')
                 now2 = datetime.now()
-            iterationLimit=20000000
+            iterationLimit=1000000
             if iterCounter > iterationLimit:
                 print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=}')
-                raise Exception(f'{iterationLimit=} reached. Too many iterations, something is wrong')
+                print(f'{iterationLimit=} reached. Too many iterations, something is wrong')
+                return 0 #lets try the next one
             lastResult = compareState(endState,state)
             if lastResult == 0:
                 resultCounter = sum(switchesCounters)
@@ -297,10 +298,11 @@ def getLowestIteration(row):
             error = 0
             for i,value in enumerate(state):
                 error += abs(endState[i]-value)
-            if error > 100000:
+            if error > 20000:
                 print(f'High error detected {error=} {endState=} {state=} {switchesCounters=}')
                 raise Exception('too high error')
-    raise Exception('should not reach here')
+    print('should not reach here--- something bad happened - returning 0 to continue')
+    return 0
 
 print('\n-------------------------\n')
 assert 1 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '(1,2,3)', '{0,1,1,1}'])
