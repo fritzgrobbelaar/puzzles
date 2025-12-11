@@ -154,6 +154,27 @@ def validateSwitchesCountersStandAChance(endState,switches, switchesCounters):
     #print('returning, point 1  ', switchesCounters)
     return switchesCounters
 
+def incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver()
+
+endstate = [23,400,5]
+currentState = [0,0,0]
+switches = [1,1,0] #best in these cases
+switches = [0,1,0]
+switches = [0,1,1]
+
+endstate = [23,400,5]
+currentState = [23,23,0]
+switches = [1,1,0] #invalid
+switches = [0,1,0]
+switches = [0,1,1]  #best in these cases
+
+endstate = [23,400,5]
+currentState = [23,28,5]
+switches = [1,1,0] #invalid
+switches = [0,1,0] #best in these cases
+switches = [0,1,1]  #invalid
+
+
 assert [1,1] == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [0,1])
 #assert [1,1] == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [1,0])
 assert [0, 0, 0, 13999972, 1, 0] == validateSwitchesCountersStandAChance([3, 5, 4, 7],[(0, 0, 1, 0), (0, 0, 0, 1), (1, 1, 0, 0), (1, 0, 1, 0), (0, 1, 0, 1), (0, 0, 1, 1)], [0, 0, 0, 13999972, 1, 0])
@@ -197,17 +218,18 @@ def getLowestIteration(row):
             timeDelta = datetime.now()-now
             print(f'Returning {resultCounter=} after {timeDelta=}')
             return resultCounter
-
-        if lastResult == -1:
-        #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
-            switchesCounters[-1] += 1
-            state = calculateNewState(state, justOneIncrement, switches)
-        elif lastResult == 1:
-            switchesCounters = tensIncrease(switchesCounters)
-            state = calculateNewState(originalState[:], switchesCounters, switches)
-        switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
-        if switchesCountersNew != switchesCounters:
-            state = calculateNewState(originalState[:], switchesCounters, switches)
+        state = calculateNewState(originalState[:], switchesCounters, switches)
+        switchesCounters = incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endState, switches, switchesCounters, state)
+        # if lastResult == -1:
+        # #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
+        #     switchesCounters[-1] += 1
+        #     state = calculateNewState(state, justOneIncrement, switches)
+        # elif lastResult == 1:
+        #     switchesCounters = tensIncrease(switchesCounters)
+        #     state = calculateNewState(originalState[:], switchesCounters, switches)
+        # switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
+        # if switchesCountersNew != switchesCounters:
+        #     state = calculateNewState(originalState[:], switchesCounters, switches)
     raise Exception('should not reach here')
 
 print('\n-------------------------\n')
