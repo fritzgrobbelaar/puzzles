@@ -184,16 +184,17 @@ def weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWit
         print(f'{switchCounter=}')
         squaredDistance = 0
         for j, value in enumerate(state):
-            if state[i] > endstate[i]:
+            if value >= endstate[j]:
                 squaredDistance = 0
                 break
             print(f'Calculating distance for {endstate[j]=} and {state[j]=} with switch {switches[i][j]=}')
             squaredDistance += (endstate[j] - state[j])**2 *(switches[i][j])
         print(f'Checking switch index {i} with squaredDistance {squaredDistance=} against previousBestSquaredDistance {previousBestSquaredDistance=}')
-        if squaredDistance > previousBestSquaredDistance:
+        squaredDistances.append(squaredDistance)
+        if squaredDistances.sum()> previousBestSquaredDistance:
             bestIndex = i
             previousBestSquaredDistance = squaredDistance
-        squaredDistances.append(squaredDistance)
+        
     if not bestIndex:
         print(f'Failing: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
         raise Exception('no best index found')
