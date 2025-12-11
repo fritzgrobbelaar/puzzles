@@ -120,7 +120,7 @@ def tensIncrease(switchesCounters):
             pass
         else:
             if i == 0:
-                raise Exception('bad things')
+                raise Exception('bad things - did someone increment the first counter?')
             #print(f'adding to position {i=}')
             switchesCounters[i-1] += 1
             switchesCounters[i] = 0
@@ -135,20 +135,29 @@ assert [2,0,0] == tensIncrease([1,1,0])
 
 def validateSwitchesCountersStandAChance(endState,switches, switchesCounters):
     combined = [0]*len(endState)
+    countAll = False
     for i,value in enumerate(switchesCounters):
-        if value == 0:
+        if value == 0 and not countAll:
             continue
+        countAll = True
         combined = [a+b for a, b in zip(combined, switches[i])]
     for i, value in enumerate(combined):
         if value == 0 and endState[i]!=0:
             print('no way its gonna work')
-            return False
-    return True
-            
+            for k,value2 in enumerate(switchesCounters):
+                if switchesCounters[k] != 0:
+                    print('old, ', switchesCounters)
+                    switchesCounters[k-1] += 1
+                    print('new, ', switchesCounters)
 
-assert False == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [0,1])
-assert False == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [1,0])
-assert True == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [1,1])
+                    return switchesCounters
+    #print('returning, point 1  ', switchesCounters)
+    return switchesCounters
+
+assert [1,1] == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [0,1])
+#assert [1,1] == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [1,0])
+assert [0, 0, 0, 13999972, 1, 0] == validateSwitchesCountersStandAChance([3, 5, 4, 7],[(0, 0, 1, 0), (0, 0, 0, 1), (1, 1, 0, 0), (1, 0, 1, 0), (0, 1, 0, 1), (0, 0, 1, 1)], [0, 0, 0, 13999972, 1, 0])
+exit()
 print('new assertions pass')
 def getLowestIteration(row):
     global cache
@@ -177,7 +186,6 @@ def getLowestIteration(row):
     now2 = datetime.now()
     lastResult = 'too low'
     while lastResult != 'matched':
-        print(f'{switchesCounters=}')
         iterCounter += 1
         if iterCounter % 1000000 == 0:
             itertime = datetime.now() - now2
@@ -189,21 +197,16 @@ def getLowestIteration(row):
             timeDelta = datetime.now()-now
             print(f'Returning {resultCounter=} after {timeDelta=}')
             return resultCounter
-        if not validateSwitchesCountersStandAChance(endState, switches, switchesCounters):
-            iterCounter += 1
-            if iterCounter % 1000000 == 0:
-                itertime = datetime.now() - now2
-                print(f'While iterCounter, {iterCounter=} {switchesCounters=} {itertime=}')
-            switchesCounters = tensIncrease(switchesCounters)
-            switchesCounters[-1] += 1
-            state = calculateNewState(originalState[:], switchesCounters, switches)
-            continue
+
         if lastResult == -1:
         #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
             switchesCounters[-1] += 1
             state = calculateNewState(state, justOneIncrement, switches)
         elif lastResult == 1:
             switchesCounters = tensIncrease(switchesCounters)
+            state = calculateNewState(originalState[:], switchesCounters, switches)
+        switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
+        if switchesCountersNew != switchesCounters:
             state = calculateNewState(originalState[:], switchesCounters, switches)
     raise Exception('should not reach here')
 
