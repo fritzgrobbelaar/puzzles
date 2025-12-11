@@ -121,7 +121,8 @@ def tensIncrease(switchesCounters, switchesCountersWithLowError):
             pass
         else:
             if i == 0:
-                raise Exception('bad things - did someone increment the first counter?')
+                print('Dimension limit reached')
+                return 'Dimension limit reached'
             #print(f'adding to position {i=}')
             switchesCounters[i-1] += 1
             #switchesCounters[i] = lowValue
@@ -249,48 +250,56 @@ def getLowestIteration(row):
         iterCounter +=1
         switchesCounters, error, state = weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endState,switches, switchesCounters, state)
         state = calculateNewState(originalState[:], switchesCounters, switches)
-    
-    switchesCounters = [switchCounter - 2 for switchCounter in switchesCounters]
+    switchesCounters = [switchCounter for switchCounter in switchesCounters]
     switchesCounters = [switchCounter if switchCounter >=0 else 0 for switchCounter in switchesCounters]
     switchesCountersWithLowError = switchesCounters[:]
-    state = calculateNewState(originalState[:], switchesCounters, switches)
-    print(f'Starting off with: {endState=}  {switchesCounters=} {error=} {state=}')
-    state = calculateNewState(originalState[:], switchesCounters, switches)
-    now2 = datetime.now()
-    lastResult = 'too low'
-    while lastResult != 'matched':
-        iterCounter += 1
-        if iterCounter % 100000 == 0:
-            itertime = datetime.now() - now2
-            print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=} {itertime=}')
-            now2 = datetime.now()
-        if iterCounter > 10000000:
-            print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=}')
-            raise Exception('too many iterations, something is wrong')
-        lastResult = compareState(endState,state)
-        if lastResult == 0:
-            resultCounter = sum(switchesCounters)
-            timeDelta = datetime.now()-now
-            print(f'Returning {resultCounter=} after {timeDelta=}')
-            return resultCounter
+    for dimensionLimit in range(6):
+        print(f'\n\n--- Upgrading dimension limit to {dimensionLimit=}')
+        switchesCounters = [switchCounter - 1 for switchCounter in switchesCountersWithLowError]
+        switchesCounters = [switchCounter if switchCounter >=0 else 0 for switchCounter in switchesCounters]
+        switchesCountersWithLowError = switchesCounters[:]
+
         state = calculateNewState(originalState[:], switchesCounters, switches)
-        
-        if lastResult == -1:
-        #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
-            switchesCounters[-1] += 1
-            state = calculateNewState(state, justOneIncrement, switches)
-        elif lastResult == 1:
-            switchesCounters = tensIncrease(switchesCounters, switchesCountersWithLowError)
+        print(f'Starting off with: {endState=}  {switchesCounters=} {error=} {state=}')
+        state = calculateNewState(originalState[:], switchesCounters, switches)
+        now2 = datetime.now()
+        lastResult = 'too low'
+        while lastResult != 'matched':
+            iterCounter += 1
+            if iterCounter % 100000 == 0:
+                itertime = datetime.now() - now2
+                print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=} {itertime=}')
+                now2 = datetime.now()
+            iterationLimit=20000000
+            if iterCounter > iterationLimit:
+                print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=}')
+                raise Exception(f'{iterationLimit=} reached. Too many iterations, something is wrong')
+            lastResult = compareState(endState,state)
+            if lastResult == 0:
+                resultCounter = sum(switchesCounters)
+                timeDelta = datetime.now()-now
+                print(f'Returning {resultCounter=} after {timeDelta=}')
+                return resultCounter
             state = calculateNewState(originalState[:], switchesCounters, switches)
-        #switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
-        #if switchesCountersNew != switchesCounters:
-         #   state = calculateNewState(originalState[:], switchesCounters, switches)
-        error = 0
-        for i,value in enumerate(state):
-            error += abs(endState[i]-value)
-        if error > 100000:
-            print(f'High error detected {error=} {endState=} {state=} {switchesCounters=}')
-            raise Exception('too high error')
+            
+            if lastResult == -1:
+            #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
+                switchesCounters[-1] += 1
+                state = calculateNewState(state, justOneIncrement, switches)
+            elif lastResult == 1:
+                switchesCounters = tensIncrease(switchesCounters, switchesCountersWithLowError)
+                if switchesCounters == 'Dimension limit reached':
+                    break
+                state = calculateNewState(originalState[:], switchesCounters, switches)
+            #switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
+            #if switchesCountersNew != switchesCounters:
+            #   state = calculateNewState(originalState[:], switchesCounters, switches)
+            error = 0
+            for i,value in enumerate(state):
+                error += abs(endState[i]-value)
+            if error > 100000:
+                print(f'High error detected {error=} {endState=} {state=} {switchesCounters=}')
+                raise Exception('too high error')
     raise Exception('should not reach here')
 
 print('\n-------------------------\n')
