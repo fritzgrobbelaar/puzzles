@@ -154,25 +154,25 @@ def validateSwitchesCountersStandAChance(endState,switches, switchesCounters):
     #print('returning, point 1  ', switchesCounters)
     return switchesCounters
 
-def incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver()
+def incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver():
+    raise('todo')
+#endstate = [23,400,5]
+#currentState = [0,0,0]
+#switches = [1,1,0] #best in these cases
+#switches = [0,1,0]
+#switches = [0,1,1]
 
-endstate = [23,400,5]
-currentState = [0,0,0]
-switches = [1,1,0] #best in these cases
-switches = [0,1,0]
-switches = [0,1,1]
+#endstate = [23,400,5]
+#currentState = [23,23,0]
+#switches = [1,1,0] #invalid
+#switches = [0,1,0]
+#switches = [0,1,1]  #best in these cases
 
-endstate = [23,400,5]
-currentState = [23,23,0]
-switches = [1,1,0] #invalid
-switches = [0,1,0]
-switches = [0,1,1]  #best in these cases
-
-endstate = [23,400,5]
-currentState = [23,28,5]
-switches = [1,1,0] #invalid
-switches = [0,1,0] #best in these cases
-switches = [0,1,1]  #invalid
+#endstate = [23,400,5]
+#currentState = [23,28,5]
+#switches = [1,1,0] #invalid
+#switches = [0,1,0] #best in these cases
+#switches = [0,1,1]  #invalid
 
 
 assert [1,1] == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [0,1])
