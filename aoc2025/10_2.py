@@ -181,20 +181,22 @@ def weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWit
     previousBestSquaredDistance = 0
     squaredDistances = state[:]
     for i,switchCounter in enumerate(switchesCounters):
+        print(f'{switchCounter=}')
         squaredDistance = 0
-        for j in enumerate(state):
+        for j, value in enumerate(state):
             if state[i] > endstate[i]:
                 squaredDistance = 0
                 break
-            squaredDistance += (endstate[i] - state[i])**2 *(switches[j])
+            print(f'Calculating distance for {endstate[j]=} and {state[j]=} with switch {switches[i][j]=}')
+            squaredDistance += (endstate[j] - state[j])**2 *(switches[i][j])
         print(f'Checking switch index {i} with squaredDistance {squaredDistance=} against previousBestSquaredDistance {previousBestSquaredDistance=}')
         if squaredDistance > previousBestSquaredDistance:
             bestIndex = i
             previousBestSquaredDistance = squaredDistance
         squaredDistances.append(squaredDistance)
     if not bestIndex:
-        print(f'Input: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
-        raise Exception('no best index found - all switches lead to over shooting the endstate')
+        print(f'Failing: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
+        raise Exception('no best index found')
     error = sum(squaredDistances)
     switchesCounters[bestIndex] += 1
     return switchesCounters, error, state
@@ -230,7 +232,9 @@ def getLowestIteration(row):
     iterCounter = 0
     error = 10000
     while error > 1000:
+        
         switchesCounters, error, state = weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endState,switches, switchesCounters, state)
+    print(f'{error=}')
     state = calculateNewState(originalState[:], switchesCounters, switches)
     now2 = datetime.now()
     lastResult = 'too low'
@@ -247,7 +251,7 @@ def getLowestIteration(row):
             print(f'Returning {resultCounter=} after {timeDelta=}')
             return resultCounter
         state = calculateNewState(originalState[:], switchesCounters, switches)
-        switchesCounters = incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endState, switches, switchesCounters, state)
+        
         if lastResult == -1:
         #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
             switchesCounters[-1] += 1
