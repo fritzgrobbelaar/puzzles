@@ -109,28 +109,31 @@ assert [10,0,0] ==  calculateNewState([0,0,0], switchesCounters = [10,0], switch
 assert [18, 7, 5] ==  (calculateNewState([0,0,0],switchesCounters = [5,6,7], switches= [(1,0,1),(1,0,0), (1,1,0)]))
 
 
-def tensIncrease(switchesCounters):
+def tensIncrease(switchesCounters, switchesCountersWithLowError):
     #print(f'Increasing {switchesCounters=} by tens')
     length = len(switchesCounters)
     value = 0
     for i in range(length-1, -1, -1):
+        lowValue = switchesCountersWithLowError[i]
         value = switchesCounters[i]
      #   print(f'Checking position {i} with value {value} {switchesCounters=}')
-        if value == 0:
+        if value == lowValue:
             pass
         else:
             if i == 0:
                 raise Exception('bad things - did someone increment the first counter?')
             #print(f'adding to position {i=}')
             switchesCounters[i-1] += 1
-            switchesCounters[i] = 0
+            #switchesCounters[i] = lowValue
+            switchesCounters[i] = lowValue
+            #print(f'Not switching to low value {lowValue=} {i=} {switchesCounters=}')
             break
     #print(f'Returning {switchesCounters=}')
     if sum(switchesCounters) == 0:
         raise Exception ('something bad happened - all switchesCounters adds to 0')
     return switchesCounters
-assert [1,1,0] == tensIncrease([1,0,1])
-assert [2,0,0] == tensIncrease([1,1,0])
+assert [1,1,0] == tensIncrease([1,0,1],[0,0,0])
+assert [2,0,0] == tensIncrease([1,1,0],[0,0,0])
 #assert 'bad things' == tensIncrease([1,0,0])
 
 def validateSwitchesCountersStandAChance(endState,switches, switchesCounters):
@@ -187,7 +190,7 @@ def weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWit
         for j, value in enumerate(state):
             if value > endstate[j]:
                 squaredDistance = 0
-                print(f'\nstate is higher than endstate: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
+                print(f'\nstate is higher than endstate in optimization step: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
                 break
           #  print(f'Calculating distance for {endstate[j]=} and {state[j]=} with switch {switches[i][j]=}')
             squaredDistance += (endstate[j] - state[j])**2 *(switches[i][j])
@@ -246,7 +249,11 @@ def getLowestIteration(row):
         iterCounter +=1
         switchesCounters, error, state = weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endState,switches, switchesCounters, state)
         state = calculateNewState(originalState[:], switchesCounters, switches)
-        
+    
+    switchesCounters = [switchCounter - 2 for switchCounter in switchesCounters]
+    switchesCounters = [switchCounter if switchCounter >=0 else 0 for switchCounter in switchesCounters]
+    switchesCountersWithLowError = switchesCounters[:]
+    state = calculateNewState(originalState[:], switchesCounters, switches)
     print(f'Starting off with: {endState=}  {switchesCounters=} {error=} {state=}')
     state = calculateNewState(originalState[:], switchesCounters, switches)
     now2 = datetime.now()
@@ -255,9 +262,11 @@ def getLowestIteration(row):
         iterCounter += 1
         if iterCounter % 100000 == 0:
             itertime = datetime.now() - now2
-            print(f'processing iterCounter, {endState=} {state=}{iterCounter=} {switchesCounters=} {itertime=}')
+            print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=} {itertime=}')
             now2 = datetime.now()
-
+        if iterCounter > 10000000:
+            print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=}')
+            raise Exception('too many iterations, something is wrong')
         lastResult = compareState(endState,state)
         if lastResult == 0:
             resultCounter = sum(switchesCounters)
@@ -271,11 +280,17 @@ def getLowestIteration(row):
             switchesCounters[-1] += 1
             state = calculateNewState(state, justOneIncrement, switches)
         elif lastResult == 1:
-            switchesCounters = tensIncrease(switchesCounters)
+            switchesCounters = tensIncrease(switchesCounters, switchesCountersWithLowError)
             state = calculateNewState(originalState[:], switchesCounters, switches)
         #switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
         #if switchesCountersNew != switchesCounters:
          #   state = calculateNewState(originalState[:], switchesCounters, switches)
+        error = 0
+        for i,value in enumerate(state):
+            error += abs(endState[i]-value)
+        if error > 100000:
+            print(f'High error detected {error=} {endState=} {state=} {switchesCounters=}')
+            raise Exception('too high error')
     raise Exception('should not reach here')
 
 print('\n-------------------------\n')
