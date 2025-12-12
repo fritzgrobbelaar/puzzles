@@ -319,7 +319,7 @@ for areaCount,area in enumerate(areas):
         print('failed to place all')
         print(presents)
         printGrid(grid)
-        answer = [False, sum(presents), 'successfully placed all - original request:', area, f'{presents=}' ,grid]
+        answer = [False, sum(presents), 'failed to placed all - original request:', area, f'{presents=}' ,grid]
     answers.append(answer)
     with open('tracking.txt', 'a') as handle:
         handle.write('\n' + str(note) + str(answer))
