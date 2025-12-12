@@ -43,7 +43,7 @@ sample='''0:
 extracases = '''
 '''
 
-test=True
+test=False
 if test:
     listOfText = sample
 else:
@@ -309,14 +309,20 @@ for areaCount,area in enumerate(areas):
                     if presents[presentKey] != 0:
                         weightedPresents.append(weightedPresent)
 
-                    
+    note=f'{areaCount=} of {len(areas)=} {datetime.now()=}'
+    print(f'\n\n{note}')
     if presents == [0,0,0,0,0,0]:
-        answers.append([True, 'successfully placed all - original request:', area, grid])
+        print('placed all')
+        printGrid(grid)
+        answer = [True, 'successfully placed all - original request:', area, grid]
     else:
-        answers.append([False, sum(presents), 'successfully placed all - original request:', area, f'{presents=}' ,grid])
-            
-
-    print(f'{presents=} fit into {grid=}')
+        print('failed to place all')
+        print(presents)
+        printGrid(grid)
+        answer = [False, sum(presents), 'successfully placed all - original request:', area, f'{presents=}' ,grid]
+    answers.append(answer)
+    with open('tracking.txt', 'a') as handle:
+        handle.write('\n' + str(note) + str(answer))
 
 for answer in answers:
     print('answer - :',answer, printGrid(answer[-1]))
