@@ -43,19 +43,22 @@ sample='''0:
 extracases = '''
 '''
 
-test=True
+test=False
 if test:
     listOfText = sample
 else:
     listOfText = cleaninput.getfileInputLinesAsList('input_12.txt')
 
-#print(f'{listOfText=}\n')
-listOfText = [row.split(' ') for row in listOfText]
+print(f'{sample=}')
+print(f'{listOfText=}')
+
+#listOfText = [row.split(' ') for row in listOfText]
 
 shapes = {}
 areas = []
 shapesNr = None
-for row in sample:
+for row in listOfText:
+    print(f'{row=}')
     if row.strip() == "" and shape:
         shapes[shapesNr] = [shape]
         shape = None
@@ -68,6 +71,7 @@ for row in sample:
     elif 'x' in row:
         areas.append(row)
         
+
 print(f'{shapes=}')
 print(f'{areas=}')
 
@@ -136,19 +140,20 @@ def rotate(shapes):
 shapes = numberShapes(shapes)
 print(f'\n\nafter rotation {shapes=}')
 
-assert 2 == len(rotate({'5': [['###', '.#.', '###']]})['5'])
-shapes = rotate(shapes)
-#print(f'\n\nafter rotation {shapes=}')
-assert 2 == len(shapes['5'])
-#printShapes(shapes)
-shapes = flipVertically(shapes)
-#print(f'\n\nafter flipV {shapes=}')
-assert 2 == len(shapes['5'])
-#printShapes(shapes)
-shapes = flipHorizontally(shapes)
-#print(f'\n\nafter flipH {shapes=}')
-assert 2 == len(shapes['5'])
-#printShapes(shapes)
+if test:
+    assert 2 == len(rotate({'5': [['###', '.#.', '###']]})['5'])
+    shapes = rotate(shapes)
+    #print(f'\n\nafter rotation {shapes=}')
+    assert 2 == len(shapes['5'])
+    #printShapes(shapes)
+    shapes = flipVertically(shapes)
+    #print(f'\n\nafter flipV {shapes=}')
+    assert 2 == len(shapes['5'])
+    #printShapes(shapes)
+    shapes = flipHorizontally(shapes)
+    #print(f'\n\nafter flipH {shapes=}')
+    assert 2 == len(shapes['5'])
+    #printShapes(shapes)
 
 
 def printGrid(grid):
@@ -222,9 +227,11 @@ def placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, upperLeftPoin
         answer = tryAndFitPresent(grid, presentShape, upperLeftPoint)
         if answer != False:
             grid = answer
-            print('successfully placed present')
+            
             grid, correctPresent = grid, int(weightedPresent[1])
-            printGrid(grid)
+            if test:
+                print('successfully placed present')
+                printGrid(grid)
             return grid, correctPresent
     #print(f'failed to fit present {grid=} lastPresentShape={presentShape}, {upperLeftPoint=}')
     #printGrid(grid)
@@ -239,7 +246,8 @@ gridSample = gridSample.split('\n')
 gridSample = [list(row) for row in gridSample]
 printGrid(gridSample)
 weightedPresents = [[7, '0', 5], [7, '0', 0], [6, '3', 1]]
-grid, presentSelected = placeShapeThatFitsWithMostOpenAtBottom(gridSample, weightedPresents,(0,0))
+if test:
+    grid, presentSelected = placeShapeThatFitsWithMostOpenAtBottom(gridSample, weightedPresents,(0,0))
 #printGrid(grid)
 
 def parseArea(area):
@@ -287,7 +295,7 @@ for areaCount,area in enumerate(areas):
         successfullyPlaced = False
         for y in range(gridDimensions[1] -2):
             if successfullyPlaced:
-                print('successfully placed something - point 2')
+                #print('successfully placed something - point 2')
                 break
             for x in range(gridDimensions[0]-2):
                 answer = placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, (y,x))
