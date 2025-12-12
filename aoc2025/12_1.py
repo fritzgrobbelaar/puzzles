@@ -133,7 +133,39 @@ assert 2 == len(shapes['5'])
 shapes = flipHorizontally(shapes)
 #print(f'\n\nafter flipH {shapes=}')
 assert 2 == len(shapes['5'])
-#printShapes(shapes)
+printShapes(shapes)
+
+def printGrid(grid):
+    print('\n\n---- grid ---')
+    
+def weighShapesByOpenAreaRightBottom(shapes):
+    presentWeights = []
+    for key in shapes.keys():
+        for z,shape in enumerate(shapes[key]):
+            presentWeight = 0
+            for j, row in enumerate(shape):
+                for i, value in enumerate(row):
+                    if value == '.':
+                        presentWeight += i+j
+            presentWeights.append([presentWeight,key,z])
+    presentWeights.sort()
+    presentWeights = list(reversed(presentWeights))
+    return presentWeights
+presentWeightsRightBottom = weighShapesByOpenAreaRightBottom(shapes)
+print(f'{presentWeightsRightBottom=}')
+
+def placeShapeThatFitsWithMostOpenAtBottom(grid, presents, upperLeftPoint):
+    
+    return grid, presents
+
+gridSample = '''....
+....
+....
+....'''
+printGrid(grid)
+presents = [0,0,0,0,10,0]
+grid, presents = placeShapeThatFitsWithMostOpenAtBottom(gridSample, presents)
+printGrid(grid)
 
 for area in areas:
     area = area.split(':')
