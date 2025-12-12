@@ -150,6 +150,13 @@ assert 2 == len(shapes['5'])
 #printShapes(shapes)
 
 
+def printGrid(grid):
+    print('\n\n---- grid ---')
+    for row in grid:
+        print(''.join(row))
+    
+
+
 def weighShapesByOpenAreaRightBottom(shapes):
     """
     Return list of lists - example list [6, '3', 1]
@@ -172,6 +179,8 @@ print(f'{presentWeightsRightBottom=}')
 
 def tryAndFitPresent(grid, presentShape, upperLeftPoint):
     grid = copy.deepcopy(grid[:])
+    originalGrid = copy.deepcopy(grid[:])
+
     upperLeftPointY = upperLeftPoint[0]
     upperLeftPointX = upperLeftPoint[1]
     for y, row in enumerate(presentShape):
@@ -183,9 +192,26 @@ def tryAndFitPresent(grid, presentShape, upperLeftPoint):
                 pass
             else:
                 return False
-    #print('after trying to fit and succeeding - returning grid')
-   # printGrid(grid)
+    #print('\noriginal grid')
+    #printGrid(originalGrid)
+    #print(f'after trying to fit and succeeding - returning grid {presentShape=} {upperLeftPoint=}')
+    #printGrid(grid)
+    #print('returning this grid')
     return grid
+
+gridSample = '''000.........
+000.........
+0...........
+............
+............'''.split('\n')
+gridSample = [list(row) for row in gridSample]
+expectedGrid = '''00099.......
+00099.......
+0.999.......
+............
+............'''.split('\n')
+expectedGrid = [list(row) for row in expectedGrid]
+assert expectedGrid == tryAndFitPresent(grid=gridSample, presentShape=['.99', '.99', '999'], upperLeftPoint=(0, 2))
 
 def placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, upperLeftPoint):
     
@@ -203,11 +229,6 @@ def placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, upperLeftPoin
     #printGrid(grid)
     return False
 
-def printGrid(grid):
-    print('\n\n---- grid ---')
-    for row in grid:
-        print(''.join(row))
-    
 
 gridSample = '''....
 ....
@@ -241,12 +262,16 @@ assert testArea[0] == [['.','.'],['.','.'],['.','.']]
 print('\n\n --- tests completed - starting the real deal --- \n')
 answers = []
 for areaCount,area in enumerate(areas):
-    print(f'{areaCount=}')
+    print(f'\n\n -- Starting brand new area{areaCount=} {area=}')
     grid, presents,gridDimensions = parseArea(area)
 
     iterationCounter = 0
-    iterationLimit = 3
+    iterationLimit = 100
+    endOfGridReached = False
     while presents != [0,0,0,0,0,0]:
+        for present in presents:
+            if present < 0:
+                raise ValueError('something went wrong - you cannot place presents you dont have')
         iterationCounter += 1
         if iterationCounter >  iterationLimit:
             print(f'{iterationLimit=} reached')
@@ -258,15 +283,31 @@ for areaCount,area in enumerate(areas):
             presentKey = int(weightedPresent[1])
             if presents[presentKey] != 0:
                 weightedPresents.append(weightedPresent)
+        successfullyPlaced = False
         for y in range(gridDimensions[1] -2):
+            if successfullyPlaced:
+                print('successfully placed something - point 2')
+                break
             for x in range(gridDimensions[0]-2):
                 answer = placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, (y,x))
                 if answer == False:
+                    print(f'Failed to place anything at {(y,x)} {gridDimensions=} ')
                     continue
                 else:
                     grid, presentSelected = answer
                     presents[presentSelected] = presents[presentSelected] -1
-            printGrid(grid)
+                    successfullyPlaced = True
+                    print('successfully placed something')
+                    break
+        else:
+            print('end of grid reached appending false')
+            
+            answers.append(False)
+            break
+    answers.append( True)
+            
+
     print(f'{presents=} fit into {grid=}')
 
-print('-- the end --')
+print(f'-- the end -- {answers=}')
+print(f'-- the end -- {sum(answers)=}')
