@@ -123,232 +123,53 @@ def getStateIDsFromLeastReferenced(switches):
     referencesCount = []
     for j in range(len(switches[0])):
         referencesCount.append([0,j,[]])
-    for switch in switches:
+    for i,switch in enumerate(switches):
         for j, value in enumerate(switch):
             referencesCount[j][0] += value
-            if value == 1 and switch not in referencesCount[j][2]:
-                referencesCount[j][2].append(switch)
+            if value == 1:
+                referencesCount[j][2].append(i)
     referencesCount.sort()
     print(f'{referencesCount}')
     return referencesCount
 
-#def getListOfValidSwitchConfigurations()
+assert [[1, 1, [2]], [1, 2, [0]], [3, 0, [0, 1, 2]]] == getStateIDsFromLeastReferenced(switches=[(1,0,1),(1,0,0), (1,1,0)])
+assert [[2, 1, [0, 2]], [2, 2, [0, 3]], [4, 0, [0, 1, 2, 3]]] == getStateIDsFromLeastReferenced(switches=[(1,1,1),(1,0,0),(1,1,0),(1,0,1)]) 
 
 
+def getListOfOptions(remainingCount, switchIDs):
+    switchID = switchIDs[0]
+    remainingIDs = switchIDs[1:]
+    if not remainingIDs:
+        print(f'no remainingIDs found {switchIDs=}')
+        return [{'switchID':switchID, 'count':remainingCount}]
+    for i in range(remainingCount):
+        return [{'switchID':switchID, 'count':i},getListOfOptions(remainingCount - i, remainingIDs)]
 
 
-assert [[1, 1, [(1, 1, 0)]], [1, 2, [(1, 0, 1)]], [3, 0, [(1, 0, 1), (1, 0, 0), (1, 1, 0)]]] == getStateIDsFromLeastReferenced(switches=[(1,0,1),(1,0,0), (1,1,0)])
-assert [[2, 1, [(1, 1, 1), (1, 1, 0)]], [2, 2, [(1, 1, 1), (1, 0, 1)]], [4, 0, [(1, 1, 1), (1, 0, 0), (1, 1, 0), (1, 0, 1)]]] == getStateIDsFromLeastReferenced(switches=[(1,1,1),(1,0,0),(1,1,0),(1,0,1)]) 
-
-exit()
-
-def tensIncrease(switchesCounters, switchesCountersWithLowError):
-    #print(f'Increasing {switchesCounters=} by tens')
-    length = len(switchesCounters)
-    value = 0
-    for i in range(length-1, -1, -1):
-        lowValue = switchesCountersWithLowError[i]
-        value = switchesCounters[i]
-     #   print(f'Checking position {i} with value {value} {switchesCounters=}')
-        if value == lowValue:
-            pass
-        else:
-            if i == 0:
-                print('Dimension limit reached')
-                return 'Dimension limit reached'
-            #print(f'adding to position {i=}')
-            switchesCounters[i-1] += 1
-            #switchesCounters[i] = lowValue
-            switchesCounters[i] = lowValue
-            #print(f'Not switching to low value {lowValue=} {i=} {switchesCounters=}')
-            break
-    #print(f'Returning {switchesCounters=}')
-    if sum(switchesCounters) == 0:
-        raise Exception ('something bad happened - all switchesCounters adds to 0')
-    return switchesCounters
-assert [1,1,0] == tensIncrease([1,0,1],[0,0,0])
-assert [2,0,0] == tensIncrease([1,1,0],[0,0,0])
-#assert 'bad things' == tensIncrease([1,0,0])
-
-def validateSwitchesCountersStandAChance(endState,switches, switchesCounters):
-    combined = [0]*len(endState)
-    countAll = False
-    for i,value in enumerate(switchesCounters):
-        if value == 0 and not countAll:
-            continue
-        countAll = True
-        combined = [a+b for a, b in zip(combined, switches[i])]
-    for i, value in enumerate(combined):
-        if value == 0 and endState[i]!=0:
-            print('no way its gonna work')
-            for k,value2 in enumerate(switchesCounters):
-                if switchesCounters[k] != 0:
-                    print('old, ', switchesCounters)
-                    switchesCounters[k-1] += 1
-                    print('new, ', switchesCounters)
-
-                    return switchesCounters
-    #print('returning, point 1  ', switchesCounters)
-    return switchesCounters
-
-def weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endstate, switches, switchesCounters, state):
+def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit):
     """
-        For each switch, try incrementing it by one, and see which one closes the square of remaining distances without going over the endstate.
-        Return the switchesCounters with the best increment.
-    
-        #endstate = [23,400,5]
-        #currentState = [0,0,0]
-        #switches = [1,1,0] #best in these cases
-        #switches = [0,1,0]
-        #switches = [0,1,1]
+    input:
+        endState - example: (52,23,12)
+        switches - example: [(1,1,1),(1,0,0),(1,1,0),(1,0,1)]
+        leastReferencedDigitAndSwitches - example:
+        - [switchesCount, endStateReferenceIndex, switches
+            [2, 1, [0, 2]]
 
-        #endstate = [23,400,5]
-        #currentState = [23,23,0]
-        #switches = [1,1,0] #invalid
-        #switches = [0,1,0]
-        #switches = [0,1,1]  #best in these cases
-
-        #endstate = [23,400,5]
-        #currentState = [23,28,5]
-        #switches = [1,1,0] #invalid
-        #switches = [0,1,0] #best in these cases
-        #switches = [0,1,1]  #invalid
+    returns: validStatesForIndex
     """
-    #print(f'\nInput: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
-    previousBestSquaredDistance = 0
-    bestIndex = None
-    for i,switchCounter in enumerate(switchesCounters):
-        squaredDistances = state[:]
-        #print(f'{switchCounter=}')
-        squaredDistance = 0
-        for j, value in enumerate(state):
-            if value > endstate[j]:
-                squaredDistance = 0
-                print(f'\nstate is higher than endstate in optimization step: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
-                break
-          #  print(f'Calculating distance for {endstate[j]=} and {state[j]=} with switch {switches[i][j]=}')
-            squaredDistance += (endstate[j] - state[j])**2 *(switches[i][j])
-         #   print(f'Intermediate squaredDistance is {squaredDistance=}')
-        #print(f'Checking switch index {i} with squaredDistance {squaredDistance=} against previousBestSquaredDistance {previousBestSquaredDistance=}')
-        squaredDistances.append(squaredDistance)
+    print(f'Start get list {leastReferencedDigit=}')
+    leastReferencedDigitId = leastReferencedDigit[1]
+    leastReferencedSwitchesUsed = leastReferencedDigit[2]
+    targetingCount = endState[leastReferencedDigitId]
+    options = getListOfOptions(targetingCount, leastReferencedSwitchesUsed)
+    print(f'{options=}')
+    return options
         
-        if sum(squaredDistances)> previousBestSquaredDistance:
-            bestIndex = i
-            previousBestSquaredDistance = sum(squaredDistances)
-        else:
-            pass
-            #print(f'Switch index {i} with squaredDistance {squaredDistance=} is not better than previousBestSquaredDistance {previousBestSquaredDistance=}, skipping {bestIndex=}')
-        
-    if bestIndex is None:
-        print(f'Failing: {endstate=}, {switches=}, {switchesCounters=}, {state=}')
-        raise Exception('no best index found')
-    error = sum(squaredDistances)
-    switchesCounters[bestIndex] += 1
     
-    return switchesCounters, error, state
+
+assert [{'switchID': 0, 'count': 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [(1,1,1,1), (0,1,0,0)], [1,0,[0]])
+print('test passed')
+assert [{'switchID': 0, 'count': 0}, [{'switchID': 1, 'count': 0}, [{'switchID': 2, 'count': 3}]]]== getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]])
+raise ('not quite right')
 
 
-
-assert [1,1] == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [0,1])
-#assert [1,1] == validateSwitchesCountersStandAChance((4,9),[(0,1),(1,0)], [1,0])
-assert [0, 0, 0, 13999972, 1, 0] == validateSwitchesCountersStandAChance([3, 5, 4, 7],[(0, 0, 1, 0), (0, 0, 0, 1), (1, 1, 0, 0), (1, 0, 1, 0), (0, 1, 0, 1), (0, 0, 1, 1)], [0, 0, 0, 13999972, 1, 0])
-
-print('new assertions pass')
-def getLowestIteration(row):
-    global cache
-    cache = {}
-    now = datetime.now()
-    nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')
-    print(f'\n\n ---- New row -- {nowString=}\n',row)
-    endState = row[-1]
-    endState = list(parseSwitches([endState])[0])
-    print(f'{endState=}')
-    switches = row[1:-1]
-    switches = sortSwitches(switches)
-    switches = parseSwitches(switches)
-    length = len(endState) 
-    state = [0]*length
-    originalState = state[:]
-    switches = convertSwitches(switches, state[:])
-    switchesCounters = [0]*len(switches)
-    justOneIncrement = [0]*len(switches)
-    justOneIncrement[-1] = 1
-    print(f'{switches=}')
-    counter = 1
-    iterCounter = 0
-    error = 10000
-    while error > 500:
-        if iterCounter % 100000 == 0:
-            print(f'warming up iterCounter {iterCounter=} {error=} {switchesCounters=} ){state=} {error=} ')
-        iterCounter +=1
-        switchesCounters, error, state = weakAlgorithm1_incrementSwitchThatBestClosesTheSquareOfRemainingDistancesWithoutGoingOver(endState,switches, switchesCounters, state)
-        state = calculateNewState(originalState[:], switchesCounters, switches)
-    switchesCounters = [switchCounter for switchCounter in switchesCounters]
-    switchesCounters = [switchCounter if switchCounter >=0 else 0 for switchCounter in switchesCounters]
-    switchesCountersWithLowError = switchesCounters[:]
-    for dimensionLimit in range(6):
-        print(f'\n\n--- Upgrading dimension limit to {dimensionLimit=}')
-        switchesCounters = [switchCounter - 1 for switchCounter in switchesCountersWithLowError]
-        switchesCounters = [switchCounter if switchCounter >=0 else 0 for switchCounter in switchesCounters]
-        switchesCountersWithLowError = switchesCounters[:]
-
-        state = calculateNewState(originalState[:], switchesCounters, switches)
-        print(f'Starting off with: {endState=}  {switchesCounters=} {error=} {state=}')
-        state = calculateNewState(originalState[:], switchesCounters, switches)
-        now2 = datetime.now()
-        lastResult = 'too low'
-        while lastResult != 'matched':
-            iterCounter += 1
-            if iterCounter % 100000 == 0:
-                itertime = datetime.now() - now2
-                print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=} {itertime=}')
-                now2 = datetime.now()
-            iterationLimit=1000000
-            if iterCounter > iterationLimit:
-                print(f'processing iterCounter, {endState=} {state=} {iterCounter=} {switchesCounters=}')
-                print(f'{iterationLimit=} reached. Too many iterations, something is wrong')
-                return 0 #lets try the next one
-            lastResult = compareState(endState,state)
-            if lastResult == 0:
-                resultCounter = sum(switchesCounters)
-                timeDelta = datetime.now()-now
-                print(f'Returning {resultCounter=} after {timeDelta=}')
-                return resultCounter
-            state = calculateNewState(originalState[:], switchesCounters, switches)
-            
-            if lastResult == -1:
-            #    print(f'Too low - increasing last switch {switchesCounters} to {switchesCounters[-1]+1}')
-                switchesCounters[-1] += 1
-                state = calculateNewState(state, justOneIncrement, switches)
-            elif lastResult == 1:
-                switchesCounters = tensIncrease(switchesCounters, switchesCountersWithLowError)
-                if switchesCounters == 'Dimension limit reached':
-                    break
-                state = calculateNewState(originalState[:], switchesCounters, switches)
-            #switchesCountersNew  = validateSwitchesCountersStandAChance(endState, switches, switchesCounters)
-            #if switchesCountersNew != switchesCounters:
-            #   state = calculateNewState(originalState[:], switchesCounters, switches)
-            error = 0
-            for i,value in enumerate(state):
-                error += abs(endState[i]-value)
-            if error > 20000:
-                print(f'High error detected {error=} {endState=} {state=} {switchesCounters=}')
-                raise Exception('too high error')
-    print('should not reach here--- something bad happened - returning 0 to continue')
-    return 0
-
-print('\n-------------------------\n')
-assert 1 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '(1,2,3)', '{0,1,1,1}'])
-assert 2 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '{0,2,0,0}'])
-assert 2 == getLowestIteration(row=['[.##.]', '(1)', '(2,1)', '(3,2,1)', '{0,2,0,0}'])
-assert 3 == getLowestIteration(row=['[.##.]', '(2)', '(1,2)', '(3,2,1)', '{0,2,3,0}'])
-assert 2 == getLowestIteration(row=['[.##.]', '(1)', '{0,2,0,0}'])
-assert 10 == getLowestIteration(row=['[.##.]', '(3)', '(1,3)', '(2)', '(2,3)', '(0,2)', '(0,1)', '{3,5,4,7}'])
-print('\n-------------------------\n\n\n\n -- the real deal ----\n')
-
-totalCounter = 0
-for row in listOfText:
-    counter = getLowestIteration(row)
-    totalCounter += counter
-    
-print(f'{totalCounter=}')
