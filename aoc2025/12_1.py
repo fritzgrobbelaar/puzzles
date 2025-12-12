@@ -105,6 +105,18 @@ def flipHorizontally(shapes):
                 shapes[key].append(shapeReversed) 
     return shapes
 
+def numberShapes(shapes):
+    keys = sorted(shapes.keys())
+    for key in keys:
+        for j,shape in enumerate(shapes[key]):
+            for i, row in enumerate(shape):
+                shapes[key][j][i] = shapes[key][j][i].replace('#',key)
+    return shapes
+
+
+shapes = numberShapes(shapes)
+
+
 assert 1 == len(flipHorizontally({'5': [['###', '.#.', '###']]})['5'])
 assert 1 == len(flipVertically({'5': [['###', '.#.', '###']]})['5'])
 
@@ -121,6 +133,9 @@ def rotate(shapes):
                 shapes[key].append(shapeReversed) 
     return shapes
 
+shapes = numberShapes(shapes)
+print(f'\n\nafter rotation {shapes=}')
+
 assert 2 == len(rotate({'5': [['###', '.#.', '###']]})['5'])
 shapes = rotate(shapes)
 #print(f'\n\nafter rotation {shapes=}')
@@ -133,12 +148,14 @@ assert 2 == len(shapes['5'])
 shapes = flipHorizontally(shapes)
 #print(f'\n\nafter flipH {shapes=}')
 assert 2 == len(shapes['5'])
-printShapes(shapes)
+#printShapes(shapes)
 
-def printGrid(grid):
-    print('\n\n---- grid ---')
-    
+
 def weighShapesByOpenAreaRightBottom(shapes):
+    """
+    Return list of lists - example list [6, '3', 1]
+    example list - [weight, presentKey, present index in present key list]
+"""
     presentWeights = []
     for key in shapes.keys():
         for z,shape in enumerate(shapes[key]):
@@ -154,23 +171,67 @@ def weighShapesByOpenAreaRightBottom(shapes):
 presentWeightsRightBottom = weighShapesByOpenAreaRightBottom(shapes)
 print(f'{presentWeightsRightBottom=}')
 
-def placeShapeThatFitsWithMostOpenAtBottom(grid, presents, upperLeftPoint):
+def tryAndFitPresent(grid, presentShape, upperLeftPoint):
+    grid = grid[:]
+    upperLeftPointY = upperLeftPoint[0]
+    upperLeftPointX = upperLeftPoint[1]
+    for y, row in enumerate(presentShape):
+        for x, value in enumerate(row):
+            gridValue = grid[upperLeftPointY + y][upperLeftPointX + x]
+            if gridValue == '.':
+                grid[upperLeftPointY + y][upperLeftPointX + x] = value
+            elif  value == '.':
+                pass
+            else:
+                return False
+    return grid
+
+def placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, upperLeftPoint):
     
-    return grid, presents
+    for weightedPresent in weightedPresents:
+        presentShape= shapes[weightedPresent[1]][weightedPresent[2]]
+        print(f'Trying pt={upperLeftPoint} {presentShape=} from {weightedPresent=}  ')                     
+        if tryAndFitPresent(grid, presentShape, upperLeftPoint) != False:
+            return grid, int(weightedPresent[1])
+    return grid, presentSelected
+
+def printGrid(grid):
+    print('\n\n---- grid ---')
+    for row in grid:
+        print(''.join(row))
+    
 
 gridSample = '''....
 ....
 ....
 ....'''
-printGrid(grid)
-presents = [0,0,0,0,10,0]
-grid, presents = placeShapeThatFitsWithMostOpenAtBottom(gridSample, presents)
+gridSample = gridSample.split('\n')
+gridSample = [list(row) for row in gridSample]
+printGrid(gridSample)
+weightedPresents = [[7, '0', 5], [7, '0', 0], [6, '3', 1]]
+grid, presentSelected = placeShapeThatFitsWithMostOpenAtBottom(gridSample, weightedPresents,(0,0))
 printGrid(grid)
 
+raise('we are not ready yet')
+answers = []
 for area in areas:
     area = area.split(':')
     grid = area[0]
     presents = area[1][1:].split(' ')
+    iterationCounter = 0
+    iterationLimit = 1000
+    while presents != [0,0,0,0,0,0]:
+        iterationCounter += 1
+        if iterationCounter >  iterationLimit:
+            print(f'{iterationLimit=} reached')
+            print('not found, ')
+            answers.append(False)
+        weightedPresents = []
+        for weightedPresent in presentWeightsRightBottom:
+            presentKey = int(weightedPresent[1])
+            if presents[presentKey] != 0:
+                weightedPresents.append(weightedPresent)
+    
     print(f'{presents=} should fit into {grid=}')
 
 print('-- the end --')
