@@ -37,10 +37,11 @@ sample='''0:
 ###
 
 4x4: 0 0 0 0 2 0
-12x5: 1 0 1 0 2 2'''.split('\n')
+12x5: 1 0 1 0 2 2
+12x5: 1 0 1 0 3 2'''.split('\n')
 
 extracases = '''
-12x5: 1 0 1 0 3 2'''
+'''
 
 test=True
 if test:
@@ -276,8 +277,8 @@ for areaCount,area in enumerate(areas):
         if iterationCounter >  iterationLimit:
             print(f'{iterationLimit=} reached')
             print('not found, ')
-            answers.append(False)
-            break
+            answers.append(['presents remaining- iteration limit reached: ',presents, grid])
+            
         weightedPresents = []
         for weightedPresent in presentWeightsRightBottom:
             presentKey = int(weightedPresent[1])
@@ -291,23 +292,32 @@ for areaCount,area in enumerate(areas):
             for x in range(gridDimensions[0]-2):
                 answer = placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, (y,x))
                 if answer == False:
-                    print(f'Failed to place anything at {(y,x)} {gridDimensions=} ')
+                    #print(f'Failed to place anything at {(y,x)} {gridDimensions=} ')
                     continue
                 else:
                     grid, presentSelected = answer
                     presents[presentSelected] = presents[presentSelected] -1
                     successfullyPlaced = True
-                    print('successfully placed something')
+                    #print('successfully placed something')
                     break
         else:
-            print('end of grid reached appending false')
-            
-            answers.append(False)
+            print('--- end of grid reached appending false --- ')
+            #answers.append(['presents remaining',sum(presents), 'original area', area, grid])
             break
-    answers.append( True)
+    if presents == [0,0,0,0,0,0]:
+        answers.append([True, 'successfully placed all - original request:', area, grid])
+    else:
+        answers.append([False, sum(presents), 'successfully placed all - original request:', area, f'{presents=}' ,grid])
             
 
     print(f'{presents=} fit into {grid=}')
 
+for answer in answers:
+    print('answer - :',answer, printGrid(answer[-1]))
 print(f'-- the end -- {answers=}')
-print(f'-- the end -- {sum(answers)=}')
+summary = [True if answer[0] is True else answer[1] for answer in answers]
+successfulPlacements = [True if answer is True else 0 for answer in summary]
+
+print(f'-- the end -- {summary=}')
+print(f'-- the end -- {sum(successfulPlacements)=}')
+
