@@ -137,13 +137,16 @@ assert [[2, 1, [0, 2]], [2, 2, [0, 3]], [4, 0, [0, 1, 2, 3]]] == getStateIDsFrom
 
 
 def getListOfOptions(remainingCount, switchIDs):
+    print(f'\ngetListOfOptions received {remainingCount} {switchIDs=}')
     switchID = switchIDs[0]
     remainingIDs = switchIDs[1:]
     if not remainingIDs:
         print(f'no remainingIDs found {switchIDs=}')
         return [{'switchID':switchID, 'count':remainingCount}]
+    iterations = []
     for i in range(remainingCount):
-        return [{'switchID':switchID, 'count':i},getListOfOptions(remainingCount - i, remainingIDs)]
+        iterations.append( [{'switchID':switchID, 'count':i},getListOfOptions(remainingCount - i, remainingIDs)])
+    return iterations
 
 
 def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit):
@@ -169,7 +172,7 @@ def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit)
 
 assert [{'switchID': 0, 'count': 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [(1,1,1,1), (0,1,0,0)], [1,0,[0]])
 print('test passed')
-assert [{'switchID': 0, 'count': 0}, [{'switchID': 1, 'count': 0}, [{'switchID': 2, 'count': 3}]]]== getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]])
-raise ('not quite right')
+getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]])
+
 
 
