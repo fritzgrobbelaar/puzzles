@@ -5,6 +5,7 @@ import math
 from datetime import datetime
 import itertools
 global listOfText
+import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''
@@ -21,7 +22,7 @@ extracases = '''
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
 
-test=False
+test=True
 if test:
     listOfText = sample
 #print(f'{listOfText=}\n')
@@ -108,6 +109,38 @@ assert [3,0,0] ==  calculateNewState([0,0,0], switchesCounters = [3], switches=[
 assert [10,0,0] ==  calculateNewState([0,0,0], switchesCounters = [10,0], switches= [(1,0,0), (1,1,0)])
 assert [18, 7, 5] ==  (calculateNewState([0,0,0],switchesCounters = [5,6,7], switches= [(1,0,1),(1,0,0), (1,1,0)]))
 
+
+def getStateIDsFromLeastReferenced(switches):
+    """
+    referencesCount first & id second. Example:
+    input: [(1,0,1),(1,0,0), (1,1,0)]
+    returns: [[1,1],[1,2],[2,0]]
+
+    input: [(1,0,1),(1,0,0),(1,1,0),(1,0,1)]
+    returns: [[1,2],[2,2],[4,0]]
+    """
+    print(f'{switches=}')
+    referencesCount = []
+    for j in range(len(switches[0])):
+        referencesCount.append([0,j,[]])
+    for switch in switches:
+        for j, value in enumerate(switch):
+            referencesCount[j][0] += value
+            if value == 1 and switch not in referencesCount[j][2]:
+                referencesCount[j][2].append(switch)
+    referencesCount.sort()
+    print(f'{referencesCount}')
+    return referencesCount
+
+#def getListOfValidSwitchConfigurations()
+
+
+
+
+assert [[1, 1, [(1, 1, 0)]], [1, 2, [(1, 0, 1)]], [3, 0, [(1, 0, 1), (1, 0, 0), (1, 1, 0)]]] == getStateIDsFromLeastReferenced(switches=[(1,0,1),(1,0,0), (1,1,0)])
+assert [[2, 1, [(1, 1, 1), (1, 1, 0)]], [2, 2, [(1, 1, 1), (1, 0, 1)]], [4, 0, [(1, 1, 1), (1, 0, 0), (1, 1, 0), (1, 0, 1)]]] == getStateIDsFromLeastReferenced(switches=[(1,1,1),(1,0,0),(1,1,0),(1,0,1)]) 
+
+exit()
 
 def tensIncrease(switchesCounters, switchesCountersWithLowError):
     #print(f'Increasing {switchesCounters=} by tens')
