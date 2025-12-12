@@ -43,7 +43,7 @@ sample='''0:
 extracases = '''
 '''
 
-test=False
+test=True
 if test:
     listOfText = sample
 else:
@@ -277,41 +277,39 @@ for areaCount,area in enumerate(areas):
     iterationCounter = 0
     iterationLimit = 100
     endOfGridReached = False
-    while presents != [0,0,0,0,0,0]:
-        for present in presents:
-            if present < 0:
-                raise ValueError('something went wrong - you cannot place presents you dont have')
-        iterationCounter += 1
-        if iterationCounter >  iterationLimit:
-            print(f'{iterationLimit=} reached')
-            print('not found, ')
-            answers.append(['presents remaining- iteration limit reached: ',presents, grid])
+    # while presents != [0,0,0,0,0,0]:
+        # for present in presents:
+            # if present < 0:
+                # raise ValueError('something went wrong - you cannot place presents you dont have')
+        # iterationCounter += 1
+        # if iterationCounter >  iterationLimit:
+            # print(f'{iterationLimit=} reached')
+            # print('not found, ')
+            # answers.append(['presents remaining- iteration limit reached: ',presents, grid])
             
-        weightedPresents = []
-        for weightedPresent in presentWeightsRightBottom:
-            presentKey = int(weightedPresent[1])
-            if presents[presentKey] != 0:
-                weightedPresents.append(weightedPresent)
-        successfullyPlaced = False
-        for y in range(gridDimensions[1] -2):
-            if successfullyPlaced:
-                #print('successfully placed something - point 2')
-                break
-            for x in range(gridDimensions[0]-2):
-                answer = placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, (y,x))
-                if answer == False:
-                    #print(f'Failed to place anything at {(y,x)} {gridDimensions=} ')
-                    continue
-                else:
-                    grid, presentSelected = answer
-                    presents[presentSelected] = presents[presentSelected] -1
-                    successfullyPlaced = True
-                    #print('successfully placed something')
-                    break
-        else:
-            print('--- end of grid reached appending false --- ')
-            #answers.append(['presents remaining',sum(presents), 'original area', area, grid])
-            break
+    weightedPresents = []
+    for weightedPresent in presentWeightsRightBottom:
+        presentKey = int(weightedPresent[1])
+        if presents[presentKey] != 0:
+            weightedPresents.append(weightedPresent)
+        # successfullyPlaced = False
+    for y in range(gridDimensions[1] -2):
+        for x in range(gridDimensions[0]-2):
+            answer = placeShapeThatFitsWithMostOpenAtBottom(grid, weightedPresents, (y,x))
+            if answer == False:
+                #print(f'Failed to place anything at {(y,x)} {gridDimensions=} ')
+                continue
+            else:
+                grid, presentSelected = answer
+                presents[presentSelected] = presents[presentSelected] -1
+                successfullyPlaced = True
+                weightedPresents = []
+                for weightedPresent in presentWeightsRightBottom:
+                    presentKey = int(weightedPresent[1])
+                    if presents[presentKey] != 0:
+                        weightedPresents.append(weightedPresent)
+
+                    
     if presents == [0,0,0,0,0,0]:
         answers.append([True, 'successfully placed all - original request:', area, grid])
     else:
