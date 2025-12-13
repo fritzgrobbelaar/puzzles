@@ -528,13 +528,15 @@ total = 0
 for i,row in enumerate(listOfText):
     now = datetime.now()
     nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')    
+    with open(f'trackingfile_{startNumber}.txt', 'a') as handle:
+        handle.write(f'Starting {nowString} {i=} {row=}  \n ')
     print(f'\n\n\n\n\n ######### -------- Processing {i=} of {len(listOfText)=} ------- ######## {nowString=}\n',row)
     number = getLowestIteration(row)
     print(f'received {number=}')
     sizeEstimate.append([number, i])
     #total += number
     with open(f'trackingfile_{startNumber}.txt', 'a') as handle:
-        handle.write(f'{i=} {number=}  {row=}\n ')
+        handle.write(f'{i=} {number=}  {row=} {nowString} \n ')
     total += number
 
 print(f'{total=}')
