@@ -10,8 +10,7 @@ import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''
-[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
-
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 '''.split('\n')
 
 extracases = '''
@@ -484,13 +483,18 @@ def getLowestIteration(row):
     print(f'{minNumberUsed=} for {row=}')
     return minNumberUsed
 
-if not test:
-    for row in listOfText:
-        getLowestIteration(row)
-#getLowestIteration( ['[..#...#.#]', '(2,7)', '(1,4,7)', '(0,1,3,4,5,6,8)', '(2,3,4,5,6,7,8)', '(1,4,6,7)', '(0,2,4,5,6,7,8)', '(0,5,7)', '(0,1,3,5,6,7,8)', '(0,4,6)', '(0,1,2,5,6,7,8)', '(0,1,2,3,5)', '{237,230,49,207,213,228,221,72,200}'])
-
 assert 10 == getLowestIteration(['[.##.]', '(3)', '(1,3)', '(2)', '(2,3)', '(0,2)', '(0,1)', '{3,5,4,7}'])
 assert 20 == getLowestIteration(['[#.##]', '(1,2,3)', '(0,2,3)', '{12,8,20,20}'])
 assert 17 == getLowestIteration( ['[###.]', '(1,3)', '(0,1,2)', '{0,17,0,17}'])
+assert 12 == getLowestIteration(['[...#.]', '(0,2,3,4)', '(2,3)', '(0,4)', '(0,1,2)', '(1,2,3,4)', '{7,5,12,7,2}'])
+assert 11 == getLowestIteration( ['[.###.#]', '(0,1,2,3,4)', '(0,3,4)', '(0,1,2,4,5)', '(1,2)', '{10,11,11,5,10,5}'])
 
-print('answer', answer)
+for row in listOfText:
+    number = getLowestIteration(row)
+    print(f'received {number=}')
+
+
+
+print('reached the end')
+
+#getLowestIteration( ['[..#...#.#]', '(2,7)', '(1,4,7)', '(0,1,3,4,5,6,8)', '(2,3,4,5,6,7,8)', '(1,4,6,7)', '(0,2,4,5,6,7,8)', '(0,5,7)', '(0,1,3,5,6,7,8)', '(0,4,6)', '(0,1,2,5,6,7,8)', '(0,1,2,3,5)', '{237,230,49,207,213,228,221,72,200}'])
