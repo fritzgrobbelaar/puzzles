@@ -10,8 +10,9 @@ import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
-'''.split('\n')
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}'''.split('\n')
 
 extracases = '''
 [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
@@ -329,11 +330,11 @@ def zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, validSwitc
     output:
         [(0,2,2), (0,0,3)], [(0,1,3), 1,0,2]]
         """
-    print(f'\n\nStarting zeroEndStateDigitWithMultipleSwitchesLockedIn with \n{endState=} \n{switches=} \n{validSwitchConfigurations=} \n{leastReferencedSwitchesUsed=}')
+    #print(f'\n\nStarting zeroEndStateDigitWithMultipleSwitchesLockedIn with \n{endState=} \n{switches=} \n{validSwitchConfigurations=} \n{leastReferencedSwitchesUsed=}')
 
     listOfValidStates = []
     for validSwitchConfiguration in validSwitchConfigurations:
-        print(f'Processing {endState=} {switches=} {leastReferencedSwitchesUsed=} {validSwitchConfiguration=}')
+        #print(f'Processing {endState=} {switches=} {leastReferencedSwitchesUsed=} {validSwitchConfiguration=}')
         switchConfig = tuple(validSwitchConfiguration)
         newEndState = list(endState)
         for switchID, switchCount in enumerate(switchConfig):
@@ -397,7 +398,7 @@ def removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs(stateIDs):
             stateID[2] = newSwitchIdList
             validStateIDs.append(stateID)
             referencedSwitches = referencedSwitches.union(list(switchIdList))
-    print(f'Returning valid & distinct {validStateIDs=}')
+    #print(f'Returning valid & distinct {validStateIDs=}')
     return validStateIDs
 
 assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]]])
@@ -405,7 +406,7 @@ assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentS
 assert [[2,1,[5,4]],[3,4,[2]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]],[3,4,[2,4]]])
 
 def getValidSolutions(stateIDs, targetState, switches):
-    print(f'\n\n -- getValidSolutions {stateIDs=}, {targetState=} {switches=}')
+    #print(f'\n\n -- getValidSolutions {stateIDs=}, {targetState=} {switches=}')
     if stateIDs == []:
         return [targetState]
     stateID = stateIDs[0]
@@ -422,35 +423,36 @@ def getValidSolutions(stateIDs, targetState, switches):
     
     validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, switches, furtherFlattenedSwitchConfigs,stateID)
     validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
-    print(f'{validStatesWithEndStateDigitZeroed=}')
+    #print(f'{validStatesWithEndStateDigitZeroed=}')
     #switches = zeroOutUsedSwitches(switches,referencedSwitches)
     printString = ''
     for validState in validStatesWithEndStateDigitZeroed:
-        print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
+      #  print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
+        pass
 
 
     validStates = []
     for validState in validStatesWithEndStateDigitZeroed:
         if list(validState[0]) == [0]*len(targetState):
-            print(f'*******hooray - we found one - no need to process further - whoop whoop {stateID=} {remainingStateIDs=} {targetState=} {switches=} answer={sum(validState[1])=}')
+          #  print(f'*******hooray - we found one - no need to process further - whoop whoop {stateID=} {remainingStateIDs=} {targetState=} {switches=} answer={sum(validState[1])=}')
             validStates.append(validState)
         else:
-            print(f'before diving deeper, we have a {validState=}')
+         #   print(f'before diving deeper, we have a {validState=}')
             recursiveValidSolutions = getValidSolutions(remainingStateIDs, validState[0], switches)
-            print(f'can I simply add or extend {validState=} and {recursiveValidSolutions=}')
+        #    print(f'can I simply add or extend {validState=} and {recursiveValidSolutions=}')
             flatRecursiveValidSolutions = []
             for recursiveValidSolution in recursiveValidSolutions:
-                print(f'{recursiveValidSolution=}')
+       #         print(f'{recursiveValidSolution=}')
                 combinedValidState = []
                 for i, value in enumerate(validState[1]):
                     combinedValidState.append(validState[1][i] + recursiveValidSolution[1][i])
 
-                print(f'can I simply add or extend {validState=} and {recursiveValidSolution=}')
-                print(f'planning to send back: {recursiveValidSolution[0]} {combinedValidState}')
+      #          print(f'can I simply add or extend {validState=} and {recursiveValidSolution=}')
+     #           print(f'planning to send back: {recursiveValidSolution[0]} {combinedValidState}')
                 validStates.append([recursiveValidSolution[0],combinedValidState])
 
-    print(f'{stateIDs=}')
-    print(f'Returning {validStates=}')
+    #print(f'{stateIDs=}')
+    #print(f'Returning {validStates=}')
     return validStates
 
 #def processAndFlattenSolutions(validSolutions):
@@ -473,7 +475,7 @@ def getLowestIteration(row):
     validSolutions = getValidSolutions(stateIDs, targetState=endState, switches=switches)
     #def processAndFlattenSolutions(validSolutions)
     print(f'at the end of the row, we found {validSolutions=}')
-    pprint.pprint(validSolutions)
+    #pprint.pprint(validSolutions)
     minNumberUsed = 10000
     for validSolution in validSolutions:
         
@@ -489,12 +491,10 @@ assert 17 == getLowestIteration( ['[###.]', '(1,3)', '(0,1,2)', '{0,17,0,17}'])
 assert 12 == getLowestIteration(['[...#.]', '(0,2,3,4)', '(2,3)', '(0,4)', '(0,1,2)', '(1,2,3,4)', '{7,5,12,7,2}'])
 assert 11 == getLowestIteration( ['[.###.#]', '(0,1,2,3,4)', '(0,3,4)', '(0,1,2,4,5)', '(1,2)', '{10,11,11,5,10,5}'])
 
+total = 0
 for row in listOfText:
     number = getLowestIteration(row)
     print(f'received {number=}')
+    total += number
 
-
-
-print('reached the end')
-
-#getLowestIteration( ['[..#...#.#]', '(2,7)', '(1,4,7)', '(0,1,3,4,5,6,8)', '(2,3,4,5,6,7,8)', '(1,4,6,7)', '(0,2,4,5,6,7,8)', '(0,5,7)', '(0,1,3,5,6,7,8)', '(0,4,6)', '(0,1,2,5,6,7,8)', '(0,1,2,3,5)', '{237,230,49,207,213,228,221,72,200}'])
+print(f'{total=}')
