@@ -193,6 +193,52 @@ def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit)
     pprint.pprint(options)
     return options
         
+
+def flattenListOfValidSwitchConfigurations(listOfValidSwitchConfigurations):
+    """
+    input:
+        listOfValidSwitchConfigurations - example:
+        - [{0: 0,
+            'more': [{1: 0, 'more': [{2: 3}]},
+                     {1: 1, 'more': [{2: 2}]},
+                     {1: 2, 'more': [{2: 1}]},
+                     {1: 3, 'more': [{2: 0}]}]},
+           {0: 1,
+            'more': [{1: 0, 'more': [{2: 2}]},
+                     {1: 1, 'more': [{2: 1}]},
+                     {1: 2, 'more': [{2: 0}]}]},
+           {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
+           {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
+
+    output:
+        flattenedListOfValidSwitchConfigurations - example:
+        - [{0: 0,1:0,2:3},
+           {0: 0,1:1,2:2},
+           {0: 0,1:2,2:1},
+           {0: 0,1:3,2:0},
+           {0: 1,1:0,2:2},
+           {0: 1,1:1,2:1},
+           {0: 1,1:2,2:0},
+           {0: 2,1:0,2:1},
+           {0: 2,1:1,2:0},
+           {0: 3,1:0,2:0}]
+        """
+    flattenedListOfValidSwitchConfigurations = []
+    def recurse(currentDict, accumulatedDict):
+        for key in currentDict:
+            if key == 'more':
+                for moreDict in currentDict['more']:
+                    recurse(moreDict, accumulatedDict)
+            else:
+                accumulatedDict[key] = currentDict[key]
+        if 'more' not in currentDict:
+            flattenedListOfValidSwitchConfigurations.append(accumulatedDict.copy())
+    
+    for validSwitchConfiguration in listOfValidSwitchConfigurations:
+        recurse(validSwitchConfiguration, {})
+
+    return flattenedListOfValidSwitchConfigurations
+
 assert [{0: 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [(1,1,1,1), (0,1,0,0)], [1,0,[0]])
 expectedResult = [{0: 0,
   'more': [{1: 0, 'more': [{2: 3}]},
@@ -207,13 +253,32 @@ expectedResult = [{0: 0,
  {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
 
 actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]]) #can't be a valid test case as switch 1 never references endState[0]
+assert expectedResult == actualResult
+answer = flattenListOfValidSwitchConfigurations(expectedResult)
+expectedFlattendResult = [
+    {0: 0, 1: 0, 2: 3},
+    {0: 0, 1: 1, 2: 2},
+    {0: 0, 1: 2, 2: 1},
+    {0: 0, 1: 3, 2: 0},
+    {0: 1, 1: 0, 2: 2},
+    {0: 1, 1: 1, 2: 1}, 
+    {0: 1, 1: 2, 2: 0},
+    {0: 2, 1: 0, 2: 1}, 
+    {0: 2, 1: 1, 2: 0}, 
+    {0: 3, 1: 0, 2: 0}
+]
+assert expectedFlattendResult == answer
+print(f'\nflattened answer=\n {answer=}')
+
 expectedResult = [{0: 0, 'more': [{2: 3}]},
  {0: 1, 'more': [{2: 2}]},
  {0: 2, 'more': [{2: 1}]},
  {0: 3, 'more': [{2: 0}]}]
 actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,2]])
-
 assert expectedResult == actualResult
+
+answer = flattenListOfValidSwitchConfigurations(expectedResult)
+print(f'\nflattened answer=\n {answer=}')
 
 def removeEndStateDigitAndMultipleSwitches(endState, switches, validSwitchConfigurations,leastReferencedSwitchesUsed):
     """
@@ -239,10 +304,12 @@ def removeEndStateDigitAndMultipleSwitches(endState, switches, validSwitchConfig
     print('targeting removal of endStateWith ID', leastReferencedSwitchesUsed[0])
     print('targeting removal of switches', leastReferencedSwitchesUsed[2])
     
+
+
 testCaseValidSwitchConfigurations = actualResult
 
 answer = removeEndStateDigitAndMultipleSwitches(endState=(3,4,5), switches=[(1,0,1), (0,1,1), (1,1,0)], validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[3,0,[0,2]])
 expectedAnswer = [
-     {endState=(0,2,2), switches=[(0,1,1)], trackingInfo={(1,0,1): 0, (1,1,0): 3},
-     {endState=(0,1,3), switches=[(0,1,1)], trackingInfo={(1,0,1): 0, (1,1,0): 3}
+     [(0,2,2), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}],
+     [(0,1,3), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}]
     ]
