@@ -238,3 +238,11 @@ def removeEndStateDigitAndMultipleSwitches(endState, switches, validSwitchConfig
         """
     print('targeting removal of endStateWith ID', leastReferencedSwitchesUsed[0])
     print('targeting removal of switches', leastReferencedSwitchesUsed[2])
+    
+testCaseValidSwitchConfigurations = actualResult
+
+answer = removeEndStateDigitAndMultipleSwitches(endState=(3,4,5), switches=[(1,0,1), (0,1,1), (1,1,0)], validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[3,0,[0,2]])
+expectedAnswer = [
+     {endState=(0,2,2), switches=[(0,1,1)], trackingInfo={(1,0,1): 0, (1,1,0): 3},
+     {endState=(0,1,3), switches=[(0,1,1)], trackingInfo={(1,0,1): 0, (1,1,0): 3}
+    ]
