@@ -10,10 +10,12 @@ import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''
-[###.] (1,3) (0,1,2) {0,17,0,17}
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 '''.split('\n')
 
 extracases = '''
+[#.##] (1,2,3) (0,2,3) {12,8,20,20}
+[###.] (1,3) (0,1,2) {0,17,0,17}
 [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 
 [...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
@@ -400,6 +402,7 @@ assert [[2,1,[5,4]]] == removeDuplicateReferencedStateIDs([[2,1,[5,4]]])
 assert [[2,1,[5,4]]] == removeDuplicateReferencedStateIDs([[2,1,[5,4]],[3,4,[2,4]]])
 
 def getValidSolutions(stateIDs, targetState, switches):
+    print(f'\n\n -- getValidSolutions {stateIDs=}, {targetState=} {switches=}')
     if stateIDs == []:
         return [targetState]
     stateID = stateIDs[0]
@@ -416,19 +419,20 @@ def getValidSolutions(stateIDs, targetState, switches):
     
     validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, switches, furtherFlattenedSwitchConfigs,stateID)
     validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
+    print(f'{validStatesWithEndStateDigitZeroed=}')
     #switches = zeroOutUsedSwitches(switches,referencedSwitches)
-        
     printString = ''
     for validState in validStatesWithEndStateDigitZeroed:
         print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
 
     if list(validState[0]) == [0]*len(targetState):
         print(f'hooray - we found one - no need to process further - whoop whoop {stateID=} {remainingStateIDs=} {targetState=} {switches=} answer={sum(validState[1])=}')
-        return {'validState':sum(validState[1])}
-
+        return validState[1]
+    
     validStates = []
     for validState in validStatesWithEndStateDigitZeroed:
-        validStates.append(getValidSolutions(remainingStateIDs, targetState, switches))
+        print(f'before diving deeper, we have a {validState=}')
+        validStates.append([validState[1],getValidSolutions(remainingStateIDs, validState[0], switches)])
 
     print(f'{stateIDs=}')
     return validStates
@@ -449,8 +453,15 @@ def getLowestIteration(row):
     stateIDs = removeDuplicateReferencedStateIDs(stateIDs)
     validSolutions = getValidSolutions(stateIDs, targetState=endState, switches=switches)
     print(f'at the end of the row, we found {validSolutions=}')
-    
-    
+    minNumberUsed = 10000
+    for validSolution in validSolutions:
+        sumUsed = 0
+        for switchesCount in validSolution:
+            print(f'adding {switchesCount=}')
+            sumUsed += sum(switchesCount)
+        if minNumberUsed > sumUsed:
+            minNumberUsed = sumUsed
+    print(f'{minNumberUsed=} for {row=}')
+    return minNumberUsed
 
 answer = getLowestIteration(listOfText[0])
-print(f'Final answer: {answer}')
