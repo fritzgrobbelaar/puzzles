@@ -10,12 +10,13 @@ import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
-[..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 '''.split('\n')
 
 extracases = '''
-[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+[...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
+[..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
@@ -352,6 +353,27 @@ expectedAnswer = [
      [(0,1,3), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}]
     ]
 
+def dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed):
+    newValidStates = []
+    for validState in validStatesWithEndStateDigitZeroed:
+        if min(validState[0]) >= 0:
+            newValidStates.append(validState)
+    return newValidStates
+    
+
+assert [[(0,2,2), (0,0,3)]] == dropEndStatesWithNegativeValues([[(0,2,2), (0,0,3)]])
+assert [[(0,2,2), (0,0,3)]] == dropEndStatesWithNegativeValues([[(0,2,2), (0,0,3)], [(-1,2,2), (0,0,3)]])
+
+def zeroOutUsedSwitches(switches,processedSwitches):
+    newSwitches = []
+    for i,switch in enumerate(switches):
+        if i in processedSwitches:
+            newSwitch = tuple([0]*len(switch))
+        else:
+            newSwitch = switch
+        newSwitches.append(newSwitch)
+    return newSwitches
+
 def getLowestIteration(row):
     now = datetime.now()
     nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')
@@ -362,21 +384,36 @@ def getLowestIteration(row):
     switches = row[1:-1]
     switches = parseSwitches(switches)
     switches = convertSwitches(switches, [0]*len(endState))
+    originalSwitches = copy.deepcopy(switches)
     print('switches parsed=',switches)
     stateIDs = getStateIDsFromLeastReferenced(switches)
 
+    processedSwitches = set()
+
     for stateID in stateIDs:
+        print(f'{stateID=}')
+        referencedSwitches = set(stateID[2])
+        for referencedSwitch in referencedSwitches:
+            if referencedSwitch in processedSwitches:
+                continue
+        processedSwitches = processedSwitches.union(referencedSwitches)
+
         switchConfigs = getListOfValidSwitchConfigurations(endState, switches, stateID)
-        print(f'{switchConfigs=}')
+        #print(f'{switchConfigs=}')
         flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
-        print(f'{flatten1edSwitchConfigs=}')
+        #print(f'{flatten1edSwitchConfigs=}')
         furtherFlattenedSwitchConfigs = flattenFurther(switches=switches, listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
-        print(f'{furtherFlattenedSwitchConfigs=}')
+        #print(f'{furtherFlattenedSwitchConfigs=}')
         
         validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, furtherFlattenedSwitchConfigs,stateID)
-        print(f'originalEndState={endState} {switches=} {validStatesWithEndStateDigitZeroed=}')
+        validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
+        switches = zeroOutUsedSwitches(switches,processedSwitches)
+       # print(f'originalEndState={endState} {switches=} validStatesWithEndStateDigitZeroed=')
+        break
+    printString = ''
+    for validState in validStatesWithEndStateDigitZeroed:
+        print(f'  originalEndState={endState} {stateID=} {switches=} {validState=}')
 
-        exit()
 
     print(f'{stateIDs=}')
     
