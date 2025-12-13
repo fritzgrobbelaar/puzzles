@@ -404,8 +404,7 @@ def getValidSolutions(stateIDs, targetState, switches):
         return [targetState]
     stateID = stateIDs[0]
     remainingStateIDs = stateIDs[1:]
-    
-    
+        
     referencedSwitches = set(stateID[2])
 
     switchConfigs = getListOfValidSwitchConfigurations(targetState, switches, stateID)
@@ -417,18 +416,22 @@ def getValidSolutions(stateIDs, targetState, switches):
     
     validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, switches, furtherFlattenedSwitchConfigs,stateID)
     validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
-    switches = zeroOutUsedSwitches(switches,referencedSwitches)
+    #switches = zeroOutUsedSwitches(switches,referencedSwitches)
         
     printString = ''
     for validState in validStatesWithEndStateDigitZeroed:
         print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
 
+    if list(validState[0]) == [0]*len(targetState):
+        print(f'hooray - we found one - no need to process further - whoop whoop {stateID=} {remainingStateIDs=} {targetState=} {switches=} answer={sum(validState[1])=}')
+        return {'validState':sum(validState[1])}
+
     validStates = []
     for validState in validStatesWithEndStateDigitZeroed:
-        validStates.extend(getValidSolutions(remainingStateIDs, targetState, switches))
+        validStates.append(getValidSolutions(remainingStateIDs, targetState, switches))
 
     print(f'{stateIDs=}')
-    return validStatesWithEndStateDigitZeroed
+    return validStates
 
 def getLowestIteration(row):
     now = datetime.now()
@@ -445,7 +448,7 @@ def getLowestIteration(row):
     stateIDs = getStateIDsFromLeastReferenced(switches)
     stateIDs = removeDuplicateReferencedStateIDs(stateIDs)
     validSolutions = getValidSolutions(stateIDs, targetState=endState, switches=switches)
-    print(f'{validSolutions=}')
+    print(f'at the end of the row, we found {validSolutions=}')
     
     
 
