@@ -30,16 +30,6 @@ if test:
 listOfText = [item for item in listOfText if item.strip() != '']
 listOfText = [row.split(' ') for row in listOfText]
 
-def sortSwitches(switches):
-    withSizes= []
-    for switch in switches:
-        withSizes.append([len(switch),switch])
-    withSizes.sort()
-    switches = [withSize[1] for withSize in withSizes]
-    
-    return switches
-    
-assert ['(0,4)', '(2,3)',  '(0,1,2)','(0,2,3,4)',  '(1,2,3,4)',] == sortSwitches(['(0,2,3,4)' ,'(2,3)', '(0,4)' ,'(0,1,2)' ,'(1,2,3,4)'])
 
 def parseSwitches(listOfStrings):
     listOfTuples = []
@@ -269,16 +259,19 @@ expectedFlattendResult = [
 ]
 assert expectedFlattendResult == answer
 #print(f'\nflattened answer=\n {answer=}')
-def flattenFurther(endState, listOfDictionariesThatSetsAnEndStateToZero):
-    #print('processing', endState, listOfDictionariesThatSetsAnEndStateToZero)
+def flattenFurther(switches, listOfDictionariesThatSetsAnEndStateToZero):
+    print(f'\nFurther flattening {switches=}, {listOfDictionariesThatSetsAnEndStateToZero=}')
     newList = []
     for dictItem in listOfDictionariesThatSetsAnEndStateToZero:
-        newEntry = [0]*len(endState)
+        newEntry = [0]*len(switches)
         #print(f'flattening {dictItem=}')
         for key in dictItem:
             newEntry[key] = dictItem[key]
         newList.append(newEntry)
-    #print('returning', newList)
+    for entry in newList:
+        if len(entry) != len(switches):
+            raise Exception(f'flattenFurther generated entry of incorrect length {entry=} {switches=}') 
+    print('returning', newList)
     return newList  
 
 expectedFlattenedFurtherResult = [
@@ -294,7 +287,7 @@ expectedFlattenedFurtherResult = [
     [3,0,0]
 ]
 listOfDictionariesThatSetsOneEndStateToZero = expectedFlattendResult
-assert expectedFlattenedFurtherResult == flattenFurther( (3,4,6), expectedFlattendResult)
+assert expectedFlattenedFurtherResult == flattenFurther( [(0,0,1), (1,1,0)], expectedFlattendResult)
 
 expectedResult = [{0: 0, 'more': [{2: 3}]},
  {0: 1, 'more': [{2: 2}]},
@@ -312,29 +305,80 @@ def zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, validSwitc
         endState - example: (3,4,5)
         switches - example: [(1,1,1),(1,0,0),(1,1,0),(1,0,1)]
         validSwitchConfigurations - example:
-        - [{0: 0,
-            'more': [{1: 0, 'more': [{2: 3}]},
-                     {1: 1, 'more': [{2: 2}]},
-                     {1: 2, 'more': [{2: 1}]},
-                     {1: 3, 'more': [{2: 0}]}]},
-           {0: 1,
-            'more': [{1: 0, 'more': [{2: 2}]},
-                     {1: 1, 'more': [{2: 1}]},
-                     {1: 2, 'more': [{2: 0}]}]},
-           {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
-           {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
-
+        - [
+            [0,0,3],
+            [0,1,2],
+            [0,2,1],
+            [0,3,0],
+            [1,0,2],
+            [1,1,1],
+            [1,2,0],
+            [2,0,1],
+            [2,1,0],
+            [3,0,0]
+        ]
     output:
-        listOfEndStatesSwitchesAndTrackingInfo
+        [(0,2,2), (0,0,3)], [(0,1,3), 1,0,2]]
         """
-    print('targetting removal of endStateWith ID', leastReferencedSwitchesUsed[0])
-    print('targetting removal of switches', leastReferencedSwitchesUsed[2])
+    print(f'\n\nStarting zeroEndStateDigitWithMultipleSwitchesLockedIn with \n{endState=} \n{switches=} \n{validSwitchConfigurations=} \n{leastReferencedSwitchesUsed=}')
+
+    listOfValidStates = []
+    for validSwitchConfiguration in validSwitchConfigurations:
+        print(f'\nProcessing validSwitchConfiguration {validSwitchConfiguration=}')
+        switchConfig = tuple(validSwitchConfiguration)
+        newEndState = list(endState)
+        for switchID, switchCount in enumerate(switchConfig):
+            switch = switches[switchID]
+            for j, switchValue in enumerate(switch):
+                newEndState[j] -= switchCount*switchValue
+        #print(f'Generated newEndState {newEndState=}')
+        listOfValidStates.append([tuple(newEndState), switchConfig])
+    #print('Returning listOfValidStates')
+    #pprint.pprint(listOfValidStates)
+    return listOfValidStates
     
 
-testCaseValidSwitchConfigurations = actualResult
+testCaseValidSwitchConfigurations = [
+            [0,0,3],
+            [1,0,2],
+            [2,0,1],
+            [3,0,0]
+        ]
 
-answer = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState=(3,4,5), switches=[(1,0,1), (0,1,1), (1,1,0)], validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[3,0,[0,2]])
+answer = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState=(3,4,5), switches=[(1,0,1), (0,1,1), (1,1,0)], validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[2,0,[0,2]])
 expectedAnswer = [
      [(0,2,2), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}],
      [(0,1,3), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}]
     ]
+
+def getLowestIteration(row):
+    now = datetime.now()
+    nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')
+    print(f'\n\n ---- New row -- {nowString=}\n',row)
+    endState = row[-1]
+    endState = list(parseSwitches([endState])[0])
+    print(f'{endState=}')
+    switches = row[1:-1]
+    switches = parseSwitches(switches)
+    switches = convertSwitches(switches, [0]*len(endState))
+    print('switches parsed=',switches)
+    stateIDs = getStateIDsFromLeastReferenced(switches)
+
+    for stateID in stateIDs:
+        switchConfigs = getListOfValidSwitchConfigurations(endState, switches, stateID)
+        print(f'{switchConfigs=}')
+        flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
+        print(f'{flatten1edSwitchConfigs=}')
+        furtherFlattenedSwitchConfigs = flattenFurther(endState, flatten1edSwitchConfigs)
+        print(f'{furtherFlattenedSwitchConfigs=}')
+        raise ValueError(' this does not look right')
+        zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, furtherFlattenedSwitchConfigs,stateID)
+        print(f'{zeroEndStateDigitWithMultipleSwitchesLockedIn}')
+
+        exit()
+
+    print(f'{stateIDs=}')
+    
+
+answer = getLowestIteration(listOfText[0])
+print(f'Final answer: {answer}')
