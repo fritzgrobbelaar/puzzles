@@ -169,7 +169,7 @@ def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit)
             returns [{0: 3}]
         
         example2 input: (3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]]
-        example2 explanation: - we're targetting the first endState digit of 0 using all combinations of switches listed [0,1,2]
+        example2 explanation: - we're targetting the first endState digit of 0, value 3 using all combinations of switches listed [0,1,2]
         example2 output: [{0: 0,
   'more': [{1: 0, 'more': [{2: 3}]},
            {1: 1, 'more': [{2: 2}]},
@@ -193,8 +193,6 @@ def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit)
     pprint.pprint(options)
     return options
         
-    
-
 assert [{0: 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [(1,1,1,1), (0,1,0,0)], [1,0,[0]])
 expectedResult = [{0: 0,
   'more': [{1: 0, 'more': [{2: 3}]},
@@ -208,9 +206,35 @@ expectedResult = [{0: 0,
  {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
  {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
 
-actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]])
+actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]]) #can't be a valid test case as switch 1 never references endState[0]
+expectedResult = [{0: 0, 'more': [{2: 3}]},
+ {0: 1, 'more': [{2: 2}]},
+ {0: 2, 'more': [{2: 1}]},
+ {0: 3, 'more': [{2: 0}]}]
+actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,2]])
+
 assert expectedResult == actualResult
 
+def removeEndStateDigitAndMultipleSwitches(endState, switches, validSwitchConfigurations,leastReferencedSwitchesUsed):
+    """
+    input:
+        endState - example: (3,4,5)
+        switches - example: [(1,1,1),(1,0,0),(1,1,0),(1,0,1)]
+        validSwitchConfigurations - example:
+        - [{0: 0,
+            'more': [{1: 0, 'more': [{2: 3}]},
+                     {1: 1, 'more': [{2: 2}]},
+                     {1: 2, 'more': [{2: 1}]},
+                     {1: 3, 'more': [{2: 0}]}]},
+           {0: 1,
+            'more': [{1: 0, 'more': [{2: 2}]},
+                     {1: 1, 'more': [{2: 1}]},
+                     {1: 2, 'more': [{2: 0}]}]},
+           {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
+           {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
 
-
-
+    output:
+        listOfEndStatesSwitchesAndTrackingInfo
+        """
+    print('targeting removal of endStateWith ID', leastReferencedSwitchesUsed[0])
+    print('targeting removal of switches', leastReferencedSwitchesUsed[2])
