@@ -184,13 +184,13 @@ def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit)
             
     returns: validStatesForIndex
     """
-    print(f'--\n\nStart get list {leastReferencedDigit=}')
+   #print(f'--\n\nStart get list {leastReferencedDigit=}')
     leastReferencedDigitId = leastReferencedDigit[1]
     leastReferencedSwitchesUsed = leastReferencedDigit[2]
     targetingCount = endState[leastReferencedDigitId]
     options = getListOfOptions(targetingCount, leastReferencedSwitchesUsed)
-    print(f'\n options=\n')
-    pprint.pprint(options)
+    #print(f'\n options=\n')
+    #pprint.pprint(options)
     return options
         
 
@@ -268,7 +268,33 @@ expectedFlattendResult = [
     {0: 3, 1: 0, 2: 0}
 ]
 assert expectedFlattendResult == answer
-print(f'\nflattened answer=\n {answer=}')
+#print(f'\nflattened answer=\n {answer=}')
+def flattenFurther(endState, listOfDictionariesThatSetsAnEndStateToZero):
+    #print('processing', endState, listOfDictionariesThatSetsAnEndStateToZero)
+    newList = []
+    for dictItem in listOfDictionariesThatSetsAnEndStateToZero:
+        newEntry = [0]*len(endState)
+        #print(f'flattening {dictItem=}')
+        for key in dictItem:
+            newEntry[key] = dictItem[key]
+        newList.append(newEntry)
+    #print('returning', newList)
+    return newList  
+
+expectedFlattenedFurtherResult = [
+    [0,0,3],
+    [0,1,2],
+    [0,2,1],
+    [0,3,0],
+    [1,0,2],
+    [1,1,1],
+    [1,2,0],
+    [2,0,1],
+    [2,1,0],
+    [3,0,0]
+]
+listOfDictionariesThatSetsOneEndStateToZero = expectedFlattendResult
+assert expectedFlattenedFurtherResult == flattenFurther( (3,4,6), expectedFlattendResult)
 
 expectedResult = [{0: 0, 'more': [{2: 3}]},
  {0: 1, 'more': [{2: 2}]},
@@ -278,9 +304,9 @@ actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1
 assert expectedResult == actualResult
 
 answer = flattenListOfValidSwitchConfigurations(expectedResult)
-print(f'\nflattened answer=\n {answer=}')
+#print(f'\nflattened answer=\n {answer=}')
 
-def removeEndStateDigitAndMultipleSwitches(endState, switches, validSwitchConfigurations,leastReferencedSwitchesUsed):
+def zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, validSwitchConfigurations,leastReferencedSwitchesUsed):
     """
     input:
         endState - example: (3,4,5)
@@ -301,14 +327,13 @@ def removeEndStateDigitAndMultipleSwitches(endState, switches, validSwitchConfig
     output:
         listOfEndStatesSwitchesAndTrackingInfo
         """
-    print('targeting removal of endStateWith ID', leastReferencedSwitchesUsed[0])
-    print('targeting removal of switches', leastReferencedSwitchesUsed[2])
+    print('targetting removal of endStateWith ID', leastReferencedSwitchesUsed[0])
+    print('targetting removal of switches', leastReferencedSwitchesUsed[2])
     
-
 
 testCaseValidSwitchConfigurations = actualResult
 
-answer = removeEndStateDigitAndMultipleSwitches(endState=(3,4,5), switches=[(1,0,1), (0,1,1), (1,1,0)], validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[3,0,[0,2]])
+answer = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState=(3,4,5), switches=[(1,0,1), (0,1,1), (1,1,0)], validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[3,0,[0,2]])
 expectedAnswer = [
      [(0,2,2), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}],
      [(0,1,3), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}]
