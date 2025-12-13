@@ -10,10 +10,12 @@ import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 
 sample='''
-[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+[###.] (1,3) (0,1,2) {0,17,0,17}
 '''.split('\n')
 
 extracases = '''
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+
 [...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
 [..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
@@ -374,10 +376,64 @@ def zeroOutUsedSwitches(switches,processedSwitches):
         newSwitches.append(newSwitch)
     return newSwitches
 
+def removeDuplicateReferencedStateIDs(stateIDs):
+    referencedSwitches = set()
+    validStateIDs = []
+    for stateID in stateIDs:
+        switchIdList = stateID[2]
+        allValid = True
+        for switchId in switchIdList:
+            
+            if switchId in referencedSwitches:
+   #             print(f'found {switchId} in {referencedSwitches}')
+                allValid = False
+                break
+ #           else:
+  #              print(f'did not find {switchId} in {referencedSwitches}')
+        if allValid:
+            validStateIDs.append(stateID)
+            referencedSwitches = referencedSwitches.union(list(switchIdList))
+    print(f'Returning valid & distinct {validStateIDs=}')
+    return validStateIDs
+
+assert [[2,1,[5,4]]] == removeDuplicateReferencedStateIDs([[2,1,[5,4]]])
+assert [[2,1,[5,4]]] == removeDuplicateReferencedStateIDs([[2,1,[5,4]],[3,4,[2,4]]])
+
+def getValidSolutions(stateIDs, targetState, switches):
+    if stateIDs == []:
+        return [targetState]
+    stateID = stateIDs[0]
+    remainingStateIDs = stateIDs[1:]
+    
+    
+    referencedSwitches = set(stateID[2])
+
+    switchConfigs = getListOfValidSwitchConfigurations(targetState, switches, stateID)
+    print(f'{switchConfigs=}')
+    flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
+    print(f'{flatten1edSwitchConfigs=}')
+    furtherFlattenedSwitchConfigs = flattenFurther(switches=switches, listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
+    print(f'{furtherFlattenedSwitchConfigs=}')
+    
+    validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, switches, furtherFlattenedSwitchConfigs,stateID)
+    validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
+    switches = zeroOutUsedSwitches(switches,referencedSwitches)
+        
+    printString = ''
+    for validState in validStatesWithEndStateDigitZeroed:
+        print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
+
+    validStates = []
+    for validState in validStatesWithEndStateDigitZeroed:
+        validStates.extend(getValidSolutions(remainingStateIDs, targetState, switches))
+
+    print(f'{stateIDs=}')
+    return validStatesWithEndStateDigitZeroed
+
 def getLowestIteration(row):
     now = datetime.now()
     nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')
-    print(f'\n\n ---- New row -- {nowString=}\n',row)
+    print(f'\n\n\n -------- New row ------- {nowString=}\n',row)
     endState = row[-1]
     endState = list(parseSwitches([endState])[0])
     print(f'{endState=}')
@@ -387,35 +443,10 @@ def getLowestIteration(row):
     originalSwitches = copy.deepcopy(switches)
     print('switches parsed=',switches)
     stateIDs = getStateIDsFromLeastReferenced(switches)
-
-    processedSwitches = set()
-
-    for stateID in stateIDs:
-        print(f'{stateID=}')
-        referencedSwitches = set(stateID[2])
-        for referencedSwitch in referencedSwitches:
-            if referencedSwitch in processedSwitches:
-                continue
-        processedSwitches = processedSwitches.union(referencedSwitches)
-
-        switchConfigs = getListOfValidSwitchConfigurations(endState, switches, stateID)
-        #print(f'{switchConfigs=}')
-        flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
-        #print(f'{flatten1edSwitchConfigs=}')
-        furtherFlattenedSwitchConfigs = flattenFurther(switches=switches, listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
-        #print(f'{furtherFlattenedSwitchConfigs=}')
-        
-        validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, furtherFlattenedSwitchConfigs,stateID)
-        validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
-        switches = zeroOutUsedSwitches(switches,processedSwitches)
-       # print(f'originalEndState={endState} {switches=} validStatesWithEndStateDigitZeroed=')
-        break
-    printString = ''
-    for validState in validStatesWithEndStateDigitZeroed:
-        print(f'  originalEndState={endState} {stateID=} {switches=} {validState=}')
-
-
-    print(f'{stateIDs=}')
+    stateIDs = removeDuplicateReferencedStateIDs(stateIDs)
+    validSolutions = getValidSolutions(stateIDs, targetState=endState, switches=switches)
+    print(f'{validSolutions=}')
+    
     
 
 answer = getLowestIteration(listOfText[0])
