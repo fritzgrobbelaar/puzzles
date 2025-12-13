@@ -4,6 +4,7 @@ from functools import cmp_to_key
 import math
 from datetime import datetime
 import itertools
+import pprint
 global listOfText
 import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
@@ -119,7 +120,7 @@ def getStateIDsFromLeastReferenced(switches):
     input: [(1,0,1),(1,0,0),(1,1,0),(1,0,1)]
     returns: [[1,2],[2,2],[4,0]]
     """
-    print(f'{switches=}')
+    #print(f'{switches=}')
     referencesCount = []
     for j in range(len(switches[0])):
         referencesCount.append([0,j,[]])
@@ -129,7 +130,7 @@ def getStateIDsFromLeastReferenced(switches):
             if value == 1:
                 referencesCount[j][2].append(i)
     referencesCount.sort()
-    print(f'{referencesCount}')
+    #print(f'{referencesCount}')
     return referencesCount
 
 assert [[1, 1, [2]], [1, 2, [0]], [3, 0, [0, 1, 2]]] == getStateIDsFromLeastReferenced(switches=[(1,0,1),(1,0,0), (1,1,0)])
@@ -137,15 +138,23 @@ assert [[2, 1, [0, 2]], [2, 2, [0, 3]], [4, 0, [0, 1, 2, 3]]] == getStateIDsFrom
 
 
 def getListOfOptions(remainingCount, switchIDs):
-    print(f'\ngetListOfOptions received {remainingCount} {switchIDs=}')
+   # print(f'\ngetListOfOptions received {remainingCount} {switchIDs=}')
     switchID = switchIDs[0]
     remainingIDs = switchIDs[1:]
     if not remainingIDs:
-        print(f'no remainingIDs found {switchIDs=}')
-        return [{'switchID':switchID, 'count':remainingCount}]
+     #   print(f'no remainingIDs found {switchIDs=}')
+        return [{switchID:remainingCount}]
     iterations = []
-    for i in range(remainingCount):
-        iterations.append( [{'switchID':switchID, 'count':i},getListOfOptions(remainingCount - i, remainingIDs)])
+    for i in range(remainingCount+1):
+        recurseAnswer = getListOfOptions(remainingCount - i, remainingIDs)
+        #print(f'got recurseAnswer {recurseAnswer=}. Need to add switchID {switchID=} with count {i=}')
+        localAnswer = {switchID: i}
+       # print(f'local answer is {localAnswer=}')
+        addedAnswer = {**localAnswer,**{'more': recurseAnswer}}
+        #print(f'combined {addedAnswer=} after adding {localAnswer=} to {recurseAnswer=}')
+        iterations.append(addedAnswer)
+        
+    #print(f'returning iterations {iterations=}')
     return iterations
 
 
@@ -157,22 +166,51 @@ def getListOfValidSwitchConfigurations(endState, switches, leastReferencedDigit)
         leastReferencedDigitAndSwitches - example:
         - [switchesCount, endStateReferenceIndex, switches
             [2, 1, [0, 2]]
-
+            returns [{0: 3}]
+        
+        example2 input: (3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]]
+        example2 explanation: - we're targetting the first endState digit of 0 using all combinations of switches listed [0,1,2]
+        example2 output: [{0: 0,
+  'more': [{1: 0, 'more': [{2: 3}]},
+           {1: 1, 'more': [{2: 2}]},
+           {1: 2, 'more': [{2: 1}]},
+           {1: 3, 'more': [{2: 0}]}]},
+ {0: 1,
+  'more': [{1: 0, 'more': [{2: 2}]},
+           {1: 1, 'more': [{2: 1}]},
+           {1: 2, 'more': [{2: 0}]}]},
+ {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
+ {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
+            
     returns: validStatesForIndex
     """
-    print(f'Start get list {leastReferencedDigit=}')
+    print(f'--\n\nStart get list {leastReferencedDigit=}')
     leastReferencedDigitId = leastReferencedDigit[1]
     leastReferencedSwitchesUsed = leastReferencedDigit[2]
     targetingCount = endState[leastReferencedDigitId]
     options = getListOfOptions(targetingCount, leastReferencedSwitchesUsed)
-    print(f'{options=}')
+    print(f'\n options=\n')
+    pprint.pprint(options)
     return options
         
     
 
-assert [{'switchID': 0, 'count': 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [(1,1,1,1), (0,1,0,0)], [1,0,[0]])
-print('test passed')
-getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]])
+assert [{0: 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [(1,1,1,1), (0,1,0,0)], [1,0,[0]])
+expectedResult = [{0: 0,
+  'more': [{1: 0, 'more': [{2: 3}]},
+           {1: 1, 'more': [{2: 2}]},
+           {1: 2, 'more': [{2: 1}]},
+           {1: 3, 'more': [{2: 0}]}]},
+ {0: 1,
+  'more': [{1: 0, 'more': [{2: 2}]},
+           {1: 1, 'more': [{2: 1}]},
+           {1: 2, 'more': [{2: 0}]}]},
+ {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
+ {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
+
+actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]])
+assert expectedResult == actualResult
+
 
 
 
