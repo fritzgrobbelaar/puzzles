@@ -265,8 +265,8 @@ expectedFlattendResult = [
 assert expectedFlattendResult == answer
 #print(f'\nflattened answer=\n {answer=}')
 def flattenFurther(switches, listOfDictionariesThatSetsAnEndStateToZero):
-    print(f'\nFurther flattening {switches=}, {listOfDictionariesThatSetsAnEndStateToZero=}')
-    pprint.pprint(listOfDictionariesThatSetsAnEndStateToZero)
+    #print(f'\nFurther flattening {switches=}, {listOfDictionariesThatSetsAnEndStateToZero=}')
+    #pprint.pprint(listOfDictionariesThatSetsAnEndStateToZero)
     newList = []
     for dictItem in listOfDictionariesThatSetsAnEndStateToZero:
         newEntry = [0]*len(switches)
@@ -277,7 +277,7 @@ def flattenFurther(switches, listOfDictionariesThatSetsAnEndStateToZero):
     for entry in newList:
         if len(entry) != len(switches):
             raise Exception(f'flattenFurther generated entry of incorrect length {entry=} {switches=}') 
-    print('returning', newList)
+    #print('returning', newList)
     return newList  
 
 expectedFlattenedFurtherResult = [
@@ -330,7 +330,7 @@ def zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, validSwitc
 
     listOfValidStates = []
     for validSwitchConfiguration in validSwitchConfigurations:
-        print(f'\nProcessing validSwitchConfiguration {validSwitchConfiguration=}')
+        print(f'Processing {endState=} {switches=} {leastReferencedSwitchesUsed=} {validSwitchConfiguration=}')
         switchConfig = tuple(validSwitchConfiguration)
         newEndState = list(endState)
         for switchID, switchCount in enumerate(switchConfig):
@@ -425,12 +425,13 @@ def getValidSolutions(stateIDs, targetState, switches):
     for validState in validStatesWithEndStateDigitZeroed:
         print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
 
-    if list(validState[0]) == [0]*len(targetState):
-        print(f'hooray - we found one - no need to process further - whoop whoop {stateID=} {remainingStateIDs=} {targetState=} {switches=} answer={sum(validState[1])=}')
-        return validState[1]
-    
+
     validStates = []
     for validState in validStatesWithEndStateDigitZeroed:
+        if list(validState[0]) == [0]*len(targetState):
+            print(f'*******hooray - we found one - no need to process further - whoop whoop {stateID=} {remainingStateIDs=} {targetState=} {switches=} answer={sum(validState[1])=}')
+            return validState[1]
+            
         print(f'before diving deeper, we have a {validState=}')
         validStates.append([validState[1],getValidSolutions(remainingStateIDs, validState[0], switches)])
 
@@ -440,7 +441,7 @@ def getValidSolutions(stateIDs, targetState, switches):
 def getLowestIteration(row):
     now = datetime.now()
     nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')
-    print(f'\n\n\n -------- New row ------- {nowString=}\n',row)
+    print(f'\n\n\n\n\n ######### -------- New row ------- ######## {nowString=}\n',row)
     endState = row[-1]
     endState = list(parseSwitches([endState])[0])
     print(f'{endState=}')
