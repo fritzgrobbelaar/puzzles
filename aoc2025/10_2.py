@@ -261,6 +261,7 @@ assert expectedFlattendResult == answer
 #print(f'\nflattened answer=\n {answer=}')
 def flattenFurther(switches, listOfDictionariesThatSetsAnEndStateToZero):
     print(f'\nFurther flattening {switches=}, {listOfDictionariesThatSetsAnEndStateToZero=}')
+    pprint.pprint(listOfDictionariesThatSetsAnEndStateToZero)
     newList = []
     for dictItem in listOfDictionariesThatSetsAnEndStateToZero:
         newEntry = [0]*len(switches)
@@ -287,7 +288,7 @@ expectedFlattenedFurtherResult = [
     [3,0,0]
 ]
 listOfDictionariesThatSetsOneEndStateToZero = expectedFlattendResult
-assert expectedFlattenedFurtherResult == flattenFurther( [(0,0,1), (1,1,0)], expectedFlattendResult)
+assert expectedFlattenedFurtherResult == flattenFurther( [(0,0,1), (1,1,0), (0,1,0)], expectedFlattendResult)
 
 expectedResult = [{0: 0, 'more': [{2: 3}]},
  {0: 1, 'more': [{2: 2}]},
@@ -369,11 +370,11 @@ def getLowestIteration(row):
         print(f'{switchConfigs=}')
         flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
         print(f'{flatten1edSwitchConfigs=}')
-        furtherFlattenedSwitchConfigs = flattenFurther(endState, flatten1edSwitchConfigs)
+        furtherFlattenedSwitchConfigs = flattenFurther(switches=switches, listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
         print(f'{furtherFlattenedSwitchConfigs=}')
-        raise ValueError(' this does not look right')
-        zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, furtherFlattenedSwitchConfigs,stateID)
-        print(f'{zeroEndStateDigitWithMultipleSwitchesLockedIn}')
+        
+        validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, switches, furtherFlattenedSwitchConfigs,stateID)
+        print(f'originalEndState={endState} {switches=} {validStatesWithEndStateDigitZeroed=}')
 
         exit()
 
