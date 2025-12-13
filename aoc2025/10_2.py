@@ -521,7 +521,7 @@ sizeEstimate.sort()
 for row in sizeEstimate:
     print(row)
 
-startNumber = 0
+startNumber = 120
 listOfText = listOfText[startNumber:]
 
 total = 0
@@ -536,7 +536,7 @@ for i,row in enumerate(listOfText):
     sizeEstimate.append([number, i])
     #total += number
     with open(f'trackingfile_{startNumber}.txt', 'a') as handle:
-        handle.write(f'{i=} {number=}  {row=} {nowString} \n ')
+        handle.write(f'{startNumber+i=} {number=}  {row=} {nowString} \n ')
     total += number
 
 print(f'{total=}')
