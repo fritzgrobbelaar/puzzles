@@ -521,7 +521,7 @@ sizeEstimate.sort()
 for row in sizeEstimate:
     print(row)
 
-startNumber = 120
+startNumber = 135
 listOfText = listOfText[startNumber:]
 
 total = 0
