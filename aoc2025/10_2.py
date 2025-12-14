@@ -9,19 +9,10 @@ global listOfText
 global switches
 import copy
 listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
+from functools import lru_cache
 
 sample='''
-[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
-[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
-[..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
-[#...#] (2,4) (2,3) (0,2) (0,1,2) (0,4) {196,6,193,3,14}
-[###.] (1,2,3) (0,1,2) {189,191,191,2}
-[.#..##.##] (0,1,2,6,8) (1,2,4,6,7) (2,5) (0,1,8) (0,1,2,6,7) (0,2,4,7) (0,1,3,4,5,6,8) {60,49,46,18,45,18,45,38,30}
-[.###.##] (0,2,4) (0,1,3,4,5,6) (1,3,4,5,6) (1,4,5) (1,3,6) {177,195,15,190,195,180,190}
-[#.##.] (1,2) (0,1,2,3) (1,3,4) (1,2,3,4) (0,1,4) (0,4) (2,3) {46,67,40,39,47}
-[....#..] (0,3,5) (0,1,2,3) (0,6) (1,5) (0,1,2,4,6) (0,1,3,4) (2,5,6) {55,32,12,33,22,30,23}
-
+[##.###.###] (0,1,3,4,5,7,8,9) (2,4) (0,4,5,6,8,9) (0,2,3,4,5,6,7,8) (0,1,3,4,5,6,8,9) (3,4,5,7,9) (0,1,4,5,6,9) (0,8,9) (2,5,7,9) (0,6) (0,1,5,7,9) (8) (3,6) {90,44,21,55,68,67,74,30,65,77}
 '''.split('\n')
 
 #6.3 seconds
@@ -45,7 +36,7 @@ extracases = '''
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
 
-test=False
+test=True
 if test:
     listOfText = sample
 
@@ -396,10 +387,10 @@ assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentS
 assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]], [3,4,[4]]])
 assert [[2,1,[5,4]],[3,4,[2]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]],[3,4,[2,4]]])
 
-def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=10000):
+def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=200):
     global switches
     #print(f'\n Dropping likely losers {switches=} {furtherFlattenedSwitchConfigs=}')
-    
+    startsWithLength = len(furtherFlattenedSwitchConfigs)
     switchWeights = []
     for switch in switches:
         switchWeights.append(sum(switch))
@@ -418,6 +409,9 @@ def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=10000):
     furtherFlattenedSwitchConfigs = []
     for switchWithWeights in switchesWithWeights:
         furtherFlattenedSwitchConfigs.append(switchWithWeights[1])
+    endsWithLength = len(furtherFlattenedSwitchConfigs)
+    if endsWithLength != startsWithLength:
+        print(f'Reduced from {startsWithLength=} to {endsWithLength=} {furtherFlattenedSwitchConfigs[0:3]}')
     #print(f'returning  {furtherFlattenedSwitchConfigs=}')
     return furtherFlattenedSwitchConfigs
 
@@ -433,14 +427,13 @@ def getValidSolutions(stateIDs, targetState, depth=None):
         #return [targetState, [0]*len(switches)]
     stateID = stateIDs[0]
     remainingStateIDs = stateIDs[1:]
-        
-    referencedSwitches = set(stateID[2])
 
     furtherFlattenedSwitchConfigs = getFlatListOfValidSwitchConfigurations(targetState, stateID)
     furtherFlattenedSwitchConfigs = dropLikelyLosers(furtherFlattenedSwitchConfigs)
     if depth == 0:
         print(f' Received back {len(furtherFlattenedSwitchConfigs)=}')
-
+    if depth < 2:
+        print(f'{depth=} {len(furtherFlattenedSwitchConfigs)} {targetState=}  {stateID=} {remainingStateIDs=}')
     validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs,stateID)
     
     printString = ''
@@ -455,7 +448,7 @@ def getValidSolutions(stateIDs, targetState, depth=None):
             validStates.append(validState)
         else:
             #print(f'before diving deeper, we have a {validState=}')
-            recursiveValidSolutions = getValidSolutions(remainingStateIDs, validState[0])
+            recursiveValidSolutions = getValidSolutions(remainingStateIDs, validState[0], depth = depth+1)
             if recursiveValidSolutions == None:
                 continue
           #  print(f'can I simply add or extend {validState=} and {recursiveValidSolutions=}')
@@ -497,7 +490,7 @@ def getLowestIteration(row):
     switches = row[1:-1]
     switches = parseSwitches(switches)
     switches = convertSwitches(switches, [0]*len(endState))
-    originalSwitches = copy.deepcopy(switches)
+    
     print('switches parsed=',switches)
     stateIDs = getStateIDsFromLeastReferenced(switches)
     stateIDs = removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs(stateIDs)
@@ -552,14 +545,14 @@ for i,row in enumerate(listOfText):
     now = datetime.now()
     nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')    
     with open(f'trackingfile_{startNumber}_{startString}.txt', 'a') as handle:
-        handle.write(f'Starting {nowString} {i=} {row=}  \n ')
-    print(f'\n\n\n\n\n ######### -------- Processing {i=} of {len(listOfText)=} ------- ######## {nowString=}\n',row)
+        handle.write(f'Starting {nowString} {i=} {row=} Lossy \n ')
+    print(f'\n\n\n\n\n ######### -------- Lossy Processing {i=} of {len(listOfText)=} ------- ######## {nowString=}\n',row)
     number = getLowestIteration(row)
     print(f'received {number=}')
     sizeEstimate.append([number, i])
     #total += number
     with open(f'trackingfile_{startNumber}_{startString}.txt', 'a') as handle:
-        handle.write(f'{startNumber+i=} {number=}  {row=} {nowString} \n ')
+        handle.write(f'{startNumber+i=} {number=}  {row=} {nowString} Lossy \n ')
     total += number
 
 print(f'{total=}')
