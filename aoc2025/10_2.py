@@ -396,7 +396,35 @@ assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentS
 assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]], [3,4,[4]]])
 assert [[2,1,[5,4]],[3,4,[2]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]],[3,4,[2,4]]])
 
-def getValidSolutions(stateIDs, targetState):
+def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=10000):
+    global switches
+    #print(f'\n Dropping likely losers {switches=} {furtherFlattenedSwitchConfigs=}')
+    
+    switchWeights = []
+    for switch in switches:
+        switchWeights.append(sum(switch))
+    #print(f'{switchWeights=}')
+
+    switchesWithWeights = []
+    for switchConfig in furtherFlattenedSwitchConfigs:
+        weight = 0
+        for i, count in enumerate(switchConfig):
+            weight += sum(switches[i])*count
+        switchesWithWeights.append([weight, switchConfig])
+    switchesWithWeights.sort(reverse=True)
+    #print(f' {switchesWithWeights=}')
+    switchesWithWeights = switchesWithWeights[:cutOffCount]
+    
+    furtherFlattenedSwitchConfigs = []
+    for switchWithWeights in switchesWithWeights:
+        furtherFlattenedSwitchConfigs.append(switchWithWeights[1])
+    #print(f'returning  {furtherFlattenedSwitchConfigs=}')
+    return furtherFlattenedSwitchConfigs
+
+switches = [(0,0,1), (0,1,0), (1,1,1), (1,0,1)]
+assert [[0,10,30,0], [0,15,25,0]] == dropLikelyLosers([[0,30,10,0], [0,10,30,0], [0,15,25,0]], cutOffCount=2)
+
+def getValidSolutions(stateIDs, targetState, depth=None):
     #print(f'\n\n -- getValidSolutions {stateIDs=}, {targetState=} {switches=}')
     global switches
     if stateIDs == []:
@@ -408,15 +436,17 @@ def getValidSolutions(stateIDs, targetState):
         
     referencedSwitches = set(stateID[2])
 
-    furtherFlattenedSwitchConfigs_Optimized = getFlatListOfValidSwitchConfigurations(targetState, stateID)
+    furtherFlattenedSwitchConfigs = getFlatListOfValidSwitchConfigurations(targetState, stateID)
+    furtherFlattenedSwitchConfigs = dropLikelyLosers(furtherFlattenedSwitchConfigs)
+    if depth == 0:
+        print(f' Received back {len(furtherFlattenedSwitchConfigs)=}')
 
-    validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs_Optimized,stateID)
+    validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs,stateID)
     
     printString = ''
     for validState in validStatesWithEndStateDigitZeroed:
         #print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
         pass
-
 
     validStates = []
     for validState in validStatesWithEndStateDigitZeroed:
@@ -471,7 +501,7 @@ def getLowestIteration(row):
     print('switches parsed=',switches)
     stateIDs = getStateIDsFromLeastReferenced(switches)
     stateIDs = removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs(stateIDs)
-    validSolutions = getValidSolutions(stateIDs, targetState=endState)
+    validSolutions = getValidSolutions(stateIDs, targetState=endState, depth=0)
     #def processAndFlattenSolutions(validSolutions)
     print(f'at the end of the row, we found {validSolutions=}')
     #pprint.pprint(validSolutions)
