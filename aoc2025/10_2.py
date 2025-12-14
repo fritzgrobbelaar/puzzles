@@ -32,7 +32,7 @@ extracases = '''
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
 
-test=True
+test=False
 if test:
     listOfText = sample
 
@@ -532,8 +532,11 @@ for row in sizeEstimate:
     print(row)
 
 import sys
-
-startNumber = int(sys.argv[1])
+try:
+    startNumber = int(sys.argv[1])
+except IndexError as e:
+    print('no command line argument - starting at 0')
+    startNumber = 0
 listOfText = listOfText[startNumber:]
 now = datetime.now()
 startString = datetime.strftime(datetime.now(),'%Y%m%d %H%M%S')    
