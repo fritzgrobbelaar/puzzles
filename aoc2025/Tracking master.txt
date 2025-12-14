@@ -5,7 +5,7 @@
 120 +++ (PC - second most left - stuck on 124)
 135-169 
 125-126 +++ (PC - third most left)
-129-130+++ PC most right
+129-135+++ PC most right
 
 0-63 +++ (PC - most left) 
 70-101+++ (PC - forth from most left) - optimized 2ice
