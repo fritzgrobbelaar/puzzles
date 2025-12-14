@@ -1,9 +1,8 @@
 0-101 (PC - most left) 
 70-101+++ (PC - forth from most left) - optimized 2ice
-80-83 
 90-100 ++ (amazon - stuck for 10 hours - PID: 5276)
 110-123 
-120 +++ (PC - second most left)
+120 +++ (PC - second most left - stuck on 124)
 135-169 
 125-126 +++ (PC - third most left)
 129-130+++ PC most right
@@ -20,5 +19,5 @@
 
 4 threads currently stuck:
 hard ones: 
-124: #.##..#..# (second from far left - since last night)
 101: ##.###.### - optimized - fourh from most left & amazon since last night
+124: #.##..#..# (second from far left - since last night)
