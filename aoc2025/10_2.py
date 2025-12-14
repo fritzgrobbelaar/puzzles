@@ -141,8 +141,8 @@ assert [[1, 1, [2]], [1, 2, [0]], [3, 0, [0, 1, 2]]] == getStateIDsFromLeastRefe
 assert [[2, 1, [0, 2]], [2, 2, [0, 3]], [4, 0, [0, 1, 2, 3]]] == getStateIDsFromLeastReferenced(switches=[(1,1,1),(1,0,0),(1,1,0),(1,0,1)]) 
 
 
-def getFlatListOfOptions(remainingCount, switchIDs):
-    print(f'\ngetListOfOptions received {remainingCount} {switchIDs=}')
+def getFlatListOfOptionsNoEmpty(remainingCount, switchIDs):
+    print(f'\ngetListOfOptions received {remainingCount=} {switchIDs=}')
     switchID = switchIDs[0]
     remainingIDs = switchIDs[1:]
     if not remainingIDs:
@@ -150,7 +150,7 @@ def getFlatListOfOptions(remainingCount, switchIDs):
         return [[remainingCount]]
     iterations = []
     for i in range(remainingCount+1):
-        recurseAnswers = getFlatListOfOptions(remainingCount - i, remainingIDs)
+        recurseAnswers = getFlatListOfOptionsNoEmpty(remainingCount - i, remainingIDs)
         #print(f'got recurseAnswer {recurseAnswers=}. Need to add switchID {switchID=} with count {i=}')
         localAnswer = [i]
        # print(f'local answer is {localAnswer=}')
@@ -162,12 +162,31 @@ def getFlatListOfOptions(remainingCount, switchIDs):
                 addedAnswers.append(localAnswer+recurseAnswer)
             else:
                 addedAnswers.append(localAnswer+recurseAnswer[0])
-    #    print(f'combined {addedAnswers=} after adding {localAnswer=} to {recurseAnswer=}')
+        
+        #print(f'combined {addedAnswers=} after adding {localAnswer=} to {recurseAnswer=}')
         iterations.extend(addedAnswers)
         
-   # print(f'returning iterations {iterations=}')
+    #print(f'returning iterations {iterations=}')
     return iterations
 
+def getFlatListOfOptions(remainingCount, switchIDs):
+    #print(f'\n\n\nStaring processing {remainingCount=} {switchIDs=}')
+    flatListOfOptionsNoEmpty = getFlatListOfOptionsNoEmpty(remainingCount, switchIDs)
+    print(f'\n\n -- ## -- Converting {flatListOfOptionsNoEmpty=} {switchIDs=} by ensuring the 0 values are added properly based on switches length')
+    referencedSwitchIDs = switchIDs
+    flatListOfOptions = []
+    for row in flatListOfOptionsNoEmpty:
+        newRow = []
+        for i in range(len(switches)):
+            if i not in referencedSwitchIDs:
+                newRow.append(0)
+            else:
+                switchIndex = referencedSwitchIDs.index(i)
+                newRow.append(row[switchIndex])
+        flatListOfOptions.append(newRow)
+    print(f' returning {flatListOfOptions=}')
+    return flatListOfOptions
+            
 
 def getFlatListOfValidSwitchConfigurations(endState, leastReferencedDigit):
     """
@@ -206,7 +225,7 @@ def getFlatListOfValidSwitchConfigurations(endState, leastReferencedDigit):
     return options
 
 
-expectedAnswer = [[3, 0, 0], [2, 0, 1]]
+expectedAnswer = [[0, 0, 2], [1, 0, 1], [2, 0, 0]]
 switches=[(1, 0, 1), (0, 1, 1), (1,1,1)]
 leastReferencedDigit=[2, 0, [0,2]]
 endState = [2,10,3]
@@ -275,7 +294,7 @@ def getListOfValidSwitchConfigurations(endState, leastReferencedDigit):
     #pprint.pprint(options)
     return options
 switches = [(1,1,1,1), (0,1,0,0)]
-assert [[3]] == getFlatListOfValidSwitchConfigurations((3,4,3,3), [1,0,[0]])
+assert [[3,0]] == getFlatListOfValidSwitchConfigurations((3,4,3,3), [1,0,[0]])
 
 def flattenListOfValidSwitchConfigurations(listOfValidSwitchConfigurations):
     """
@@ -370,7 +389,7 @@ def flattenFurther(listOfDictionariesThatSetsAnEndStateToZero):
             raise Exception(f'flattenFurther generated entry of incorrect length {entry=} {switches=}') 
     #print('returning', newList)
     return newList  
-
+switches = [(1,0,1), (0,1,1)]
 assert [[0, 3], [1, 2], [2, 1], [3, 0]] == getFlatListOfValidSwitchConfigurations((3,4,3,3), [1,0,[0,1]])
 
 expectedFlattenedFurtherResult = [
@@ -385,6 +404,7 @@ expectedFlattenedFurtherResult = [
     [2,1,0],
     [3,0,0]
 ]
+switches = [(1,0,1), (0,1,1), (1,1,0)]
 actual = getFlatListOfValidSwitchConfigurations((3,4,5), [3,0,[0,1,2]])
 assert actual == expectedFlattenedFurtherResult
 
