@@ -19,5 +19,5 @@
 
 4 threads currently stuck:
 hard ones: 
-101: ##.###.### - optimized - fourh from most left & amazon since last night
+lossy estimate - 101: ##.###.### - optimized - fourh from most left & amazon since last night
 124: #.##..#..# (second from far left - since last night)

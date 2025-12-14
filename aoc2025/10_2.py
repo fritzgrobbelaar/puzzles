@@ -8,7 +8,7 @@ import pprint
 global listOfText
 global switches
 import copy
-listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
+listOfText = cleaninput.getfileInputLinesAsList('input_10_remainder.txt')
 from functools import lru_cache
 
 sample='''
@@ -36,7 +36,7 @@ extracases = '''
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
 
-test=True
+test=False
 if test:
     listOfText = sample
 
@@ -387,7 +387,7 @@ assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentS
 assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]], [3,4,[4]]])
 assert [[2,1,[5,4]],[3,4,[2]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]],[3,4,[2,4]]])
 
-def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=2000):
+def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=100):
     global switches
     #print(f'\n Dropping likely losers {switches=} {furtherFlattenedSwitchConfigs=}')
     startsWithLength = len(furtherFlattenedSwitchConfigs)
@@ -429,7 +429,7 @@ def getValidSolutions(stateIDs, targetState, depth=None):
     remainingStateIDs = stateIDs[1:]
 
     furtherFlattenedSwitchConfigs = getFlatListOfValidSwitchConfigurations(targetState, stateID)
-    furtherFlattenedSwitchConfigs = dropLikelyLosers(furtherFlattenedSwitchConfigs)
+    furtherFlattenedSwitchConfigs = dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=1000)
     if depth == 0:
         print(f' Received back {len(furtherFlattenedSwitchConfigs)=}')
     
