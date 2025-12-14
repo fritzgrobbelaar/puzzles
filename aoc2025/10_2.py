@@ -32,7 +32,7 @@ extracases = '''
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
 
-test=False
+test=True
 if test:
     listOfText = sample
 
@@ -105,11 +105,14 @@ def calculateNewState(state, switchesCounters):
             state[j] += it*switch[j]
     #print(f'Returning {state=}')
     return state
-
-assert [1,0,0] ==  calculateNewState([0,0,0], switchesCounters = [1], switches=[(1,0,0)])
-assert [3,0,0] ==  calculateNewState([0,0,0], switchesCounters = [3], switches=[(1,0,0)])
-assert [10,0,0] ==  calculateNewState([0,0,0], switchesCounters = [10,0], switches= [(1,0,0), (1,1,0)])
-assert [18, 7, 5] ==  (calculateNewState([0,0,0],switchesCounters = [5,6,7], switches= [(1,0,1),(1,0,0), (1,1,0)]))
+switches=[(1,0,0)]
+assert [1,0,0] ==  calculateNewState([0,0,0], switchesCounters = [1])
+switches=[(1,0,0)]
+assert [3,0,0] ==  calculateNewState([0,0,0], switchesCounters = [3])
+switches= [(1,0,0), (1,1,0)]
+assert [10,0,0] ==  calculateNewState([0,0,0], switchesCounters = [10,0])
+switches= [(1,0,1),(1,0,0), (1,1,0)]
+assert [18, 7, 5] ==  (calculateNewState([0,0,0],switchesCounters = [5,6,7]))
 
 
 def getStateIDsFromLeastReferenced(switches):
@@ -241,7 +244,8 @@ def flattenListOfValidSwitchConfigurations(listOfValidSwitchConfigurations):
 
     return flattenedListOfValidSwitchConfigurations
 
-assert [{0: 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [(1,1,1,1), (0,1,0,0)], [1,0,[0]])
+switches = [(1,1,1,1), (0,1,0,0)]
+assert [{0: 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [1,0,[0]])
 expectedResult = [{0: 0,
   'more': [{1: 0, 'more': [{2: 3}]},
            {1: 1, 'more': [{2: 2}]},
@@ -254,7 +258,8 @@ expectedResult = [{0: 0,
  {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
  {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
 
-actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]]) #can't be a valid test case as switch 1 never references endState[0]
+switches = [(1,0,1), (0,1,1), (1,1,0)]
+actualResult = getListOfValidSwitchConfigurations((3,4,5), [3,0,[0,1,2]]) #can't be a valid test case as switch 1 never references endState[0]
 assert expectedResult == actualResult
 answer = flattenListOfValidSwitchConfigurations(expectedResult)
 expectedFlattendResult = [
@@ -301,13 +306,15 @@ expectedFlattenedFurtherResult = [
     [3,0,0]
 ]
 listOfDictionariesThatSetsOneEndStateToZero = expectedFlattendResult
-assert expectedFlattenedFurtherResult == flattenFurther( [(0,0,1), (1,1,0), (0,1,0)], expectedFlattendResult)
+switches = [(0,0,1), (1,1,0), (0,1,0)]
+assert expectedFlattenedFurtherResult == flattenFurther(expectedFlattendResult)
 
 expectedResult = [{0: 0, 'more': [{2: 3}]},
  {0: 1, 'more': [{2: 2}]},
  {0: 2, 'more': [{2: 1}]},
  {0: 3, 'more': [{2: 0}]}]
-actualResult = getListOfValidSwitchConfigurations((3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,2]])
+switches =  [(1,0,1), (0,1,1), (1,1,0)]
+actualResult = getListOfValidSwitchConfigurations((3,4,5), [3,0,[0,2]])
 assert expectedResult == actualResult
 
 answer = flattenListOfValidSwitchConfigurations(expectedResult)
@@ -347,7 +354,7 @@ def zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, validSwitchConfigura
             for j, switchValue in enumerate(switch):
             
                 newEndState[j] -= switchCount*switchValue
-                if newEndstats < 0:
+                if newEndState[j] < 0:
                     allPositive= False
                     break
         #print(f'Generated newEndState {newEndState=}')
@@ -364,8 +371,8 @@ testCaseValidSwitchConfigurations = [
             [2,0,1],
             [3,0,0]
         ]
-
-answer = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState=(3,4,5), switches=[(1,0,1), (0,1,1), (1,1,0)], validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[2,0,[0,2]])
+switches = [(1,0,1), (0,1,1), (1,1,0)]
+answer = zeroEndStateDigitWithMultipleSwitchesLockedIn(endState=(3,4,5), validSwitchConfigurations=testCaseValidSwitchConfigurations, leastReferencedSwitchesUsed=[2,0,[0,2]])
 expectedAnswer = [
      [(0,2,2), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}],
      [(0,1,3), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}]
@@ -418,14 +425,14 @@ def getValidSolutions(stateIDs, targetState):
         
     referencedSwitches = set(stateID[2])
 
-    switchConfigs = getListOfValidSwitchConfigurations(targetState, switches, stateID)
+    switchConfigs = getListOfValidSwitchConfigurations(targetState, stateID)
     #print(f'{switchConfigs=}')
     flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
    # print(f'{flatten1edSwitchConfigs=}')
-    furtherFlattenedSwitchConfigs = flattenFurther(switches=switches, listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
+    furtherFlattenedSwitchConfigs = flattenFurther(listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
     #print(f'{furtherFlattenedSwitchConfigs=}')
     
-    validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, switches, furtherFlattenedSwitchConfigs,stateID)
+    validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs,stateID)
     validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
     #print(f'{validStatesWithEndStateDigitZeroed=}')
     #switches = zeroOutUsedSwitches(switches,referencedSwitches)
@@ -442,7 +449,7 @@ def getValidSolutions(stateIDs, targetState):
             validStates.append(validState)
         else:
             #print(f'before diving deeper, we have a {validState=}')
-            recursiveValidSolutions = getValidSolutions(remainingStateIDs, validState[0], switches)
+            recursiveValidSolutions = getValidSolutions(remainingStateIDs, validState[0])
             if recursiveValidSolutions == None:
                 continue
           #  print(f'can I simply add or extend {validState=} and {recursiveValidSolutions=}')
@@ -488,7 +495,7 @@ def getLowestIteration(row):
     print('switches parsed=',switches)
     stateIDs = getStateIDsFromLeastReferenced(switches)
     stateIDs = removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs(stateIDs)
-    validSolutions = getValidSolutions(stateIDs, targetState=endState, switches=switches)
+    validSolutions = getValidSolutions(stateIDs, targetState=endState)
     #def processAndFlattenSolutions(validSolutions)
     print(f'at the end of the row, we found {validSolutions=}')
     #pprint.pprint(validSolutions)
@@ -524,21 +531,23 @@ sizeEstimate.sort()
 for row in sizeEstimate:
     print(row)
 
-startNumber = 110
+startNumber = 0
 listOfText = listOfText[startNumber:]
+now = datetime.now()
+startString = datetime.strftime(datetime.now(),'%Y%m%d %H%M%S')    
 
 total = 0
 for i,row in enumerate(listOfText):
     now = datetime.now()
     nowString = datetime.strftime(datetime.now(),'%Y:%m:%d %H:%M:%S')    
-    with open(f'trackingfile_{startNumber}.txt', 'a') as handle:
+    with open(f'trackingfile_{startNumber}_{startString}.txt', 'a') as handle:
         handle.write(f'Starting {nowString} {i=} {row=}  \n ')
     print(f'\n\n\n\n\n ######### -------- Processing {i=} of {len(listOfText)=} ------- ######## {nowString=}\n',row)
     number = getLowestIteration(row)
     print(f'received {number=}')
     sizeEstimate.append([number, i])
     #total += number
-    with open(f'trackingfile_{startNumber}.txt', 'a') as handle:
+    with open(f'trackingfile_{startNumber}_{startString}.txt', 'a') as handle:
         handle.write(f'{startNumber+i=} {number=}  {row=} {nowString} \n ')
     total += number
 
