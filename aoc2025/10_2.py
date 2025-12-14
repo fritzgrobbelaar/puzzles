@@ -383,6 +383,8 @@ def dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed):
     for validState in validStatesWithEndStateDigitZeroed:
         if min(validState[0]) >= 0:
             newValidStates.append(validState)
+        else:
+            print('I thought this was fixed - this code Needs to stay')
     return newValidStates
     
 
