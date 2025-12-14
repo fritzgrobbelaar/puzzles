@@ -387,7 +387,7 @@ assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentS
 assert [[2,1,[5,4]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]], [3,4,[4]]])
 assert [[2,1,[5,4]],[3,4,[2]]] == removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs([[2,1,[5,4]],[3,4,[2,4]]])
 
-def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=200):
+def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=2000):
     global switches
     #print(f'\n Dropping likely losers {switches=} {furtherFlattenedSwitchConfigs=}')
     startsWithLength = len(furtherFlattenedSwitchConfigs)
@@ -410,8 +410,8 @@ def dropLikelyLosers(furtherFlattenedSwitchConfigs, cutOffCount=200):
     for switchWithWeights in switchesWithWeights:
         furtherFlattenedSwitchConfigs.append(switchWithWeights[1])
     endsWithLength = len(furtherFlattenedSwitchConfigs)
-    if endsWithLength != startsWithLength:
-        print(f'Reduced from {startsWithLength=} to {endsWithLength=} {furtherFlattenedSwitchConfigs[0:3]}')
+    #if endsWithLength != startsWithLength:
+    #    print(f'Reduced from {startsWithLength=} to {endsWithLength=} {furtherFlattenedSwitchConfigs[0:3]}')
     #print(f'returning  {furtherFlattenedSwitchConfigs=}')
     return furtherFlattenedSwitchConfigs
 
@@ -432,8 +432,7 @@ def getValidSolutions(stateIDs, targetState, depth=None):
     furtherFlattenedSwitchConfigs = dropLikelyLosers(furtherFlattenedSwitchConfigs)
     if depth == 0:
         print(f' Received back {len(furtherFlattenedSwitchConfigs)=}')
-    if depth < 2:
-        print(f'{depth=} {len(furtherFlattenedSwitchConfigs)} {targetState=}  {stateID=} {remainingStateIDs=}')
+    
     validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs,stateID)
     
     printString = ''
@@ -442,7 +441,9 @@ def getValidSolutions(stateIDs, targetState, depth=None):
         pass
 
     validStates = []
-    for validState in validStatesWithEndStateDigitZeroed:
+    for i,validState in enumerate(validStatesWithEndStateDigitZeroed):
+        if depth == 0:
+            print(f'level 1 processing valid state {i=} of {len(validStatesWithEndStateDigitZeroed)=} ')
         if list(validState[0]) == [0]*len(targetState):
          #   print(f'*******hooray - we found one - no need to process further - whoop whoop {stateID=} {remainingStateIDs=} {targetState=} {switches=} answer={sum(validState[1])=}')
             validStates.append(validState)
