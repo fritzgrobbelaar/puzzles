@@ -531,7 +531,9 @@ sizeEstimate.sort()
 for row in sizeEstimate:
     print(row)
 
-startNumber = 0
+import sys
+
+startNumber = int(sys.argv[1])
 listOfText = listOfText[startNumber:]
 now = datetime.now()
 startString = datetime.strftime(datetime.now(),'%Y%m%d %H%M%S')    
