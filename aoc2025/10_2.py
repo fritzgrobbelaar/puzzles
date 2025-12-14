@@ -15,7 +15,6 @@ sample='''
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 [..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
-
 [#...#] (2,4) (2,3) (0,2) (0,1,2) (0,4) {196,6,193,3,14}
 [###.] (1,2,3) (0,1,2) {189,191,191,2}
 [.#..##.##] (0,1,2,6,8) (1,2,4,6,7) (2,5) (0,1,8) (0,1,2,6,7) (0,2,4,7) (0,1,3,4,5,6,8) {60,49,46,18,45,18,45,38,30}
@@ -23,8 +22,22 @@ sample='''
 [#.##.] (1,2) (0,1,2,3) (1,3,4) (1,2,3,4) (0,1,4) (0,4) (2,3) {46,67,40,39,47}
 [....#..] (0,3,5) (0,1,2,3) (0,6) (1,5) (0,1,2,4,6) (0,1,3,4) (2,5,6) {55,32,12,33,22,30,23}
 
-
 '''.split('\n')
+
+#6.3 seconds
+sample_speedtest='''
+[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
+[..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
+[#...#] (2,4) (2,3) (0,2) (0,1,2) (0,4) {196,6,193,3,14}
+[###.] (1,2,3) (0,1,2) {189,191,191,2}
+[.#..##.##] (0,1,2,6,8) (1,2,4,6,7) (2,5) (0,1,8) (0,1,2,6,7) (0,2,4,7) (0,1,3,4,5,6,8) {60,49,46,18,45,18,45,38,30}
+[.###.##] (0,2,4) (0,1,3,4,5,6) (1,3,4,5,6) (1,4,5) (1,3,6) {177,195,15,190,195,180,190}
+[#.##.] (1,2) (0,1,2,3) (1,3,4) (1,2,3,4) (0,1,4) (0,4) (2,3) {46,67,40,39,47}
+[....#..] (0,3,5) (0,1,2,3) (0,6) (1,5) (0,1,2,4,6) (0,1,3,4) (2,5,6) {55,32,12,33,22,30,23}
+'''
+
 
 extracases = '''
 
@@ -258,120 +271,10 @@ def getListOfOptions(remainingCount, switchIDs):
     #print(f'returning iterations {iterations=}')
     return iterations
 
-def getListOfValidSwitchConfigurations(endState, leastReferencedDigit):
-    """
-    input:
-        endState - example: (52,23,12)
-        switches - example: [(1,1,1),(1,0,0),(1,1,0),(1,0,1)]
-        leastReferencedDigitAndSwitches - example:
-        - [switchesCount, endStateReferenceIndex, switches
-            [2, 1, [0, 2]]
-            returns [{0: 3}]
-        
-        example2 input: (3,4,5), [(1,0,1), (0,1,1), (1,1,0)], [3,0,[0,1,2]]
-        example2 explanation: - we're targetting the first endState digit of 0, value 3 using all combinations of switches listed [0,1,2]
-        example2 output: [{0: 0,
-  'more': [{1: 0, 'more': [{2: 3}]},
-           {1: 1, 'more': [{2: 2}]},
-           {1: 2, 'more': [{2: 1}]},
-           {1: 3, 'more': [{2: 0}]}]},
- {0: 1,
-  'more': [{1: 0, 'more': [{2: 2}]},
-           {1: 1, 'more': [{2: 1}]},
-           {1: 2, 'more': [{2: 0}]}]},
- {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
- {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
-            
-    returns: validStatesForIndex
-    """
-    global switches
-   #print(f'--\n\nStart get list {leastReferencedDigit=}')
-    leastReferencedDigitId = leastReferencedDigit[1]
-    leastReferencedSwitchesUsed = leastReferencedDigit[2]
-    targetingCount = endState[leastReferencedDigitId]
-    options = getListOfOptions(targetingCount, leastReferencedSwitchesUsed)
-    #print(f'\n options=\n')
-    #pprint.pprint(options)
-    return options
 switches = [(1,1,1,1), (0,1,0,0)]
 assert [[3,0]] == getFlatListOfValidSwitchConfigurations((3,4,3,3), [1,0,[0]])
 
-def flattenListOfValidSwitchConfigurations(listOfValidSwitchConfigurations):
-    """
-    input:
-        listOfValidSwitchConfigurations - example:
-        - [{0: 0,
-            'more': [{1: 0, 'more': [{2: 3}]},
-                     {1: 1, 'more': [{2: 2}]},
-                     {1: 2, 'more': [{2: 1}]},
-                     {1: 3, 'more': [{2: 0}]}]},
-           {0: 1,
-            'more': [{1: 0, 'more': [{2: 2}]},
-                     {1: 1, 'more': [{2: 1}]},
-                     {1: 2, 'more': [{2: 0}]}]},
-           {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
-           {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
 
-    output:
-        flattenedListOfValidSwitchConfigurations - example:
-        - [{0: 0,1:0,2:3},
-           {0: 0,1:1,2:2},
-           {0: 0,1:2,2:1},
-           {0: 0,1:3,2:0},
-           {0: 1,1:0,2:2},
-           {0: 1,1:1,2:1},
-           {0: 1,1:2,2:0},
-           {0: 2,1:0,2:1},
-           {0: 2,1:1,2:0},
-           {0: 3,1:0,2:0}]
-        """
-    flattenedListOfValidSwitchConfigurations = []
-    def recurse(currentDict, accumulatedDict):
-        for key in currentDict:
-            if key == 'more':
-                for moreDict in currentDict['more']:
-                    recurse(moreDict, accumulatedDict)
-            else:
-                accumulatedDict[key] = currentDict[key]
-        if 'more' not in currentDict:
-            flattenedListOfValidSwitchConfigurations.append(accumulatedDict.copy())
-    
-    for validSwitchConfiguration in listOfValidSwitchConfigurations:
-        recurse(validSwitchConfiguration, {})
-
-    return flattenedListOfValidSwitchConfigurations
-
-switches = [(1,1,1,1), (0,1,0,0)]
-assert [{0: 3}] == getListOfValidSwitchConfigurations((3,4,3,3), [1,0,[0]])
-expectedResult = [{0: 0,
-  'more': [{1: 0, 'more': [{2: 3}]},
-           {1: 1, 'more': [{2: 2}]},
-           {1: 2, 'more': [{2: 1}]},
-           {1: 3, 'more': [{2: 0}]}]},
- {0: 1,
-  'more': [{1: 0, 'more': [{2: 2}]},
-           {1: 1, 'more': [{2: 1}]},
-           {1: 2, 'more': [{2: 0}]}]},
- {0: 2, 'more': [{1: 0, 'more': [{2: 1}]}, {1: 1, 'more': [{2: 0}]}]},
- {0: 3, 'more': [{1: 0, 'more': [{2: 0}]}]}]
-
-switches = [(1,0,1), (0,1,1), (1,1,0)]
-actualResult = getListOfValidSwitchConfigurations((3,4,5), [3,0,[0,1,2]]) #can't be a valid test case as switch 1 never references endState[0]
-assert expectedResult == actualResult
-answer = flattenListOfValidSwitchConfigurations(expectedResult)
-expectedFlattendResult = [
-    {0: 0, 1: 0, 2: 3},
-    {0: 0, 1: 1, 2: 2},
-    {0: 0, 1: 2, 2: 1},
-    {0: 0, 1: 3, 2: 0},
-    {0: 1, 1: 0, 2: 2},
-    {0: 1, 1: 1, 2: 1}, 
-    {0: 1, 1: 2, 2: 0},
-    {0: 2, 1: 0, 2: 1}, 
-    {0: 2, 1: 1, 2: 0}, 
-    {0: 3, 1: 0, 2: 0}
-]
-assert expectedFlattendResult == answer
 #print(f'\nflattened answer=\n {answer=}')
 def flattenFurther(listOfDictionariesThatSetsAnEndStateToZero):
     #print(f'\nFurther flattening {switches=}, {listOfDictionariesThatSetsAnEndStateToZero=}')
@@ -409,37 +312,8 @@ actual = getFlatListOfValidSwitchConfigurations((3,4,5), [3,0,[0,1,2]])
 assert actual == expectedFlattenedFurtherResult
 
 switches = [(1,0,1), (0,1,1), (1,1,0)]
-actualResult = getListOfValidSwitchConfigurations((3,4,5), [3,0,[0,1,2]]) #can't be a valid test case as switch 1 never references endState[0]
-assert expectedResult == actualResult
-answer = flattenListOfValidSwitchConfigurations(expectedResult)
-expectedFlattendResult = [
-    {0: 0, 1: 0, 2: 3},
-    {0: 0, 1: 1, 2: 2},
-    {0: 0, 1: 2, 2: 1},
-    {0: 0, 1: 3, 2: 0},
-    {0: 1, 1: 0, 2: 2},
-    {0: 1, 1: 1, 2: 1}, 
-    {0: 1, 1: 2, 2: 0},
-    {0: 2, 1: 0, 2: 1}, 
-    {0: 2, 1: 1, 2: 0}, 
-    {0: 3, 1: 0, 2: 0}
-]
 
 
-listOfDictionariesThatSetsOneEndStateToZero = expectedFlattendResult
-switches = [(0,0,1), (1,1,0), (0,1,0)]
-assert expectedFlattenedFurtherResult == flattenFurther(expectedFlattendResult)
-
-expectedResult = [{0: 0, 'more': [{2: 3}]},
- {0: 1, 'more': [{2: 2}]},
- {0: 2, 'more': [{2: 1}]},
- {0: 3, 'more': [{2: 0}]}]
-switches =  [(1,0,1), (0,1,1), (1,1,0)]
-actualResult = getListOfValidSwitchConfigurations((3,4,5), [3,0,[0,2]])
-assert expectedResult == actualResult
-
-answer = flattenListOfValidSwitchConfigurations(expectedResult)
-print(f'\nflattened answer=\n {answer=}')
 
 def zeroEndStateDigitWithMultipleSwitchesLockedIn(endState, validSwitchConfigurations,leastReferencedSwitchesUsed):
     """
@@ -499,21 +373,6 @@ expectedAnswer = [
      [(0,1,3), [(0,1,1)], {(1,0,1): 0, (1,1,0): 3}]
     ]
 
-def dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed):
-    newValidStates = []
-    for validState in validStatesWithEndStateDigitZeroed:
-        if min(validState[0]) >= 0:
-            newValidStates.append(validState)
-        else:
-            print('I thought this was fixed - this code Needs to stay {validState=}')
-            raise Exception(f'not sure why this is bad {validState=}')
-    return newValidStates
-    
-
-assert [[(0,2,2), (0,0,3)]] == dropEndStatesWithNegativeValues([[(0,2,2), (0,0,3)]])
-#assert [[(0,2,2), (0,0,3)]] == dropEndStatesWithNegativeValues([[(0,2,2), (0,0,3)], [(-1,2,2), (0,0,3)]])
-
-
 def removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs(stateIDs):
     referencedSwitches = set()
     validStateIDs = []
@@ -551,18 +410,8 @@ def getValidSolutions(stateIDs, targetState):
 
     furtherFlattenedSwitchConfigs_Optimized = getFlatListOfValidSwitchConfigurations(targetState, stateID)
 
-    #switchConfigs = getListOfValidSwitchConfigurations(targetState, stateID)
-    #print(f'{switchConfigs=}')
-    #flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
-   # print(f'{flatten1edSwitchConfigs=}')
-    #furtherFlattenedSwitchConfigs = flattenFurther(listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
-    #print(f'{furtherFlattenedSwitchConfigs=}')
-    #if furtherFlattenedSwitchConfigs_Optimized != furtherFlattenedSwitchConfigs:
-    #    raise Exception(f'Expected \n{furtherFlattenedSwitchConfigs_Optimized=} \nto match \n{furtherFlattenedSwitchConfigs=} ')
     validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs_Optimized,stateID)
-    validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
-    #print(f'{validStatesWithEndStateDigitZeroed=}')
-    #switches = zeroOutUsedSwitches(switches,referencedSwitches)
+    
     printString = ''
     for validState in validStatesWithEndStateDigitZeroed:
         #print(f'  targetState={targetState} {stateID=} {switches=} {validState=}')
