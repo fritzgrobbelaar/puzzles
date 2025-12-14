@@ -13,21 +13,21 @@ listOfText = cleaninput.getfileInputLinesAsList('input_10.txt')
 sample='''
 [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}'''.split('\n')
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
+[..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
+
+[#...#] (2,4) (2,3) (0,2) (0,1,2) (0,4) {196,6,193,3,14}
+[###.] (1,2,3) (0,1,2) {189,191,191,2}
+[.#..##.##] (0,1,2,6,8) (1,2,4,6,7) (2,5) (0,1,8) (0,1,2,6,7) (0,2,4,7) (0,1,3,4,5,6,8) {60,49,46,18,45,18,45,38,30}
+[.###.##] (0,2,4) (0,1,3,4,5,6) (1,3,4,5,6) (1,4,5) (1,3,6) {177,195,15,190,195,180,190}
+[#.##.] (1,2) (0,1,2,3) (1,3,4) (1,2,3,4) (0,1,4) (0,4) (2,3) {46,67,40,39,47}
+[....#..] (0,3,5) (0,1,2,3) (0,6) (1,5) (0,1,2,4,6) (0,1,3,4) (2,5,6) {55,32,12,33,22,30,23}
+
+
+'''.split('\n')
 
 extracases = '''
-[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
-[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
 
-
-[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
-
-[...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
-[..####.] (0,2,4,6) (0,1,2,3,5) (0,1,2,3,6) (1,4) (0,5) (2,3,5) (3,6) (0,4) {40,25,40,35,11,33,20}
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
-[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
-[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
-[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 [...#..#.#.] (0,3,8) (4,6,7,9) (1,2,4,5,6,7) (1,2,3,5,6) (7) (0,2,4,5,7) (1,2,5,6,9) (1,2,5,6,7,8,9) (6,9) (2,3,5,8,9) (0,1,2,5,8,9) (0,1,5) (4,9) {48,42,54,27,48,66,42,67,50,68}
 [#.##] (3) (0,1) (1,2,3) (0,2,3) (0,2) {197,187,34,33}
 '''
@@ -142,7 +142,7 @@ assert [[2, 1, [0, 2]], [2, 2, [0, 3]], [4, 0, [0, 1, 2, 3]]] == getStateIDsFrom
 
 
 def getFlatListOfOptionsNoEmpty(remainingCount, switchIDs):
-    print(f'\ngetListOfOptions received {remainingCount=} {switchIDs=}')
+    #print(f'\ngetListOfOptions received {remainingCount=} {switchIDs=}')
     switchID = switchIDs[0]
     remainingIDs = switchIDs[1:]
     if not remainingIDs:
@@ -172,7 +172,7 @@ def getFlatListOfOptionsNoEmpty(remainingCount, switchIDs):
 def getFlatListOfOptions(remainingCount, switchIDs):
     #print(f'\n\n\nStaring processing {remainingCount=} {switchIDs=}')
     flatListOfOptionsNoEmpty = getFlatListOfOptionsNoEmpty(remainingCount, switchIDs)
-    print(f'\n\n -- ## -- Converting {flatListOfOptionsNoEmpty=} {switchIDs=} by ensuring the 0 values are added properly based on switches length')
+  #  print(f'\n\n -- ## -- Converting {flatListOfOptionsNoEmpty=} {switchIDs=} by ensuring the 0 values are added properly based on switches length')
     referencedSwitchIDs = switchIDs
     flatListOfOptions = []
     for row in flatListOfOptionsNoEmpty:
@@ -184,7 +184,7 @@ def getFlatListOfOptions(remainingCount, switchIDs):
                 switchIndex = referencedSwitchIDs.index(i)
                 newRow.append(row[switchIndex])
         flatListOfOptions.append(newRow)
-    print(f' returning {flatListOfOptions=}')
+  #  print(f' returning {flatListOfOptions=}')
     return flatListOfOptions
             
 
@@ -215,12 +215,12 @@ def getFlatListOfValidSwitchConfigurations(endState, leastReferencedDigit):
     returns: validStatesForIndex
     """
     global switches
-    print(f'--\n\nStart get list {endState=} {leastReferencedDigit=}')
+   # print(f'--\n\nStart get list {endState=} {leastReferencedDigit=}')
     leastReferencedDigitId = leastReferencedDigit[1]
     leastReferencedSwitchesUsed = leastReferencedDigit[2]
     targetingCount = endState[leastReferencedDigitId]
     options = getFlatListOfOptions(targetingCount, leastReferencedSwitchesUsed)
-    print(f'\n Returning {options=}\n')
+  #  print(f'\n Returning {options=}\n')
     #pprint.pprint(options)
     return options
 
@@ -506,12 +506,12 @@ def dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed):
             newValidStates.append(validState)
         else:
             print('I thought this was fixed - this code Needs to stay {validState=}')
-            #raise Exception(f'not sure why this is bad {validState=}')
+            raise Exception(f'not sure why this is bad {validState=}')
     return newValidStates
     
 
 assert [[(0,2,2), (0,0,3)]] == dropEndStatesWithNegativeValues([[(0,2,2), (0,0,3)]])
-assert [[(0,2,2), (0,0,3)]] == dropEndStatesWithNegativeValues([[(0,2,2), (0,0,3)], [(-1,2,2), (0,0,3)]])
+#assert [[(0,2,2), (0,0,3)]] == dropEndStatesWithNegativeValues([[(0,2,2), (0,0,3)], [(-1,2,2), (0,0,3)]])
 
 
 def removeDuplicateReferencedLockedInSwitchesFromSubsequentStateIDs(stateIDs):
@@ -551,15 +551,15 @@ def getValidSolutions(stateIDs, targetState):
 
     furtherFlattenedSwitchConfigs_Optimized = getFlatListOfValidSwitchConfigurations(targetState, stateID)
 
-    switchConfigs = getListOfValidSwitchConfigurations(targetState, stateID)
+    #switchConfigs = getListOfValidSwitchConfigurations(targetState, stateID)
     #print(f'{switchConfigs=}')
-    flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
+    #flatten1edSwitchConfigs = flattenListOfValidSwitchConfigurations(switchConfigs)
    # print(f'{flatten1edSwitchConfigs=}')
-    furtherFlattenedSwitchConfigs = flattenFurther(listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
+    #furtherFlattenedSwitchConfigs = flattenFurther(listOfDictionariesThatSetsAnEndStateToZero=flatten1edSwitchConfigs)
     #print(f'{furtherFlattenedSwitchConfigs=}')
-    if furtherFlattenedSwitchConfigs_Optimized != furtherFlattenedSwitchConfigs:
-        raise Exception(f'Expected \n{furtherFlattenedSwitchConfigs_Optimized=} \nto match \n{furtherFlattenedSwitchConfigs=} ')
-    validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs,stateID)
+    #if furtherFlattenedSwitchConfigs_Optimized != furtherFlattenedSwitchConfigs:
+    #    raise Exception(f'Expected \n{furtherFlattenedSwitchConfigs_Optimized=} \nto match \n{furtherFlattenedSwitchConfigs=} ')
+    validStatesWithEndStateDigitZeroed = zeroEndStateDigitWithMultipleSwitchesLockedIn(targetState, furtherFlattenedSwitchConfigs_Optimized,stateID)
     validStatesWithEndStateDigitZeroed = dropEndStatesWithNegativeValues(validStatesWithEndStateDigitZeroed)
     #print(f'{validStatesWithEndStateDigitZeroed=}')
     #switches = zeroOutUsedSwitches(switches,referencedSwitches)
